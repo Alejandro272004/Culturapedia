@@ -282,12 +282,48 @@
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Listo para el reto, ${name}`;
             document.getElementById('calendar-input').max = hoy;
-            renderLeaderboard();
+            
+            // CORRECCIÓN RACHA: Si ya jugó hoy, forzamos racha a 1 para evitar el 0 inicial
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 const btn = document.getElementById('play-today-btn');
-                btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
+                btn.disabled = true; 
+                btn.innerText = "RETO COMPLETADO ✅";
+                
+                if ((localStorage.getItem('userStreak') || "0") === "0") {
+                    localStorage.setItem('userStreak', '1');
+                    localStorage.setItem('lastDatePlayed', hoy);
+                }
+            }
+
+            checkStreak();
+            renderLeaderboard();
+        }
+    }
+
+    function checkStreak() {
+        const lastDate = localStorage.getItem('lastDatePlayed');
+        let streak = parseInt(localStorage.getItem('userStreak') || 0);
+        if (lastDate) {
+            const dateLast = new Date(lastDate);
+            const dateHoy = new Date(hoy);
+            const diffDays = Math.floor((dateHoy - dateLast) / (1000 * 60 * 60 * 24));
+            if (diffDays > 1 && lastDate !== hoy) {
+                streak = 0; localStorage.setItem('userStreak', 0);
             }
         }
+        document.getElementById('streak-num').innerText = streak;
+    }
+
+    function updateStreak() {
+        const lastDate = localStorage.getItem('lastDatePlayed');
+        let streak = parseInt(localStorage.getItem('userStreak') || 0);
+        if (lastDate === hoy) return;
+        const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
+        const ayerStr = ayer.toISOString().split("T")[0];
+        if (lastDate === ayerStr) streak++; else streak = 1;
+        localStorage.setItem('userStreak', streak);
+        localStorage.setItem('lastDatePlayed', hoy);
+        document.getElementById('streak-num').innerText = streak;
     }
 
     function renderLeaderboard() {
@@ -350,6 +386,7 @@
                 user: name, points: score, time: timeStr, date: hoy
             });
             localStorage.setItem('lastPlayed_' + hoy, 'true');
+            updateStreak();
         }
     }
 
@@ -368,7 +405,6 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // Listeners para botones (necesario en type="module")
     document.getElementById('btn-save-name').onclick = window.saveName;
     document.getElementById('play-today-btn').onclick = () => window.initGame('today');
     document.getElementById('calendar-input').onchange = () => window.initGame('calendar');
