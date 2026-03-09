@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL</title>
+    <title>TRIVIAL BRUTAL - FIX FINAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
@@ -37,7 +37,7 @@
     <aside class="sidebar-ranking">
         <div class="leaderboard">
             <h3>RANKING HOY</h3>
-            <div id="lead-list">Cargando datos...</div>
+            <div id="lead-list">Sincronizando...</div>
         </div>
     </aside>
 
@@ -68,6 +68,7 @@
                 <h2>¡RETO FINALIZADO!</h2>
                 <div id="final-stats" style="font-size: 3.5rem; font-weight: 900; color: var(--accent);">0/10</div>
                 <p id="final-time"></p>
+                <div id="save-msg" style="margin-bottom: 15px; font-weight: bold;"></div>
                 <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
             </div>
         </div>
@@ -94,12 +95,12 @@
     
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
-    // Aquí irían tus 250 preguntas
     const masterBank = [
         { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
         { q: "¿Pintor de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: "Miguel Ángel" },
         { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: "Canberra" }
+        // Agrega aquí el resto hasta 250
     ];
 
     const showScreen = (id) => {
@@ -107,15 +108,17 @@
         document.getElementById(id).classList.add('active');
     };
 
-    // --- SINCRONIZACIÓN CORREGIDA ---
-    function startRankingSync() {
+    function syncRanking() {
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
         onValue(rRef, (snap) => {
             let list = [];
-            snap.forEach(child => { list.push(child.val()); });
+            snap.forEach(c => { list.push(c.val()); });
             
-            // Ordenar: Puntos (desc) -> Tiempo (asc)
-            list.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
+            // ORDENACIÓN MANUAL PARA EVITAR ERRORES DE FIREBASE
+            list.sort((a,b) => {
+                if(b.points !== a.points) return b.points - a.points;
+                return a.time.localeCompare(b.time);
+            });
             
             let html = "";
             for(let i=0; i<10; i++){
@@ -135,28 +138,18 @@
         else {
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
-            updateStreakUI();
+            renderStreak();
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 const btn = document.getElementById('play-today-btn');
                 btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
             }
-            startRankingSync();
+            syncRanking();
         }
     }
 
-    function updateStreakUI() {
-        const lastDate = localStorage.getItem('lastDatePlayed');
-        let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        
-        if (lastDate && lastDate !== hoy) {
-            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split("T")[0];
-            if (lastDate !== yesterdayStr) {
-                streak = 0;
-                localStorage.setItem('userStreak', 0);
-            }
-        }
-        document.getElementById('streak-num').innerText = streak;
+    function renderStreak() {
+        const s = localStorage.getItem('userStreak') || 0;
+        document.getElementById('streak-num').innerText = s;
     }
 
     const initGame = () => {
@@ -219,19 +212,26 @@
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         
         const name = localStorage.getItem('triviaUser');
+        const statusMsg = document.getElementById('save-msg');
+        statusMsg.innerText = "Guardando resultado...";
         
-        // Guardar en Ranking
         const newEntryRef = push(ref(db, 'ranking'));
         set(newEntryRef, {
             user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
         }).then(() => {
+            statusMsg.innerText = "✅ ¡Ranking actualizado!";
             localStorage.setItem('lastPlayed_' + hoy, 'true');
-            // Calcular racha final
+            
+            // GESTIÓN DE RACHA MANUAL Y FIABLE
             let streak = parseInt(localStorage.getItem('userStreak') || 0);
-            streak++;
-            localStorage.setItem('userStreak', streak);
-            localStorage.setItem('lastDatePlayed', hoy);
-            updateStreakUI();
+            const lastDate = localStorage.getItem('lastDatePlayed');
+            
+            if (lastDate !== hoy) {
+                streak++;
+                localStorage.setItem('userStreak', streak);
+                localStorage.setItem('lastDatePlayed', hoy);
+            }
+            renderStreak();
         });
     }
 
