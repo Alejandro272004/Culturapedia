@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - SISTEMA 250</title>
+    <title>TRIVIAL BRUTAL - RANKING LIMPIO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
@@ -37,7 +37,7 @@
     <aside class="sidebar-ranking">
         <div class="leaderboard">
             <h3>RANKING HOY</h3>
-            <div id="lead-list">Sincronizando...</div>
+            <div id="lead-list">Filtrando usuarios...</div>
         </div>
     </aside>
 
@@ -95,7 +95,6 @@
     
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
-    // --- BANCO DE PREGUNTAS (RELLENA HASTA 250 AQUÍ) ---
     const masterBank = [
         { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
@@ -104,11 +103,7 @@
         { q: "¿Río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: "Amazonas" },
         { q: "¿Hueso más largo del cuerpo?", o: ["Fémur", "Húmero", "Tibia", "Peroné"], a: "Fémur" },
         { q: "¿Planeta con más lunas?", o: ["Saturno", "Júpiter", "Marte", "Urano"], a: "Saturno" },
-        { q: "¿Símbolo químico del Oro?", o: ["Ag", "Au", "Or", "Fe"], a: "Au" },
-        { q: "¿Quién escribió Hamlet?", o: ["Shakespeare", "Cervantes", "Moliere", "Dante"], a: "Shakespeare" },
-        { q: "¿Animal terrestre más rápido?", o: ["León", "Guepardo", "Tigre", "Avestruz"], a: "Guepardo" },
-        { q: "¿Capital de Japón?", o: ["Tokio", "Kioto", "Osaka", "Seúl"], a: "Tokio" }
-        // ... añade todas las que quieras
+        { q: "¿Símbolo químico del Oro?", o: ["Ag", "Au", "Or", "Fe"], a: "Au" }
     ];
 
     const showScreen = (id) => {
@@ -119,8 +114,20 @@
     function syncRanking() {
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
         onValue(rRef, (snap) => {
-            let list = [];
-            snap.forEach(c => { list.push(c.val()); });
+            let rawList = [];
+            snap.forEach(c => { rawList.push(c.val()); });
+            
+            // --- FILTRO DE ÚNICOS ---
+            // Solo dejamos la mejor puntuación de cada nombre
+            const uniqueMap = new Map();
+            rawList.forEach(item => {
+                const nameKey = item.user.toLowerCase().trim();
+                if (!uniqueMap.has(nameKey) || item.points > uniqueMap.get(nameKey).points) {
+                    uniqueMap.set(nameKey, item);
+                }
+            });
+
+            let list = Array.from(uniqueMap.values());
             list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
             
             let html = "";
@@ -143,16 +150,14 @@
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
             if(localStorage.getItem('lastPlayed_' + hoy)) {
-                const btn = document.getElementById('play-today-btn');
-                btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
+                document.getElementById('play-today-btn').disabled = true;
+                document.getElementById('play-today-btn').innerText = "RETO COMPLETADO ✅";
             }
             syncRanking();
         }
     }
 
     const initGame = () => {
-        // --- SELECCIÓN ALEATORIA DIARIA ---
-        // Mezclamos el banco completo y pillamos 10
         currentQuestions = [...masterBank].sort(() => Math.random() - 0.5).slice(0,10);
         currentStep = 0; score = 0;
         showScreen('screen-game');
@@ -198,9 +203,7 @@
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        
         const name = localStorage.getItem('triviaUser');
-        // ID única: fecha + nombre (limpio de espacios) para evitar repetidos
         const userKey = name.toLowerCase().replace(/\s+/g, '_');
         const entryRef = ref(db, `ranking/${hoy}_${userKey}`);
 
