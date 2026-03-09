@@ -22,7 +22,7 @@
         .screen { display: none; }
         .screen.active { display: block; }
         .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
-        .btn-main:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #222; }
+        .btn-main:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #222; cursor: default; }
         input { width: 100%; padding: 15px; background: #1a1a24; border: 1px solid #333; color: #fff; border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
         .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; background: #1c1c26; color: #fff; text-align: left; border-radius: 10px; border: 1px solid #333; cursor: pointer; }
         .correct { background: var(--success) !important; color: #000; font-weight: bold; }
@@ -69,10 +69,10 @@
             </div>
 
             <div id="screen-result" class="screen">
-                <h2>FIN DEL RETO</h2>
+                <h2>¡RETO FINALIZADO!</h2>
                 <div id="final-stats" style="font-size: 3.5rem; font-weight: 900; color: var(--accent);">0/10</div>
                 <p id="final-time"></p>
-                <div id="save-msg" style="font-size: 0.8rem; color: var(--success); margin-bottom: 10px;"></div>
+                <div id="save-msg" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px;"></div>
                 <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
             </div>
         </div>
@@ -81,7 +81,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, push } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
@@ -118,11 +118,15 @@
     };
 
     function renderRanking() {
+        // Consultamos el ranking de hoy
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
         onValue(rRef, (snap) => {
             let list = [];
-            snap.forEach(c => list.push(c.val()));
-            // Ordenar: Puntos (desc) -> Tiempo (asc)
+            snap.forEach(c => {
+                list.push(c.val());
+            });
+            
+            // Ordenar por puntos (mejor 10/10) y luego por tiempo (más rápido arriba)
             list.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
             
             let html = "";
@@ -216,7 +220,7 @@
         }, 1000);
     }
 
-    // --- ARREGLO PARA MARÍA Y OTROS NOMBRES ---
+    // --- FUNCIÓN DE GUARDADO REFORZADA ---
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
@@ -226,22 +230,29 @@
         
         if(playingDate === hoy) {
             const name = localStorage.getItem('triviaUser');
-            document.getElementById('save-msg').innerText = "Guardando en el ranking...";
+            const statusMsg = document.getElementById('save-msg');
+            statusMsg.style.color = "var(--accent)";
+            statusMsg.innerText = "Sincronizando con ranking...";
             
-            // Usamos push().key para generar un ID único que NO falle con espacios
-            const newRankRef = push(ref(db, 'ranking'));
-            set(newRankRef, {
+            // Usamos push() para crear un registro nuevo y único cada vez
+            const newEntryRef = push(ref(db, 'ranking'));
+            
+            set(newEntryRef, {
                 user: name,
                 points: score,
                 time: t,
                 date: hoy,
-                timestamp: Date.now()
+                created: serverTimestamp()
             }).then(() => {
-                document.getElementById('save-msg').innerText = "✅ ¡Ranking actualizado!";
+                statusMsg.style.color = "var(--success)";
+                statusMsg.innerText = "✅ ¡Apareces en el ranking!";
                 localStorage.setItem('lastPlayed_' + hoy, 'true');
                 updateStreak();
-            }).catch(() => {
-                document.getElementById('save-msg').innerText = "❌ Error al guardar";
+                renderRanking(); // Forzamos recarga visual
+            }).catch((err) => {
+                statusMsg.style.color = "var(--error)";
+                statusMsg.innerText = "❌ Error de conexión al guardar";
+                console.error(err);
             });
         }
     }
