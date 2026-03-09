@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - ANTI DUPLICADOS</title>
+    <title>TRIVIAL BRUTAL - SISTEMA 250</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
@@ -77,7 +77,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
@@ -95,11 +95,20 @@
     
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
+    // --- BANCO DE PREGUNTAS (RELLENA HASTA 250 AQUÍ) ---
     const masterBank = [
         { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
         { q: "¿Pintor de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: "Miguel Ángel" },
-        { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: "Canberra" }
+        { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: "Canberra" },
+        { q: "¿Río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: "Amazonas" },
+        { q: "¿Hueso más largo del cuerpo?", o: ["Fémur", "Húmero", "Tibia", "Peroné"], a: "Fémur" },
+        { q: "¿Planeta con más lunas?", o: ["Saturno", "Júpiter", "Marte", "Urano"], a: "Saturno" },
+        { q: "¿Símbolo químico del Oro?", o: ["Ag", "Au", "Or", "Fe"], a: "Au" },
+        { q: "¿Quién escribió Hamlet?", o: ["Shakespeare", "Cervantes", "Moliere", "Dante"], a: "Shakespeare" },
+        { q: "¿Animal terrestre más rápido?", o: ["León", "Guepardo", "Tigre", "Avestruz"], a: "Guepardo" },
+        { q: "¿Capital de Japón?", o: ["Tokio", "Kioto", "Osaka", "Seúl"], a: "Tokio" }
+        // ... añade todas las que quieras
     ];
 
     const showScreen = (id) => {
@@ -112,8 +121,6 @@
         onValue(rRef, (snap) => {
             let list = [];
             snap.forEach(c => { list.push(c.val()); });
-            
-            // Ordenar por puntos y luego por tiempo
             list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
             
             let html = "";
@@ -134,7 +141,7 @@
         else {
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
-            renderStreak();
+            document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 const btn = document.getElementById('play-today-btn');
                 btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
@@ -143,28 +150,15 @@
         }
     }
 
-    function renderStreak() {
-        document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
-    }
-
     const initGame = () => {
-        currentQuestions = getSet(hoy.replace(/-/g, ""));
+        // --- SELECCIÓN ALEATORIA DIARIA ---
+        // Mezclamos el banco completo y pillamos 10
+        currentQuestions = [...masterBank].sort(() => Math.random() - 0.5).slice(0,10);
         currentStep = 0; score = 0;
         showScreen('screen-game');
         startTimer();
         loadQuestion();
     };
-
-    function getSet(seed) {
-        let s = parseInt(seed);
-        let t = [...masterBank];
-        for (let i = t.length - 1; i > 0; i--) {
-            s = (s * 9301 + 49297) % 233280;
-            let j = s % (i + 1);
-            [t[i], t[j]] = [t[j], t[i]];
-        }
-        return t.slice(0,10);
-    }
 
     function loadQuestion() {
         const qData = currentQuestions[currentStep];
@@ -204,30 +198,22 @@
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         
         const name = localStorage.getItem('triviaUser');
-        const statusMsg = document.getElementById('save-msg');
-        statusMsg.innerText = "Sincronizando...";
-        
-        // --- LA MEJORA CLAVE: GUARDAR POR ID DE USUARIO PARA EVITAR DUPLICADOS ---
-        // Limpiamos el nombre para que sirva como ID (sin puntos ni espacios raros)
-        const userKey = name.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+        // ID única: fecha + nombre (limpio de espacios) para evitar repetidos
+        const userKey = name.toLowerCase().replace(/\s+/g, '_');
         const entryRef = ref(db, `ranking/${hoy}_${userKey}`);
 
         set(entryRef, {
             user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
         }).then(() => {
-            statusMsg.innerText = "✅ ¡Resultado guardado!";
             localStorage.setItem('lastPlayed_' + hoy, 'true');
-            
             let streak = parseInt(localStorage.getItem('userStreak') || 0);
             if (localStorage.getItem('lastDatePlayed') !== hoy) {
                 streak++;
                 localStorage.setItem('userStreak', streak);
                 localStorage.setItem('lastDatePlayed', hoy);
             }
-            renderStreak();
         });
     }
 
