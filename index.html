@@ -139,17 +139,23 @@
         }
     }
 
-    function checkStreak() {
+ function checkStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
+        
         if (lastDate && lastDate !== hoy) {
             const dLast = new Date(lastDate);
             const dHoy = new Date(hoy);
-            const diff = Math.floor((dHoy - dLast) / (1000 * 60 * 60 * 24));
-            // SI PASAN 2 DÍAS O MÁS, SE REINICIA (Caso Pablo Gómez)
-            if (diff >= 2) {
+            
+            // Calculamos la diferencia exacta en días
+            const diffTime = Math.abs(dHoy - dLast);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Si han pasado 2 días o más sin jugar, racha a 0
+            if (diffDays >= 2) {
                 streak = 0;
                 localStorage.setItem('userStreak', 0);
+                localStorage.setItem('lastDatePlayed', ""); // Limpiamos rastro
             }
         }
         document.getElementById('streak-num').innerText = streak;
