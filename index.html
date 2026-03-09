@@ -69,7 +69,7 @@
         }
         .entry:last-child { border: none; }
 
-        .rank { font-weight: 900; width: 35px; color: #555
+        .rank { font-weight: 900; width: 35px; color: #555; }
         .entry:nth-child(2) .rank { color: var(--gold); }
         .entry:nth-child(3) .rank { color: #c0c0c0; }
         .entry:nth-child(4) .rank { color: #cd7f32; }
@@ -283,13 +283,14 @@
             document.getElementById('welcome-msg').innerText = `Listo para el reto, ${name}`;
             document.getElementById('calendar-input').max = hoy;
             
-            // CORRECCIÓN RACHA: Si ya jugó hoy, forzamos racha a 1 para evitar el 0 inicial
+            // Si ya jugó hoy, forzamos la racha mínima a 1 y bloqueamos el botón
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 const btn = document.getElementById('play-today-btn');
                 btn.disabled = true; 
                 btn.innerText = "RETO COMPLETADO ✅";
                 
-                if ((localStorage.getItem('userStreak') || "0") === "0") {
+                let currentStr = parseInt(localStorage.getItem('userStreak') || 0);
+                if (currentStr === 0) {
                     localStorage.setItem('userStreak', '1');
                     localStorage.setItem('lastDatePlayed', hoy);
                 }
@@ -303,12 +304,18 @@
     function checkStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        if (lastDate) {
+        
+        if (lastDate && lastDate !== hoy) {
             const dateLast = new Date(lastDate);
             const dateHoy = new Date(hoy);
+            // Calculamos la diferencia en días naturales (ignorando horas)
             const diffDays = Math.floor((dateHoy - dateLast) / (1000 * 60 * 60 * 24));
-            if (diffDays > 1 && lastDate !== hoy) {
-                streak = 0; localStorage.setItem('userStreak', 0);
+            
+            // SI HAN PASADO 2 O MÁS DÍAS (no jugó ayer ni anteayer), la racha se quita
+            if (diffDays >= 2) {
+                streak = 0;
+                localStorage.setItem('userStreak', 0);
+                localStorage.setItem('lastDatePlayed', "");
             }
         }
         document.getElementById('streak-num').innerText = streak;
@@ -317,10 +324,19 @@
     function updateStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        if (lastDate === hoy) return;
-        const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
-        const ayerStr = ayer.toISOString().split("T")[0];
-        if (lastDate === ayerStr) streak++; else streak = 1;
+        
+        if (lastDate === hoy) return; // Ya se actualizó hoy
+
+        const dateHoy = new Date(hoy);
+        const dateLast = lastDate ? new Date(lastDate) : null;
+        const diffDays = dateLast ? Math.floor((dateHoy - dateLast) / (1000 * 60 * 60 * 24)) : 999;
+
+        if (diffDays === 1) {
+            streak++; // Jugó ayer, sumamos racha
+        } else {
+            streak = 1; // Primer día o racha rota
+        }
+        
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
         document.getElementById('streak-num').innerText = streak;
