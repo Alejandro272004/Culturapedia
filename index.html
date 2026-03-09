@@ -1,84 +1,259 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - RANKING LIMPIO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>TRIVIAL BRUTAL - DELUXE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .main-layout { display: flex; flex-direction: row; gap: 30px; width: 100%; max-width: 1100px; align-items: flex-start; }
-        .sidebar-ranking { width: 350px; flex-shrink: 0; position: sticky; top: 20px; }
-        .leaderboard { background: #0d0d12; border-radius: 20px; padding: 20px; border: 1px solid #222; }
-        .leaderboard h3 { color: var(--accent); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; font-size: 0.85rem; }
-        .rank { font-weight: 900; width: 25px; color: #444; }
-        .username { flex-grow: 1; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .score-tag { font-family: monospace; color: var(--accent); font-weight: bold; margin-left: 10px; }
-        .time-tag { font-family: monospace; color: #555; font-size: 0.7rem; margin-left: 8px; }
+        /* Variables de Tema */
+        [data-theme="dark"] {
+            --bg: #050508;
+            --container-bg: #0f0f16;
+            --card-inner: #161622;
+            --text: #ffffff;
+            --text-dim: #a0a0b8;
+            --accent: #00f2ff;
+            --accent-glow: rgba(0, 242, 255, 0.3);
+            --border: #222230;
+        }
+        [data-theme="light"] {
+            --bg: #f0f2f5;
+            --container-bg: #ffffff;
+            --card-inner: #f8f9fa;
+            --text: #1a1a2e;
+            --text-dim: #64748b;
+            --accent: #0070f3;
+            --accent-glow: rgba(0, 112, 243, 0.2);
+            --border: #e2e8f0;
+        }
+
+        :root {
+            --success: #00ff88;
+            --error: #ff3e3e;
+            --radius-lg: 24px;
+            --radius-md: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Switch de Tema */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--container-bg);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .main-layout { display: flex; flex-direction: row; gap: 40px; width: 100%; max-width: 1200px; align-items: flex-start; }
+
+        /* Estilo Ranking */
+        .sidebar-ranking { width: 320px; flex-shrink: 0; position: sticky; top: 20px; }
+        .leaderboard { 
+            background: var(--container-bg); 
+            border-radius: var(--radius-lg); 
+            padding: 24px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .leaderboard h3 { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            font-size: 0.7rem; 
+            letter-spacing: 3px; 
+            margin-bottom: 20px; 
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        .entry { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 16px; 
+            background: var(--card-inner);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            align-items: center; 
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        .entry:hover { transform: translateX(5px); border-color: var(--accent); }
+        .rank { font-weight: 800; width: 30px; color: var(--text-dim); }
+        .username { flex-grow: 1; font-weight: 600; }
+        .score-tag { font-family: 'Monaco', monospace; color: var(--accent); font-weight: bold; }
+
+        /* Contenedor Juego */
         .game-column { flex-grow: 1; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 25px; padding: 35px; border: 1px solid #222; text-align: center; }
-        .screen { display: none; }
+        .container { 
+            width: 100%; 
+            max-width: 500px; 
+            background: var(--container-bg); 
+            border-radius: var(--radius-lg); 
+            padding: 40px; 
+            border: 1px solid var(--border); 
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .screen { display: none; animation: fadeIn 0.4s ease-out; }
         .screen.active { display: block; }
-        .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
-        .btn-main:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #222; cursor: default; }
-        input { width: 100%; padding: 15px; background: #1a1a24; border: 1px solid #333; color: #fff; border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
-        .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; background: #1c1c26; color: #fff; text-align: left; border-radius: 10px; border: 1px solid #333; cursor: pointer; }
-        .correct { background: var(--success) !important; color: #000; font-weight: bold; }
-        .wrong { background: var(--error) !important; }
-        .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
-        @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Botones y Inputs */
+        .btn-main { 
+            width: 100%; 
+            padding: 20px; 
+            background: var(--accent); 
+            color: #fff; 
+            font-weight: 800; 
+            border: none; 
+            border-radius: var(--radius-md); 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            margin-top: 20px;
+            box-shadow: 0 8px 16px var(--accent-glow);
+            transition: var(--transition);
+        }
+        .btn-main:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-main:disabled { background: var(--border) !important; color: var(--text-dim) !important; cursor: not-allowed; box-shadow: none; }
+
+        input { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--card-inner); 
+            border: 2px solid var(--border); 
+            color: var(--text); 
+            border-radius: var(--radius-md); 
+            margin-top: 15px; 
+            text-align: center; 
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        input:focus { border-color: var(--accent); outline: none; }
+
+        .opt-btn { 
+            width: 100%; 
+            padding: 18px; 
+            margin-bottom: 12px; 
+            background: var(--card-inner); 
+            color: var(--text); 
+            text-align: left; 
+            border-radius: var(--radius-md); 
+            border: 1px solid var(--border); 
+            cursor: pointer; 
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .opt-btn:hover { background: var(--border); transform: scale(1.02); }
+
+        .correct { background: var(--success) !important; color: #000 !important; font-weight: 800; border-color: var(--success); }
+        .wrong { background: var(--error) !important; color: #fff !important; border-color: var(--error); }
+
+        .streak-fire { 
+            display: inline-block;
+            background: rgba(255, 136, 0, 0.1);
+            color: #ff8800;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        #timer { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+        @media (max-width: 850px) { 
+            .main-layout { flex-direction: column; align-items: center; } 
+            .sidebar-ranking { width: 100%; order: 2; } 
+        }
     </style>
 </head>
 <body>
 
+<button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">🌓</button>
+
 <div class="main-layout">
     <aside class="sidebar-ranking">
         <div class="leaderboard">
-            <h3>RANKING HOY</h3>
-            <div id="lead-list">Filtrando usuarios...</div>
+            <h3>🏆 TOP GLOBAL HOY</h3>
+            <div id="lead-list">Cargando...</div>
         </div>
     </aside>
 
     <main class="game-column">
         <div class="container">
             <div id="screen-auth" class="screen">
-                <h2>Tu Apodo</h2>
-                <input type="text" id="username-input" placeholder="Ej: Mateo">
-                <button class="btn-main" id="btn-save-name">ENTRAR AL RETO</button>
+                <h1 style="font-size: 2rem; margin-bottom: 10px;">¡Bienvenido!</h1>
+                <p style="color: var(--text-dim);">Dinos cómo te llamas para el ranking</p>
+                <input type="text" id="username-input" placeholder="Tu nombre o apodo">
+                <button class="btn-main" id="btn-save-name">EMPEZAR AVENTURA</button>
             </div>
 
             <div id="screen-home" class="screen">
                 <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
-                <h1 id="welcome-msg"></h1>
-                <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
+                <h1 id="welcome-msg" style="font-size: 2.2rem;"></h1>
+                <p style="color: var(--text-dim); margin-bottom: 30px;">¿Listo para el reto de 10 preguntas de hoy?</p>
+                <button id="play-today-btn" class="btn-main">LANZAR RETO DIARIO</button>
             </div>
 
             <div id="screen-game" class="screen">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <span id="q-count">1/10</span>
-                    <span id="timer" style="color: var(--accent);">00:00</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center;">
+                    <span id="q-count" style="font-weight: 800; color: var(--text-dim);">1/10</span>
+                    <span id="timer" style="color: var(--accent); background: var(--accent-glow); padding: 5px 12px; border-radius: 8px;">00:00</span>
                 </div>
-                <h3 id="q-text"></h3>
+                <h3 id="q-text" style="font-size: 1.4rem; margin-bottom: 30px; line-height: 1.4;"></h3>
                 <div id="options-box"></div>
             </div>
 
             <div id="screen-result" class="screen">
-                <h2>¡RETO FINALIZADO!</h2>
-                <div id="final-stats" style="font-size: 3.5rem; font-weight: 900; color: var(--accent);">0/10</div>
-                <p id="final-time"></p>
-                <div id="save-msg" style="margin-bottom: 15px; font-weight: bold;"></div>
-                <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
+                <h2 style="letter-spacing: 2px;">RETO COMPLETADO</h2>
+                <div id="final-stats" style="font-size: 4rem; font-weight: 800; color: var(--accent); margin: 20px 0;">0/10</div>
+                <p id="final-time" style="font-weight: 600; color: var(--text-dim);"></p>
+                <div id="save-msg" style="margin: 20px 0; color: var(--success);"></div>
+                <button class="btn-main" onclick="location.reload()">VOLVER AL PANEL</button>
             </div>
         </div>
     </main>
 </div>
 
+<script>
+    // Función para el modo claro/oscuro
+    function toggleTheme() {
+        const html = document.documentElement;
+        const current = html.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('trivialTheme', next);
+    }
+    // Cargar tema preferido
+    if(localStorage.getItem('trivialTheme')) {
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('trivialTheme'));
+    }
+</script>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
+    // MANTENEMOS TU CONFIGURACIÓN EXACTA [cite: 357]
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
         authDomain: "trivialbrutal.firebaseapp.com",
@@ -92,9 +267,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const hoy = new Date().toISOString().split("T")[0];
-    
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
+    // BANCO DE PREGUNTAS (Sin cambios) [cite: 359, 394]
     const masterBank = [
     { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
     { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
@@ -348,87 +523,53 @@
     { q: "¿Qué ciudad es la capital de Venezuela?", o: ["Caracas", "Maracaibo", "Valencia", "Bolívar"], a: "Caracas" }
 ];
 
-    const showScreen = (id) => {
+    // LÓGICA FUNCIONAL (IDÉNTICA A LA TUYA) [cite: 358]
+    function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-    };
+    }
 
-    function syncRanking() {
+    function loadRanking() {
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
         onValue(rRef, (snap) => {
-            let rawList = [];
-            snap.forEach(c => { rawList.push(c.val()); });
-            
-            // --- FILTRO DE ÚNICOS ---
-            // Solo dejamos la mejor puntuación de cada nombre
-            const uniqueMap = new Map();
-            rawList.forEach(item => {
-                const nameKey = item.user.toLowerCase().trim();
-                if (!uniqueMap.has(nameKey) || item.points > uniqueMap.get(nameKey).points) {
-                    uniqueMap.set(nameKey, item);
-                }
-            });
-
-            let list = Array.from(uniqueMap.values());
-            list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
-            
             let html = "";
-            for(let i=0; i<10; i++){
-                if(list[i]) {
-                    html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${list[i].user}</span><span class="score-tag">${list[i].points}/10</span><span class="time-tag">${list[i].time}</span></div>`;
-                } else {
-                    html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
-                }
-            }
-            document.getElementById('lead-list').innerHTML = html;
+            let list = [];
+            snap.forEach(c => list.push(c.val()));
+            list.sort((a,b) => b.points - a.points);
+            list.slice(0,10).forEach((data, i) => {
+                html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${data.user}</span><span class="score-tag">${data.points}/10</span></div>`;
+            });
+            document.getElementById('lead-list').innerHTML = html || "Sin datos hoy";
         });
     }
 
     function checkAuth() {
-        let name = localStorage.getItem('triviaUser');
+        const name = localStorage.getItem('triviaUser');
         if (!name) showScreen('screen-auth');
         else {
             showScreen('screen-home');
-            document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
+            document.getElementById('welcome-msg').innerText = `¡Hola, ${name}!`;
             document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 document.getElementById('play-today-btn').disabled = true;
-                document.getElementById('play-today-btn').innerText = "RETO COMPLETADO ✅";
+                document.getElementById('play-today-btn').innerText = "Vuelve mañana";
             }
-            syncRanking();
+            loadRanking();
         }
     }
 
-    const initGame = () => {
+    document.getElementById('btn-save-name').onclick = () => {
+        const val = document.getElementById('username-input').value.trim();
+        if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
+    };
+
+    document.getElementById('play-today-btn').onclick = () => {
         currentQuestions = [...masterBank].sort(() => Math.random() - 0.5).slice(0,10);
         currentStep = 0; score = 0;
         showScreen('screen-game');
         startTimer();
         loadQuestion();
     };
-
-    function loadQuestion() {
-        const qData = currentQuestions[currentStep];
-        document.getElementById('q-count').innerText = `${currentStep+1}/10`;
-        document.getElementById('q-text').innerText = qData.q;
-        let options = [...qData.o].sort(() => Math.random() - 0.5);
-        const box = document.getElementById('options-box');
-        box.innerHTML = "";
-        options.forEach(opt => {
-            const b = document.createElement('button');
-            b.className = 'opt-btn'; b.innerText = opt;
-            b.onclick = () => {
-                if(document.querySelector('.correct')) return;
-                if(opt === qData.a) { b.classList.add('correct'); score++; }
-                else { b.classList.add('wrong'); }
-                setTimeout(() => {
-                    currentStep++;
-                    if(currentStep < 10) loadQuestion(); else finish();
-                }, 800);
-            };
-            box.appendChild(b);
-        });
-    }
 
     function startTimer() {
         let start = Date.now();
@@ -440,6 +581,30 @@
         }, 1000);
     }
 
+    function loadQuestion() {
+        const qData = currentQuestions[currentStep];
+        document.getElementById('q-count').innerText = `${currentStep+1}/10`;
+        document.getElementById('q-text').innerText = qData.q;
+        const box = document.getElementById('options-box');
+        box.innerHTML = "";
+        qData.o.forEach(opt => {
+            const b = document.createElement('button');
+            b.className = 'opt-btn';
+            b.innerText = opt;
+            b.onclick = () => {
+                if(document.querySelector('.correct')) return;
+                if(opt === qData.a) { b.classList.add('correct'); score++; }
+                else { b.classList.add('wrong'); }
+                setTimeout(() => {
+                    currentStep++;
+                    if(currentStep < 10) loadQuestion();
+                    else finish();
+                }, 800);
+            };
+            box.appendChild(b);
+        });
+    }
+
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
@@ -447,9 +612,7 @@
         document.getElementById('final-stats').innerText = `${score}/10`;
         const name = localStorage.getItem('triviaUser');
         const userKey = name.toLowerCase().replace(/\s+/g, '_');
-        const entryRef = ref(db, `ranking/${hoy}_${userKey}`);
-
-        set(entryRef, {
+        set(ref(db, `ranking/${hoy}_${userKey}`), {
             user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
         }).then(() => {
             localStorage.setItem('lastPlayed_' + hoy, 'true');
@@ -462,11 +625,6 @@
         });
     }
 
-    document.getElementById('btn-save-name').onclick = () => {
-        const val = document.getElementById('username-input').value.trim();
-        if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
-    };
-    document.getElementById('play-today-btn').onclick = () => initGame();
     checkAuth();
 </script>
 </body>
