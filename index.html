@@ -19,7 +19,6 @@
         .game-column { flex-grow: 1; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 28px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
         
-        /* SOLUCIÓN AL ERROR VISUAL: Solo la pantalla activa se ve */
         .screen { display: none; }
         .screen.active { display: block; animation: fadeIn 0.4s ease; }
         
@@ -126,48 +125,57 @@
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             document.getElementById('calendar-input').max = hoy;
+            
+            // Si ya jugó hoy, bloqueamos botón y aseguramos racha 1
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 const btn = document.getElementById('play-today-btn');
                 btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
-                if ((localStorage.getItem('userStreak') || "0") === "0") {
-                    localStorage.setItem('userStreak', '1');
+                if (parseInt(localStorage.getItem('userStreak') || 0) === 0) {
+                    localStorage.setItem('userStreak', 1);
                     localStorage.setItem('lastDatePlayed', hoy);
                 }
             }
+            
             checkStreak();
             renderLeaderboard();
         }
     }
 
-function checkStreak() {
+    function checkStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
         
         if (lastDate && lastDate !== hoy) {
-            // Creamos fechas puras (solo año-mes-día) para comparar días naturales
-            const dLast = new Date(lastDate + "T00:00:00");
-            const dHoy = new Date(hoy + "T00:00:00");
+            const dLast = new Date(lastDate);
+            const dHoy = new Date(hoy);
+            const diffDays = Math.floor((dHoy - dLast) / (1000 * 60 * 60 * 24));
             
-            // Calculamos la diferencia en milisegundos y pasamos a días
-            const diffTime = dHoy - dLast;
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            
-            // CASO PABLO GÓMEZ: Si han pasado 2 o más días sin jugar, racha a 0
+            // SI HAN PASADO 2 O MÁS DÍAS (Ej: Jugó el 6 y hoy es 8 o 9), racha a 0
             if (diffDays >= 2) {
                 streak = 0;
-                localStorage.setItem('userStreak', "0");
-                localStorage.setItem('lastDatePlayed', ""); 
+                localStorage.setItem('userStreak', 0);
+                localStorage.setItem('lastDatePlayed', "");
             }
         }
         document.getElementById('streak-num').innerText = streak;
     }
+
     function updateStreak() {
-        const lastDate = localStorage.getItem('lastDatePlayed');
+        checkStreak(); // Primero verificamos si se ha roto antes de sumar
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
+        const lastDate = localStorage.getItem('lastDatePlayed');
+
         if (lastDate === hoy) return;
+
         const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
         const ayerStr = ayer.toISOString().split("T")[0];
-        if (lastDate === ayerStr) streak++; else streak = 1;
+
+        if (lastDate === ayerStr) {
+            streak++; 
+        } else {
+            streak = 1; 
+        }
+
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
         document.getElementById('streak-num').innerText = streak;
@@ -248,8 +256,22 @@ function checkStreak() {
         const val = document.getElementById('username-input').value.trim();
         if (val.length >= 3) { localStorage.setItem('triviaUser', val); checkAuth(); }
     };
-    document.getElementById('play-today-btn').onclick = () => { playingDate = hoy; currentQuestions = getDailySet(hoy.replace(/-/g,"")); currentStep = 0; score = 0; showScreen('screen-game'); startTimer(); loadQuestion(); };
-    document.getElementById('calendar-input').onchange = (e) => { playingDate = e.target.value; currentQuestions = getDailySet(playingDate.replace(/-/g,"")); currentStep = 0; score = 0; showScreen('screen-game'); startTimer(); loadQuestion(); };
+    document.getElementById('play-today-btn').onclick = () => { 
+        playingDate = hoy; 
+        currentQuestions = getDailySet(hoy.replace(/-/g,"")); 
+        currentStep = 0; score = 0; 
+        showScreen('screen-game'); 
+        startTimer(); 
+        loadQuestion(); 
+    };
+    document.getElementById('calendar-input').onchange = (e) => { 
+        playingDate = e.target.value; 
+        currentQuestions = getDailySet(playingDate.replace(/-/g,"")); 
+        currentStep = 0; score = 0; 
+        showScreen('screen-game'); 
+        startTimer(); 
+        loadQuestion(); 
+    };
     document.getElementById('btn-reload').onclick = () => location.reload();
 
     checkAuth();
