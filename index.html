@@ -9,13 +9,18 @@
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --gold: #ffcc00; --text: #ffffff; }
         body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .main-layout { display: flex; flex-direction: row; gap: 40px; width: 100%; max-width: 1100px; }
-        .sidebar-ranking { width: 350px; flex-shrink: 0; }
+        .sidebar-ranking { width: 380px; flex-shrink: 0; }
         .leaderboard { background: #0d0d12; border-radius: 20px; padding: 25px; border: 1px solid #222; }
         .leaderboard h3 { color: var(--accent); text-transform: uppercase; font-size: 0.85rem; margin-bottom: 20px; letter-spacing: 2px; font-weight: 900; }
-        .entry { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
-        .rank { font-weight: 900; width: 35px; color: #555; }
-        .username { flex-grow: 1; font-weight: 500; }
-        .score-tag { font-family: monospace; background: #1a1a24; padding: 4px 8px; border-radius: 6px; }
+        
+        /* Ajuste para incluir el tiempo en el ranking */
+        .entry { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; font-size: 0.9rem; }
+        .rank { font-weight: 900; width: 30px; color: #555; }
+        .username { flex-grow: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+        .score-box { display: flex; gap: 8px; align-items: center; }
+        .score-tag { font-family: monospace; background: #1a1a24; padding: 4px 8px; border-radius: 6px; color: var(--success); font-weight: bold; }
+        .time-tag { font-family: monospace; color: #777; font-size: 0.8rem; }
+
         .game-column { flex-grow: 1; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 28px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
         
@@ -74,7 +79,7 @@
             <div id="screen-result" class="screen">
                 <h2 style="opacity: 0.5;">FIN DEL RETO</h2>
                 <div id="final-stats" style="font-size: 4rem; color: var(--accent); font-weight: 900;">0/10</div>
-                <p id="final-time"></p>
+                <p id="final-time-display" style="font-family: monospace; font-size: 1.2rem; margin-top: 10px;"></p>
                 <button class="btn-main" id="btn-reload">VOLVER AL INICIO</button>
             </div>
         </div>
@@ -125,17 +130,10 @@
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             document.getElementById('calendar-input').max = hoy;
-            
-            // Si ya jugó hoy, bloqueamos botón y aseguramos racha 1
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 const btn = document.getElementById('play-today-btn');
                 btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
-                if (parseInt(localStorage.getItem('userStreak') || 0) === 0) {
-                    localStorage.setItem('userStreak', 1);
-                    localStorage.setItem('lastDatePlayed', hoy);
-                }
             }
-            
             checkStreak();
             renderLeaderboard();
         }
@@ -144,13 +142,10 @@
     function checkStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        
         if (lastDate && lastDate !== hoy) {
             const dLast = new Date(lastDate);
             const dHoy = new Date(hoy);
             const diffDays = Math.floor((dHoy - dLast) / (1000 * 60 * 60 * 24));
-            
-            // SI HAN PASADO 2 O MÁS DÍAS (Ej: Jugó el 6 y hoy es 8 o 9), racha a 0
             if (diffDays >= 2) {
                 streak = 0;
                 localStorage.setItem('userStreak', 0);
@@ -161,21 +156,13 @@
     }
 
     function updateStreak() {
-        checkStreak(); // Primero verificamos si se ha roto antes de sumar
+        checkStreak();
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
         const lastDate = localStorage.getItem('lastDatePlayed');
-
         if (lastDate === hoy) return;
-
         const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
         const ayerStr = ayer.toISOString().split("T")[0];
-
-        if (lastDate === ayerStr) {
-            streak++; 
-        } else {
-            streak = 1; 
-        }
-
+        if (lastDate === ayerStr) streak++; else streak = 1;
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
         document.getElementById('streak-num').innerText = streak;
@@ -186,11 +173,23 @@
         onValue(rankingRef, (snapshot) => {
             let data = [];
             snapshot.forEach(child => data.push(child.val()));
+            // Ordenar por puntos (desc) y luego por tiempo (asc)
             data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
             let html = "";
             for (let i = 0; i < 10; i++) {
-                if(data[i]) html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${data[i].user}</span><span class="score-tag">${data[i].points}/10</span></div>`;
-                else html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">Esperando...</span></div>`;
+                if(data[i]) {
+                    html += `
+                    <div class="entry">
+                        <span class="rank">#${i+1}</span>
+                        <span class="username">${data[i].user}</span>
+                        <div class="score-box">
+                            <span class="time-tag">${data[i].time}</span>
+                            <span class="score-tag">${data[i].points}/10</span>
+                        </div>
+                    </div>`;
+                } else {
+                    html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">Esperando...</span></div>`;
+                }
             }
             document.getElementById('lead-list').innerHTML = html;
         });
@@ -234,6 +233,7 @@
         const timeStr = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
+        document.getElementById('final-time-display').innerText = `Tiempo: ${timeStr}`;
         if(playingDate === hoy) {
             const name = localStorage.getItem('triviaUser');
             set(ref(db, 'ranking/' + name + "_" + hoy), { user: name, points: score, time: timeStr, date: hoy });
