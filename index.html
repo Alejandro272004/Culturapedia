@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - FIX FINAL</title>
+    <title>TRIVIAL BRUTAL - ANTI DUPLICADOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
@@ -77,7 +77,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
@@ -100,7 +100,6 @@
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
         { q: "¿Pintor de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: "Miguel Ángel" },
         { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: "Canberra" }
-        // Agrega aquí el resto hasta 250
     ];
 
     const showScreen = (id) => {
@@ -114,11 +113,8 @@
             let list = [];
             snap.forEach(c => { list.push(c.val()); });
             
-            // ORDENACIÓN MANUAL PARA EVITAR ERRORES DE FIREBASE
-            list.sort((a,b) => {
-                if(b.points !== a.points) return b.points - a.points;
-                return a.time.localeCompare(b.time);
-            });
+            // Ordenar por puntos y luego por tiempo
+            list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
             
             let html = "";
             for(let i=0; i<10; i++){
@@ -148,8 +144,7 @@
     }
 
     function renderStreak() {
-        const s = localStorage.getItem('userStreak') || 0;
-        document.getElementById('streak-num').innerText = s;
+        document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
     }
 
     const initGame = () => {
@@ -213,20 +208,21 @@
         
         const name = localStorage.getItem('triviaUser');
         const statusMsg = document.getElementById('save-msg');
-        statusMsg.innerText = "Guardando resultado...";
+        statusMsg.innerText = "Sincronizando...";
         
-        const newEntryRef = push(ref(db, 'ranking'));
-        set(newEntryRef, {
+        // --- LA MEJORA CLAVE: GUARDAR POR ID DE USUARIO PARA EVITAR DUPLICADOS ---
+        // Limpiamos el nombre para que sirva como ID (sin puntos ni espacios raros)
+        const userKey = name.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase();
+        const entryRef = ref(db, `ranking/${hoy}_${userKey}`);
+
+        set(entryRef, {
             user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
         }).then(() => {
-            statusMsg.innerText = "✅ ¡Ranking actualizado!";
+            statusMsg.innerText = "✅ ¡Resultado guardado!";
             localStorage.setItem('lastPlayed_' + hoy, 'true');
             
-            // GESTIÓN DE RACHA MANUAL Y FIABLE
             let streak = parseInt(localStorage.getItem('userStreak') || 0);
-            const lastDate = localStorage.getItem('lastDatePlayed');
-            
-            if (lastDate !== hoy) {
+            if (localStorage.getItem('lastDatePlayed') !== hoy) {
                 streak++;
                 localStorage.setItem('userStreak', streak);
                 localStorage.setItem('lastDatePlayed', hoy);
