@@ -3,32 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - RANKING LIMPIO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>TRIVIAL BRUTAL - V3.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
-        .main-layout { display: flex; flex-direction: row; gap: 30px; width: 100%; max-width: 1100px; align-items: flex-start; }
-        .sidebar-ranking { width: 350px; flex-shrink: 0; position: sticky; top: 20px; }
-        .leaderboard { background: #0d0d12; border-radius: 20px; padding: 20px; border: 1px solid #222; }
-        .leaderboard h3 { color: var(--accent); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; font-size: 0.85rem; }
-        .rank { font-weight: 900; width: 25px; color: #444; }
-        .username { flex-grow: 1; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .score-tag { font-family: monospace; color: var(--accent); font-weight: bold; margin-left: 10px; }
-        .time-tag { font-family: monospace; color: #555; font-size: 0.7rem; margin-left: 8px; }
+        :root { 
+            --bg: #050508; 
+            --card: #0f0f16; 
+            --accent: #00f2ff; 
+            --accent-glow: rgba(0, 242, 255, 0.3);
+            --success: #00ff88; 
+            --error: #ff3e3e; 
+            --text: #e0e0e0; 
+            --text-dim: #888;
+        }
+
+        body { 
+            background: radial-gradient(circle at center, #10101a 0%, var(--bg) 100%); 
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh; 
+        }
+
+        .main-layout { 
+            display: flex; 
+            flex-direction: row; 
+            gap: 30px; 
+            width: 100%; 
+            max-width: 1100px; 
+            align-items: flex-start; 
+        }
+
+        /* --- RANKING ESTILO NEÓN --- */
+        .sidebar-ranking { 
+            width: 350px; 
+            flex-shrink: 0; 
+            position: sticky; 
+            top: 20px; 
+        }
+
+        .leaderboard { 
+            background: rgba(15, 15, 22, 0.8); 
+            backdrop-filter: blur(10px);
+            border-radius: 20px; 
+            padding: 25px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .leaderboard h3 { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            font-size: 0.8rem; 
+            letter-spacing: 3px; 
+            margin-bottom: 20px; 
+            text-shadow: 0 0 10px var(--accent-glow);
+            border-bottom: 1px solid #222; 
+            padding-bottom: 10px; 
+        }
+
+        .entry { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 0; 
+            border-bottom: 1px solid rgba(255,255,255,0.03); 
+            align-items: center; 
+            transition: transform 0.2s;
+        }
+
+        .entry:hover { transform: translateX(5px); }
+
+        .rank { font-weight: 900; width: 30px; color: #333; font-style: italic; }
+        .username { flex-grow: 1; font-weight: 600; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .score-tag { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-weight: bold; margin-left: 10px; }
+        .time-tag { font-family: 'JetBrains Mono', monospace; color: var(--text-dim); font-size: 0.75rem; margin-left: 8px; }
+
+        /* --- CONTENEDOR DEL JUEGO --- */
         .game-column { flex-grow: 1; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 25px; padding: 35px; border: 1px solid #222; text-align: center; }
+        .container { 
+            width: 100%; 
+            max-width: 480px; 
+            background: var(--card); 
+            border-radius: 30px; 
+            padding: 40px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 20px rgba(0, 242, 255, 0.05);
+            text-align: center; 
+        }
+
         .screen { display: none; }
         .screen.active { display: block; }
-        .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
-        .btn-main:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #222; cursor: default; }
-        input { width: 100%; padding: 15px; background: #1a1a24; border: 1px solid #333; color: #fff; border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
-        .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; background: #1c1c26; color: #fff; text-align: left; border-radius: 10px; border: 1px solid #333; cursor: pointer; }
-        .correct { background: var(--success) !important; color: #000; font-weight: bold; }
-        .wrong { background: var(--error) !important; }
-        .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
-        @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
+
+        h1, h2 { font-weight: 900; letter-spacing: -1px; margin-bottom: 20px; }
+
+        .btn-main { 
+            width: 100%; 
+            padding: 20px; 
+            background: linear-gradient(135deg, var(--accent) 0%, #0088ff 100%); 
+            color: #000; 
+            font-weight: 900; 
+            border: none; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            margin-top: 15px; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 15px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0, 242, 255, 0.5); }
+        .btn-main:disabled { background: #1a1a1a !important; color: #444 !important; box-shadow: none; cursor: default; transform: none; }
+
+        .opt-btn { 
+            width: 100%; 
+            padding: 16px; 
+            margin-bottom: 12px; 
+            background: #1a1a24; 
+            color: #ccc; 
+            text-align: left; 
+            border-radius: 12px; 
+            border: 1px solid #2a2a35; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .opt-btn:hover { background: #252533; border-color: var(--accent); color: #fff; }
+        .correct { background: var(--success) !important; color: #000 !important; font-weight: 800; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4); }
+        .wrong { background: var(--error) !important; color: #fff !important; box-shadow: 0 0 20px rgba(255, 62, 62, 0.4); }
+
+        input { 
+            width: 100%; 
+            padding: 18px; 
+            background: #08080c; 
+            border: 1px solid #222; 
+            color: #fff; 
+            border-radius: 12px; 
+            margin-top: 10px; 
+            text-align: center; 
+            box-sizing: border-box; 
+            font-size: 1.1rem;
+        }
+
+        .streak-fire { 
+            display: inline-block; padding: 5px 15px; background: rgba(255, 136, 0, 0.1); border-radius: 20px; color: #ff8800; font-weight: 900; font-size: 0.9rem; margin-bottom: 20px; border: 1px solid rgba(255, 136, 0, 0.2);
+        }
+
+        @media (max-width: 850px) {
+            .main-layout { flex-direction: column; align-items: center; }
+            .sidebar-ranking { width: 100%; order: 2; }
+        }
     </style>
 </head>
 <body>
@@ -37,7 +164,7 @@
     <aside class="sidebar-ranking">
         <div class="leaderboard">
             <h3>RANKING HOY</h3>
-            <div id="lead-list">Filtrando usuarios...</div>
+            <div id="lead-list">Sincronizando...</div>
         </div>
     </aside>
 
@@ -58,7 +185,7 @@
             <div id="screen-game" class="screen">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                     <span id="q-count">1/10</span>
-                    <span id="timer" style="color: var(--accent);">00:00</span>
+                    <span id="timer" style="color: var(--accent); font-family: 'JetBrains Mono'">00:00</span>
                 </div>
                 <h3 id="q-text"></h3>
                 <div id="options-box"></div>
@@ -67,7 +194,7 @@
             <div id="screen-result" class="screen">
                 <h2>¡RETO FINALIZADO!</h2>
                 <div id="final-stats" style="font-size: 3.5rem; font-weight: 900; color: var(--accent);">0/10</div>
-                <p id="final-time"></p>
+                <p id="final-time" style="color: var(--text-dim);"></p>
                 <div id="save-msg" style="margin-bottom: 15px; font-weight: bold;"></div>
                 <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
             </div>
@@ -348,7 +475,7 @@ const masterBank = [
     { q: "¿Qué ciudad es la capital de Venezuela?", o: ["Caracas", "Maracaibo", "Valencia", "Bolívar"], a: "Caracas" }
 ];
 
-    const showScreen = (id) => {
+   const showScreen = (id) => {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     };
@@ -359,8 +486,7 @@ const masterBank = [
             let rawList = [];
             snap.forEach(c => { rawList.push(c.val()); });
             
-            // --- FILTRO DE ÚNICOS ---
-            // Solo dejamos la mejor puntuación de cada nombre
+            // FILTRO ANTI-VICENTES: Solo una entrada por usuario (la mejor)
             const uniqueMap = new Map();
             rawList.forEach(item => {
                 const nameKey = item.user.toLowerCase().trim();
@@ -392,14 +518,15 @@ const masterBank = [
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
             if(localStorage.getItem('lastPlayed_' + hoy)) {
-                document.getElementById('play-today-btn').disabled = true;
-                document.getElementById('play-today-btn').innerText = "RETO COMPLETADO ✅";
+                const btn = document.getElementById('play-today-btn');
+                btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
             }
             syncRanking();
         }
     }
 
     const initGame = () => {
+        // SELECCIÓN DE 10 PREGUNTAS ALEATORIAS
         currentQuestions = [...masterBank].sort(() => Math.random() - 0.5).slice(0,10);
         currentStep = 0; score = 0;
         showScreen('screen-game');
@@ -445,6 +572,8 @@ const masterBank = [
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
+        document.getElementById('final-time').innerText = `Tiempo: ${t}`;
+        
         const name = localStorage.getItem('triviaUser');
         const userKey = name.toLowerCase().replace(/\s+/g, '_');
         const entryRef = ref(db, `ranking/${hoy}_${userKey}`);
@@ -453,6 +582,7 @@ const masterBank = [
             user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
         }).then(() => {
             localStorage.setItem('lastPlayed_' + hoy, 'true');
+            // GESTIÓN DE RACHA
             let streak = parseInt(localStorage.getItem('userStreak') || 0);
             if (localStorage.getItem('lastDatePlayed') !== hoy) {
                 streak++;
