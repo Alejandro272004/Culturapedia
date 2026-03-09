@@ -26,28 +26,62 @@
             margin: 0;
             padding: 20px;
             display: flex;
-            justify-content: center; /* Centra el conjunto en la pantalla */
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* ESTE ES EL CAMBIO CLAVE: EL ENVOLTORIO */
+        /* ESTRUCTURA DE DOS COLUMNAS */
         .main-layout {
             display: flex;
-            flex-direction: row; /* Ranking a la izquierda, Juego a la derecha */
+            flex-direction: row;
             align-items: flex-start;
             gap: 40px;
             width: 100%;
-            max-width: 1000px; /* Ajusta según prefieras */
+            max-width: 1100px;
         }
 
-        /* COLUMNA DEL RANKING */
+        /* COLUMNA IZQUIERDA: RANKING TOP 10 */
         .sidebar-ranking {
-            width: 320px;
+            width: 350px;
             flex-shrink: 0;
         }
 
-        /* COLUMNA DEL JUEGO */
+        .leaderboard { 
+            background: #0d0d12; 
+            border-radius: 20px; 
+            padding: 25px; 
+            border: 1px solid #222;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .leaderboard h3 { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            font-size: 0.85rem; 
+            margin: 0 0 20px 0; 
+            letter-spacing: 2px;
+            font-weight: 900;
+        }
+        
+        .entry { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 0; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            align-items: center;
+        }
+        .entry:last-child { border: none; }
+
+        .rank { font-weight: 900; width: 35px; color: #555; }
+        .entry:nth-child(2) .rank { color: var(--gold); } /* Top 1 */
+        .entry:nth-child(3) .rank { color: #c0c0c0; } /* Top 2 */
+        .entry:nth-child(4) .rank { color: #cd7f32; } /* Top 3 */
+
+        .username { flex-grow: 1; text-align: left; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .score-tag { font-family: monospace; font-size: 0.85rem; background: #1a1a24; padding: 4px 8px; border-radius: 6px; }
+
+        /* COLUMNA DERECHA: JUEGO */
         .game-column {
             flex-grow: 1;
             display: flex;
@@ -56,73 +90,45 @@
 
         .container {
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             background: var(--card);
-            border-radius: 24px;
-            padding: 30px;
+            border-radius: 28px;
+            padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             border: 1px solid rgba(255,255,255,0.05);
             text-align: center;
         }
 
-        /* DISEÑO DEL RANKING (A LA IZQUIERDA) */
-        .leaderboard { 
-            background: rgba(255,255,255,0.03); 
-            border-radius: 20px; 
-            padding: 20px; 
-            border: 1px solid #222;
-        }
-        .leaderboard h3 { 
-            color: var(--accent); 
-            text-transform: uppercase; 
-            font-size: 0.8rem; 
-            margin: 0 0 15px 0; 
-            text-align: left;
-            letter-spacing: 1px;
-        }
-        
-        .entry { 
-            display: flex; 
-            justify-content: flex-start; 
-            padding: 10px 0; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-            align-items: center;
-            font-size: 0.9rem;
-        }
-        .rank { color: var(--gold); font-weight: 900; width: 30px; text-align: left; }
-        .username { flex-grow: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .score-tag { font-family: monospace; opacity: 0.8; font-size: 0.8rem; margin-left: 10px; }
-
-        /* ESTADOS DE PANTALLA */
         .screen { display: none; }
         .active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn-main {
-            width: 100%; padding: 18px; background: var(--accent); color: black;
-            font-weight: 900; border: none; border-radius: 12px; margin-top: 20px;
-            cursor: pointer; text-transform: uppercase; transition: 0.3s;
+            width: 100%; padding: 20px; background: var(--accent); color: black;
+            font-weight: 900; border: none; border-radius: 14px; margin-top: 20px;
+            cursor: pointer; text-transform: uppercase; transition: 0.2s;
         }
-        .btn-main:disabled { background: #333 !important; color: #666 !important; }
+        .btn-main:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .btn-main:disabled { background: #222 !important; color: #555 !important; cursor: not-allowed; }
 
         input {
-            width: 100%; padding: 14px; background: #1e1e2a; border: 1px solid #333;
-            color: white; border-radius: 10px; margin-top: 10px; box-sizing: border-box; text-align: center;
+            width: 100%; padding: 16px; background: #1e1e2a; border: 1px solid #333;
+            color: white; border-radius: 12px; margin-top: 10px; box-sizing: border-box; text-align: center; font-size: 1rem;
         }
 
         .opt-btn {
-            width: 100%; padding: 16px; margin-bottom: 12px; background: #1c1c26;
-            color: white; text-align: left; border-radius: 12px; border: 2px solid transparent; cursor: pointer;
+            width: 100%; padding: 18px; margin-bottom: 12px; background: #1c1c26;
+            color: white; text-align: left; border-radius: 12px; border: 2px solid transparent; cursor: pointer; transition: 0.2s;
         }
-        .correct { background: var(--success) !important; color: black; font-weight: bold; }
+        .correct { background: var(--success) !important; color: black; font-weight: 900; }
         .wrong { background: var(--error) !important; }
 
-        .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.1rem; margin-bottom: 10px; }
+        .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.3rem; margin-bottom: 15px; }
+        #timer { font-family: monospace; color: var(--accent); font-size: 1.2rem; }
 
-        /* MÓVIL: Se pone uno debajo de otro */
-        @media (max-width: 800px) {
+        @media (max-width: 900px) {
             .main-layout { flex-direction: column; align-items: center; }
-            .sidebar-ranking { width: 100%; max-width: 420px; order: 2; }
+            .sidebar-ranking { width: 100%; max-width: 450px; order: 2; }
         }
     </style>
 </head>
@@ -131,8 +137,8 @@
 <div class="main-layout">
     <aside class="sidebar-ranking">
         <div class="leaderboard">
-            <h3>Ranking Mundial (Hoy)</h3>
-            <div id="lead-list">Cargando...</div>
+            <h3>TOP 10 MUNDIAL (HOY)</h3>
+            <div id="lead-list">Cargando clasificación...</div>
         </div>
     </aside>
 
@@ -140,67 +146,117 @@
         <div class="container">
             <div id="screen-auth" class="screen">
                 <h1>Tu Apodo</h1>
-                <input type="text" id="username-input" placeholder="Ej: SuperPlayer">
-                <button class="btn-main" onclick="saveName()">ENTRAR</button>
+                <p style="opacity:0.5">Escribe tu nombre para el ranking</p>
+                <input type="text" id="username-input" placeholder="Ej: Neo99">
+                <button class="btn-main" onclick="saveName()">ENTRAR AL RETO</button>
             </div>
 
             <div id="screen-home" class="screen">
                 <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
-                <h1>Trivial Brutal</h1>
-                <p id="welcome-msg" style="opacity: 0.6; font-size: 0.9rem;"></p>
-                <button id="play-today-btn" class="btn-main" onclick="initGame('today')">JUGAR HOY</button>
-                <div style="margin-top: 25px;">
-                    <label style="font-size: 0.7rem; opacity: 0.4;">REPASAR DÍAS PREVIOS:</label>
+                <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Trivial Brutal</h1>
+                <p id="welcome-msg" style="opacity: 0.6; margin-bottom: 30px;"></p>
+                <button id="play-today-btn" class="btn-main" onclick="initGame('today')">JUGAR RETO DE HOY</button>
+                <div style="margin-top: 30px; border-top: 1px solid #222; padding-top: 20px;">
+                    <label style="font-size: 0.7rem; opacity: 0.4; display: block; margin-bottom: 10px;">REPASAR DÍAS ANTERIORES:</label>
                     <input type="date" id="calendar-input" onchange="initGame('calendar')">
                 </div>
             </div>
 
             <div id="screen-game" class="screen">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; opacity: 0.6; font-size: 0.8rem;">
-                    <span id="q-count">1/10</span>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 25px;">
+                    <span id="q-count" style="font-weight: 900; opacity: 0.5;">1/10</span>
                     <span id="timer">00:00</span>
                 </div>
-                <h2 id="q-text" style="font-size: 1.2rem;">---</h2>
-                <div id="options-box"></div>
+                <h2 id="q-text" style="min-height: 80px; font-size: 1.4rem; line-height: 1.3;">Cargando pregunta...</h2>
+                <div id="options-box" style="margin-top: 20px;"></div>
             </div>
 
             <div id="screen-result" class="screen">
-                <h2>FIN DEL JUEGO</h2>
-                <div id="final-stats" style="font-size: 3.5rem; color: var(--accent); font-weight: 900;">0/10</div>
-                <p id="final-time" style="opacity: 0.6;"></p>
-                <button class="btn-main" onclick="location.reload()">VOLVER</button>
+                <h2 style="opacity: 0.5;">RETO FINALIZADO</h2>
+                <div id="final-stats" style="font-size: 4.5rem; color: var(--accent); font-weight: 900;">0/10</div>
+                <p id="final-time" style="font-family: monospace; font-size: 1.2rem;"></p>
+                <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
             </div>
         </div>
     </main>
 </div>
 
 <script>
-    // REEMPLAZA CON TUS DATOS DE FIREBASE
+    // CONFIGURACIÓN FIREBASE
     const firebaseConfig = {
         apiKey: "TU_API_KEY",
-        authDomain: "TU_ID.firebaseapp.com",
-        databaseURL: "https://TU_ID-default-rtdb.firebaseio.com",
-        projectId: "TU_ID",
-        storageBucket: "TU_ID.appspot.com",
-        messagingSenderId: "TU_SENDER",
-        appId: "TU_APP"
+        authDomain: "trivialbrutal.firebaseapp.com",
+        databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com",
+        projectId: "trivialbrutal",
+        storageBucket: "trivialbrutal.appspot.com",
+        messagingSenderId: "TU_SENDER_ID",
+        appId: "TU_APP_ID"
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // BANCO DE PREGUNTAS (Muestreo de 10)
+    // BANCO DE 60 PREGUNTAS
     const masterBank = [
         { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
-        { q: "¿Cuál es el lugar más profundo de la Tierra?", o: ["Fosa de las Marianas", "Abismo de Java", "Fosa de Puerto Rico", "Tonga"], a: 0 },
+        { q: "¿Lugar más profundo de la Tierra?", o: ["Fosa de las Marianas", "Abismo de Java", "Fosa de Puerto Rico", "Tonga"], a: 0 },
         { q: "¿Quién escribió 'Cien años de soledad'?", o: ["Vargas Llosa", "García Márquez", "Cortázar", "Borges"], a: 1 },
         { q: "¿Qué planeta tiene más lunas?", o: ["Júpiter", "Saturno", "Marte", "Urano"], a: 1 },
-        { q: "¿Cuál es el hueso más largo del cuerpo?", o: ["Húmero", "Fémur", "Tibia", "Peroné"], a: 1 },
-        { q: "¿Qué país regaló la Estatua de la Libertad a EE.UU.?", o: ["España", "Francia", "Reino Unido", "Italia"], a: 1 },
-        { q: "¿Cuál es la capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: 1 },
-        { q: "¿Quién pintó el techo de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 1 },
-        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 }
-        // ... añadir aquí las 60 preguntas para tener variedad
+        { q: "¿Hueso más largo del cuerpo?", o: ["Húmero", "Fémur", "Tibia", "Peroné"], a: 1 },
+        { q: "¿Quién pintó la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 1 },
+        { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: 1 },
+        { q: "¿Río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 },
+        { q: "¿Símbolo químico del Hierro?", o: ["Ir", "H", "Fe", "Hi"], a: 2 },
+        { q: "¿Partícula negativa del átomo?", o: ["Protón", "Neutrón", "Electrón", "Quark"], a: 2 },
+        { q: "¿Mamífero más grande?", o: ["Elefante", "Ballena Azul", "Jirafa", "Orca"], a: 1 },
+        { q: "¿Planeta más cercano al Sol?", o: ["Venus", "Marte", "Mercurio", "Tierra"], a: 2 },
+        { q: "¿Quién inventó la bombilla?", o: ["Tesla", "Edison", "Bell", "Newton"], a: 1 },
+        { q: "¿Cuándo empezó la 1ª Guerra Mundial?", o: ["1912", "1914", "1918", "1939"], a: 1 },
+        { q: "¿País más grande del mundo?", o: ["China", "EE.UU.", "Rusia", "Canadá"], a: 2 },
+        { q: "¿En qué año cayó el Muro de Berlín?", o: ["1987", "1989", "1991", "1995"], a: 1 },
+        { q: "¿Quién escribió 'Hamlet'?", o: ["Cervantes", "Shakespeare", "Dante", "Goethe"], a: 1 },
+        { q: "¿En qué ciudad está el Louvre?", o: ["Roma", "Londres", "París", "Madrid"], a: 2 },
+        { q: "¿Banda apodada 'The Fab Four'?", o: ["The Who", "The Beatles", "Stones", "Queen"], a: 1 },
+        { q: "¿País ganador del Mundial 2022?", o: ["Francia", "Brasil", "Argentina", "Croacia"], a: 2 },
+        { q: "¿Lados de un hexágono?", o: ["5", "6", "7", "8"], a: 1 },
+        { q: "¿Capital de Portugal?", o: ["Oporto", "Lisboa", "Coímbra", "Faro"], a: 1 },
+        { q: "¿Qué animal es la esfinge?", o: ["León", "Gato", "Perro", "Halcón"], a: 0 },
+        { q: "¿Gas que necesitan las plantas?", o: ["Oxígeno", "CO2", "Hidrógeno", "Argón"], a: 1 },
+        { q: "¿Quién pintó el Guernica?", o: ["Dalí", "Miró", "Picasso", "Velázquez"], a: 2 },
+        { q: "¿Océano más grande?", o: ["Atlántico", "Índico", "Pacífico", "Ártico"], a: 2 },
+        { q: "¿Metal que es líquido a temp. ambiente?", o: ["Plomo", "Mercurio", "Plata", "Cobre"], a: 1 },
+        { q: "¿Deporte con un 'puck'?", o: ["Lacrosse", "Hockey Hielo", "Polo", "Rugby"], a: 1 },
+        { q: "¿Cuántos huesos tiene un adulto?", o: ["206", "300", "150", "210"], a: 0 },
+        { q: "¿Capital de Italia?", o: ["Milán", "Nápoles", "Roma", "Florencia"], a: 2 },
+        { q: "¿Quién descubrió la penicilina?", o: ["Fleming", "Pasteur", "Curie", "Darwin"], a: 0 },
+        { q: "¿A qué país pertenece Groenlandia?", o: ["Noruega", "Dinamarca", "Canadá", "Islandia"], a: 1 },
+        { q: "¿Instrumento de 88 teclas?", o: ["Arpa", "Piano", "Guitarra", "Órgano"], a: 1 },
+        { q: "¿De qué está hecho el diamante?", o: ["Silicio", "Carbono", "Hierro", "Calcio"], a: 1 },
+        { q: "¿Quién escribió 'La Odisea'?", o: ["Platón", "Homero", "Aristóteles", "Sófocles"], a: 1 },
+        { q: "¿Planeta rojo?", o: ["Júpiter", "Marte", "Saturno", "Venus"], a: 1 },
+        { q: "¿Órgano que bombea sangre?", o: ["Pulmón", "Cerebro", "Corazón", "Hígado"], a: 2 },
+        { q: "¿País del sol naciente?", o: ["China", "Corea", "Japón", "Tailandia"], a: 2 },
+        { q: "¿Pintor de 'La persistencia de la memoria'?", o: ["Picasso", "Dalí", "Miró", "Magritte"], a: 1 },
+        { q: "¿Cuántos corazones tiene un pulpo?", o: ["1", "2", "3", "4"], a: 2 },
+        { q: "¿Moneda de Japón?", o: ["Yuan", "Won", "Yen", "Dólar"], a: 2 },
+        { q: "¿Quién propuso la relatividad?", o: ["Newton", "Einstein", "Hawking", "Bohr"], a: 1 },
+        { q: "¿Animal más rápido?", o: ["Guepardo", "Halcón Peregrino", "Vela", "Tiburón"], a: 1 },
+        { q: "¿Capital de Francia?", o: ["Lyon", "Marsella", "París", "Niza"], a: 2 },
+        { q: "¿Cuántos colores tiene el arcoíris?", o: ["6", "7", "8", "5"], a: 1 },
+        { q: "¿En qué continente está Egipto?", o: ["Asia", "África", "Europa", "Oceanía"], a: 1 },
+        { q: "¿Quién pintó 'La última cena'?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 0 },
+        { q: "¿Cuál es el tercer planeta?", o: ["Venus", "Tierra", "Marte", "Mercurio"], a: 1 },
+        { q: "¿Idioma más hablado (nativo)?", o: ["Inglés", "Chino Mandarín", "Español", "Hindi"], a: 1 },
+        { q: "¿En qué país nació la pizza?", o: ["Grecia", "Italia", "Francia", "México"], a: 1 },
+        { q: "¿Qué estudia la botánica?", o: ["Animales", "Plantas", "Rocas", "Estrellas"], a: 1 },
+        { q: "¿Cuántos minutos tiene un día?", o: ["1440", "1200", "2400", "1000"], a: 0 },
+        { q: "¿Primer hombre en la luna?", o: ["Aldrin", "Armstrong", "Collins", "Gagarin"], a: 1 },
+        { q: "¿Símbolo químico del Oro?", o: ["Or", "Ag", "Au", "Gd"], a: 2 },
+        { q: "¿Quién escribió 'Sherlock Holmes'?", o: ["Agatha Christie", "Conan Doyle", "Poe", "King"], a: 1 },
+        { q: "¿Capital de Alemania?", o: ["Múnich", "Hamburgo", "Berlín", "Frankfurt"], a: 2 },
+        { q: "¿Cuál es el metal más caro?", o: ["Oro", "Platino", "Rodio", "Iridio"], a: 2 },
+        { q: "¿Cuántas patas tiene una araña?", o: ["6", "8", "10", "12"], a: 1 },
+        { q: "¿Qué ciudad tiene canales?", o: ["Ámsterdam", "Venecia", "Brujas", "Todas"], a: 3 }
     ];
 
     const hoy = new Date().toISOString().split("T")[0];
@@ -213,11 +269,11 @@
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Listo para el reto, ${name}`;
             document.getElementById('calendar-input').max = hoy;
-            checkStreakLogic(); 
+            checkStreak();
             renderLeaderboard();
             if(localStorage.getItem('lastPlayed_' + hoy)) {
-                const b = document.getElementById('play-today-btn');
-                b.disabled = true; b.innerText = "YA COMPLETADO";
+                const btn = document.getElementById('play-today-btn');
+                btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
             }
         }
     }
@@ -227,18 +283,16 @@
         if (val.length >= 3) { localStorage.setItem('triviaUser', val); checkAuth(); }
     }
 
-    function checkStreakLogic() {
+    // LÓGICA DE RACHA
+    function checkStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
-
         if (lastDate) {
             const dateLast = new Date(lastDate);
             const dateHoy = new Date(hoy);
             const diffDays = Math.floor((dateHoy - dateLast) / (1000 * 60 * 60 * 24));
-
             if (diffDays > 1 && lastDate !== hoy) {
-                streak = 0;
-                localStorage.setItem('userStreak', 0);
+                streak = 0; localStorage.setItem('userStreak', 0);
             }
         }
         document.getElementById('streak-num').innerText = streak;
@@ -248,13 +302,9 @@
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
         if (lastDate === hoy) return;
-
         const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
         const ayerStr = ayer.toISOString().split("T")[0];
-
-        if (lastDate === ayerStr) streak++;
-        else streak = 1;
-
+        if (lastDate === ayerStr) streak++; else streak = 1;
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
         document.getElementById('streak-num').innerText = streak;
@@ -290,16 +340,14 @@
         box.innerHTML = '';
         q.o.forEach((opt, i) => {
             const b = document.createElement('button');
-            b.className = 'opt-btn';
-            b.innerText = opt;
+            b.className = 'opt-btn'; b.innerText = opt;
             b.onclick = () => {
                 if(document.querySelector('.correct')) return;
                 if(i === q.a) { b.classList.add('correct'); score++; }
                 else { b.classList.add('wrong'); document.querySelectorAll('.opt-btn')[q.a].classList.add('correct'); }
                 setTimeout(() => {
                     currentStep++;
-                    if(currentStep < 10) loadQuestion();
-                    else finishGame();
+                    if(currentStep < 10) loadQuestion(); else finishGame();
                 }, 800);
             };
             box.appendChild(b);
@@ -308,13 +356,14 @@
 
     function finishGame() {
         clearInterval(timerInterval);
+        const timeStr = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = "Tiempo: " + document.getElementById('timer').innerText;
+        document.getElementById('final-time').innerText = "TIEMPO: " + timeStr;
         if(playingDate === hoy) {
             const name = localStorage.getItem('triviaUser');
             database.ref('ranking/' + name + "_" + hoy).set({
-                user: name, points: score, time: document.getElementById('timer').innerText, date: hoy
+                user: name, points: score, time: timeStr, date: hoy
             });
             localStorage.setItem('lastPlayed_' + hoy, 'true');
             updateStreak();
@@ -327,8 +376,19 @@
             data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
             let html = "";
             for (let i = 0; i < 10; i++) {
-                if(data[i]) html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${data[i].user}</span><span class="score-tag">${data[i].points}/10</span></div>`;
-                else html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
+                if(data[i]) {
+                    html += `<div class="entry">
+                        <span class="rank">#${i+1}</span>
+                        <span class="username">${data[i].user}</span>
+                        <span class="score-tag">${data[i].points}/10 <small style="opacity:0.4">${data[i].time}</small></span>
+                    </div>`;
+                } else {
+                    html += `<div class="entry" style="opacity:0.2">
+                        <span class="rank">#${i+1}</span>
+                        <span class="username">Esperando...</span>
+                        <span class="score-tag">--</span>
+                    </div>`;
+                }
             }
             document.getElementById('lead-list').innerHTML = html;
         });
