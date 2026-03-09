@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL</title>
+    <title>TRIVIAL BRUTAL - RANKING DIARIO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
@@ -36,8 +36,8 @@
 <div class="main-layout">
     <aside class="sidebar-ranking">
         <div class="leaderboard">
-            <h3>RANKING HOY</h3>
-            <div id="lead-list">Cargando...</div>
+            <h3 id="ranking-title">RANKING HOY</h3>
+            <div id="lead-list">Buscando retadores...</div>
         </div>
     </aside>
 
@@ -95,7 +95,14 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const hoy = new Date().toISOString().split("T")[0];
+    
+    // Función para obtener la fecha actual en formato local YYYY-MM-DD
+    const getTodayStr = () => {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    const hoy = getTodayStr();
     
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
 
@@ -117,16 +124,17 @@
         document.getElementById(id).classList.add('active');
     };
 
-    function renderRanking() {
-        // Consultamos el ranking de hoy
-        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
+    function renderRanking(dateToFetch) {
+        const targetDate = dateToFetch || hoy;
+        document.getElementById('ranking-title').innerText = targetDate === hoy ? "RANKING HOY" : `RANKING ${targetDate}`;
+
+        // ESTA ES LA CLAVE: Solo pide los datos donde 'date' sea IGUAL a la fecha elegida
+        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(targetDate));
+        
         onValue(rRef, (snap) => {
             let list = [];
-            snap.forEach(c => {
-                list.push(c.val());
-            });
+            snap.forEach(c => { list.push(c.val()); });
             
-            // Ordenar por puntos (mejor 10/10) y luego por tiempo (más rápido arriba)
             list.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
             
             let html = "";
@@ -153,7 +161,7 @@
                 btn.disabled = true; btn.innerText = "RETADO COMPLETADO ✅";
             }
             checkStreak();
-            renderRanking();
+            renderRanking(hoy); // Al iniciar, muestra el de HOY
         }
     }
 
@@ -220,7 +228,6 @@
         }, 1000);
     }
 
-    // --- FUNCIÓN DE GUARDADO REFORZADA ---
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
@@ -232,27 +239,21 @@
             const name = localStorage.getItem('triviaUser');
             const statusMsg = document.getElementById('save-msg');
             statusMsg.style.color = "var(--accent)";
-            statusMsg.innerText = "Sincronizando con ranking...";
+            statusMsg.innerText = "Actualizando ranking diario...";
             
-            // Usamos push() para crear un registro nuevo y único cada vez
             const newEntryRef = push(ref(db, 'ranking'));
-            
             set(newEntryRef, {
                 user: name,
                 points: score,
                 time: t,
-                date: hoy,
-                created: serverTimestamp()
+                date: hoy, // Importante: Se guarda con la fecha de HOY
+                timestamp: serverTimestamp()
             }).then(() => {
                 statusMsg.style.color = "var(--success)";
-                statusMsg.innerText = "✅ ¡Apareces en el ranking!";
+                statusMsg.innerText = "✅ ¡Estás en el ranking de hoy!";
                 localStorage.setItem('lastPlayed_' + hoy, 'true');
                 updateStreak();
-                renderRanking(); // Forzamos recarga visual
-            }).catch((err) => {
-                statusMsg.style.color = "var(--error)";
-                statusMsg.innerText = "❌ Error de conexión al guardar";
-                console.error(err);
+                renderRanking(hoy); 
             });
         }
     }
@@ -260,8 +261,8 @@
     function updateStreak() {
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
         const last = localStorage.getItem('lastDatePlayed');
-        const ayer = new Date(); ayer.setDate(ayer.getDate()-1);
-        const ayerStr = ayer.toISOString().split("T")[0];
+        const d = new Date(); d.setDate(d.getDate()-1);
+        const ayerStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         if(last === ayerStr) streak++; else streak = 1;
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
@@ -273,7 +274,7 @@
         if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
     };
     document.getElementById('play-today-btn').onclick = () => initGame('today');
-    document.getElementById('calendar-input').onchange = () => initGame('calendar');
+    document.getElementById('calendar-input').onchange = (e) => renderRanking(e.target.value);
 
     checkAuth();
 </script>
