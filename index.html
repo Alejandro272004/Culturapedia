@@ -14,15 +14,15 @@
         .leaderboard h3 { color: var(--accent); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
         .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; font-size: 0.85rem; }
         .rank { font-weight: 900; width: 25px; color: #444; }
-        .username { flex-grow: 1; font-weight: 600; color: #ddd; overflow: hidden; text-overflow: ellipsis; }
-        .score-tag { font-family: monospace; color: var(--accent); font-weight: bold; }
+        .username { flex-grow: 1; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .score-tag { font-family: monospace; color: var(--accent); font-weight: bold; margin-left: 10px; }
         .time-tag { font-family: monospace; color: #555; font-size: 0.7rem; margin-left: 8px; }
         .game-column { flex-grow: 1; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 25px; padding: 35px; border: 1px solid #222; text-align: center; }
         .screen { display: none; }
         .screen.active { display: block; }
         .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
-        .btn-main:disabled { background: #222 !important; color: #555 !important; }
+        .btn-main:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #222; }
         input { width: 100%; padding: 15px; background: #1a1a24; border: 1px solid #333; color: #fff; border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
         .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; background: #1c1c26; color: #fff; text-align: left; border-radius: 10px; border: 1px solid #333; cursor: pointer; }
         .correct { background: var(--success) !important; color: #000; font-weight: bold; }
@@ -37,7 +37,7 @@
     <aside class="sidebar-ranking">
         <div class="leaderboard">
             <h3>RANKING HOY</h3>
-            <div id="lead-list">Sincronizando...</div>
+            <div id="lead-list">Cargando...</div>
         </div>
     </aside>
 
@@ -45,14 +45,14 @@
         <div class="container">
             <div id="screen-auth" class="screen">
                 <h2>Tu Apodo</h2>
-                <input type="text" id="username-input" placeholder="Ej: Neo99">
-                <button class="btn-main" id="btn-save-name">EMPEZAR</button>
+                <input type="text" id="username-input" placeholder="Ej: Maria Jimenez">
+                <button class="btn-main" id="btn-save-name">ENTRAR AL RETO</button>
             </div>
 
             <div id="screen-home" class="screen">
-                <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span></div>
+                <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
                 <h1 id="welcome-msg"></h1>
-                <button id="play-today-btn" class="btn-main">JUGAR RETO DIARIO</button>
+                <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
                 <div style="margin-top: 25px; opacity: 0.5;">
                     <small>Días anteriores:</small><br>
                     <input type="date" id="calendar-input">
@@ -69,10 +69,10 @@
             </div>
 
             <div id="screen-result" class="screen">
-                <h2>¡FIN DEL RETO!</h2>
+                <h2>FIN DEL RETO</h2>
                 <div id="final-stats" style="font-size: 3.5rem; font-weight: 900; color: var(--accent);">0/10</div>
                 <p id="final-time"></p>
-                <div id="save-msg" style="font-size: 0.7rem; color: var(--success); margin-bottom: 10px;"></div>
+                <div id="save-msg" style="font-size: 0.8rem; color: var(--success); margin-bottom: 10px;"></div>
                 <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
             </div>
         </div>
@@ -81,7 +81,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, enableLogging } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, push } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
@@ -122,7 +122,9 @@
         onValue(rRef, (snap) => {
             let list = [];
             snap.forEach(c => list.push(c.val()));
+            // Ordenar: Puntos (desc) -> Tiempo (asc)
             list.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
+            
             let html = "";
             for(let i=0; i<10; i++){
                 if(list[i]) {
@@ -132,7 +134,7 @@
                 }
             }
             document.getElementById('lead-list').innerHTML = html;
-        }, { onlyOnce: false });
+        });
     }
 
     function checkAuth() {
@@ -214,33 +216,32 @@
         }, 1000);
     }
 
-    // --- EL CORAZÓN DEL ARREGLO ---
+    // --- ARREGLO PARA MARÍA Y OTROS NOMBRES ---
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = `Tiempo: ${t}`;
+        document.getElementById('final-time').innerText = `Tu tiempo: ${t}`;
         
         if(playingDate === hoy) {
-            // Limpiamos el nombre de caracteres que Firebase odia
-            const rawUser = localStorage.getItem('triviaUser');
-            const cleanUser = rawUser.replace(/[.#$\[\]]/g, ""); 
+            const name = localStorage.getItem('triviaUser');
+            document.getElementById('save-msg').innerText = "Guardando en el ranking...";
             
-            document.getElementById('save-msg').innerText = "Guardando...";
-            
-            // Forzamos el guardado con una ruta limpia
-            set(ref(db, 'ranking/' + cleanUser + "_" + hoy), {
-                user: cleanUser,
+            // Usamos push().key para generar un ID único que NO falle con espacios
+            const newRankRef = push(ref(db, 'ranking'));
+            set(newRankRef, {
+                user: name,
                 points: score,
                 time: t,
-                date: hoy
+                date: hoy,
+                timestamp: Date.now()
             }).then(() => {
-                document.getElementById('save-msg').innerText = "✅ ¡Guardado!";
+                document.getElementById('save-msg').innerText = "✅ ¡Ranking actualizado!";
                 localStorage.setItem('lastPlayed_' + hoy, 'true');
                 updateStreak();
             }).catch(() => {
-                document.getElementById('save-msg').innerText = "❌ Error de conexión";
+                document.getElementById('save-msg').innerText = "❌ Error al guardar";
             });
         }
     }
@@ -258,7 +259,7 @@
 
     document.getElementById('btn-save-name').onclick = () => {
         const val = document.getElementById('username-input').value.trim();
-        if(val.length >= 3) { localStorage.setItem('triviaUser', val); checkAuth(); }
+        if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
     };
     document.getElementById('play-today-btn').onclick = () => initGame('today');
     document.getElementById('calendar-input').onchange = () => initGame('calendar');
