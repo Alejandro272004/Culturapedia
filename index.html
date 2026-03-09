@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - 250 PREGUNTAS</title>
+    <title>TRIVIAL BRUTAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
@@ -27,6 +27,7 @@
         .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; background: #1c1c26; color: #fff; text-align: left; border-radius: 10px; border: 1px solid #333; cursor: pointer; }
         .correct { background: var(--success) !important; color: #000; font-weight: bold; }
         .wrong { background: var(--error) !important; }
+        .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
         @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
     </style>
 </head>
@@ -35,8 +36,8 @@
 <div class="main-layout">
     <aside class="sidebar-ranking">
         <div class="leaderboard">
-            <h3 id="ranking-title">RANKING HOY</h3>
-            <div id="lead-list">Sincronizando...</div>
+            <h3>RANKING HOY</h3>
+            <div id="lead-list">Cargando datos...</div>
         </div>
     </aside>
 
@@ -44,11 +45,12 @@
         <div class="container">
             <div id="screen-auth" class="screen">
                 <h2>Tu Apodo</h2>
-                <input type="text" id="username-input" placeholder="Ej: Maria Jimenez">
+                <input type="text" id="username-input" placeholder="Ej: Mateo">
                 <button class="btn-main" id="btn-save-name">ENTRAR AL RETO</button>
             </div>
 
             <div id="screen-home" class="screen">
+                <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
                 <h1 id="welcome-msg"></h1>
                 <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
             </div>
@@ -66,7 +68,6 @@
                 <h2>¡RETO FINALIZADO!</h2>
                 <div id="final-stats" style="font-size: 3.5rem; font-weight: 900; color: var(--accent);">0/10</div>
                 <p id="final-time"></p>
-                <div id="save-msg"></div>
                 <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
             </div>
         </div>
@@ -93,18 +94,12 @@
     
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
+    // Aquí irían tus 250 preguntas
     const masterBank = [
         { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
         { q: "¿Pintor de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: "Miguel Ángel" },
-        { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: "Canberra" },
-        { q: "¿Río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: "Amazonas" },
-        { q: "¿Hueso más largo del cuerpo?", o: ["Fémur", "Húmero", "Tibia", "Peroné"], a: "Fémur" },
-        { q: "¿Planeta con más lunas?", o: ["Saturno", "Júpiter", "Marte", "Urano"], a: "Saturno" },
-        { q: "¿Cuántos corazones tiene un pulpo?", o: ["1", "2", "3", "4"], a: "3" },
-        { q: "¿Símbolo químico del Oro?", o: ["Ag", "Au", "Or", "Fe"], a: "Au" },
-        { q: "¿Quién escribió Hamlet?", o: ["Shakespeare", "Cervantes", "Moliere", "Dante"], a: "Shakespeare" }
-        // ... aquí irían las 250
+        { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: "Canberra" }
     ];
 
     const showScreen = (id) => {
@@ -112,19 +107,23 @@
         document.getElementById(id).classList.add('active');
     };
 
-    // --- ARREGLO DE SINCRONIZACIÓN EN TIEMPO REAL ---
-    function syncRanking() {
+    // --- SINCRONIZACIÓN CORREGIDA ---
+    function startRankingSync() {
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
-        // Usamos onValue para que escuche cambios constantes sin recargar
         onValue(rRef, (snap) => {
             let list = [];
-            snap.forEach(c => list.push(c.val()));
+            snap.forEach(child => { list.push(child.val()); });
+            
+            // Ordenar: Puntos (desc) -> Tiempo (asc)
             list.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
             
             let html = "";
             for(let i=0; i<10; i++){
-                if(list[i]) html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${list[i].user}</span><span class="score-tag">${list[i].points}/10</span><span class="time-tag">${list[i].time}</span></div>`;
-                else html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
+                if(list[i]) {
+                    html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${list[i].user}</span><span class="score-tag">${list[i].points}/10</span><span class="time-tag">${list[i].time}</span></div>`;
+                } else {
+                    html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
+                }
             }
             document.getElementById('lead-list').innerHTML = html;
         });
@@ -136,12 +135,28 @@
         else {
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
+            updateStreakUI();
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 const btn = document.getElementById('play-today-btn');
-                btn.disabled = true; btn.innerText = "RETADO COMPLETADO ✅";
+                btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
             }
-            syncRanking(); // Inicia la escucha constante
+            startRankingSync();
         }
+    }
+
+    function updateStreakUI() {
+        const lastDate = localStorage.getItem('lastDatePlayed');
+        let streak = parseInt(localStorage.getItem('userStreak') || 0);
+        
+        if (lastDate && lastDate !== hoy) {
+            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split("T")[0];
+            if (lastDate !== yesterdayStr) {
+                streak = 0;
+                localStorage.setItem('userStreak', 0);
+            }
+        }
+        document.getElementById('streak-num').innerText = streak;
     }
 
     const initGame = () => {
@@ -167,17 +182,12 @@
         const qData = currentQuestions[currentStep];
         document.getElementById('q-count').innerText = `${currentStep+1}/10`;
         document.getElementById('q-text').innerText = qData.q;
-        
-        let options = [...qData.o];
-        options.sort(() => Math.random() - 0.5); 
-        
+        let options = [...qData.o].sort(() => Math.random() - 0.5);
         const box = document.getElementById('options-box');
         box.innerHTML = "";
-        
-        options.forEach((opt) => {
+        options.forEach(opt => {
             const b = document.createElement('button');
-            b.className = 'opt-btn';
-            b.innerText = opt;
+            b.className = 'opt-btn'; b.innerText = opt;
             b.onclick = () => {
                 if(document.querySelector('.correct')) return;
                 if(opt === qData.a) { b.classList.add('correct'); score++; }
@@ -209,11 +219,19 @@
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         
         const name = localStorage.getItem('triviaUser');
+        
+        // Guardar en Ranking
         const newEntryRef = push(ref(db, 'ranking'));
         set(newEntryRef, {
-            user: name, points: score, time: t, date: hoy, timestamp: serverTimestamp()
+            user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
         }).then(() => {
             localStorage.setItem('lastPlayed_' + hoy, 'true');
+            // Calcular racha final
+            let streak = parseInt(localStorage.getItem('userStreak') || 0);
+            streak++;
+            localStorage.setItem('userStreak', streak);
+            localStorage.setItem('lastDatePlayed', hoy);
+            updateStreakUI();
         });
     }
 
@@ -222,7 +240,6 @@
         if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
     };
     document.getElementById('play-today-btn').onclick = () => initGame();
-    
     checkAuth();
 </script>
 </body>
