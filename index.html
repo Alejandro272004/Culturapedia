@@ -3,136 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - EL RETO CULTURAL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <title>TRIVIAL BRUTAL - RANKING LIMPIO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --bg: #0a0a0c; 
-            --card: #121217; 
-            --accent: #00f2ff; 
-            --success: #00ff88; 
-            --error: #ff3e3e; 
-            --text: #ffffff; 
-            --text-dim: #666;
-            --border: rgba(255, 255, 255, 0.08);
-        }
-
-        body { 
-            background-color: var(--bg);
-            color: var(--text); 
-            font-family: 'Outfit', sans-serif; 
-            margin: 0; 
-            display: flex; 
-            justify-content: center; 
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* --- LAYOUT --- */
-        .main-layout { 
-            display: flex; 
-            gap: 40px; 
-            width: 95%; 
-            max-width: 1200px; 
-            padding: 40px 0;
-            align-items: flex-start; 
-        }
-
-        /* --- RANKING (SIDEBAR) --- */
-        .sidebar-ranking { width: 320px; flex-shrink: 0; }
-        .leaderboard { 
-            background: var(--card); 
-            border-radius: 24px; 
-            padding: 24px; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-
-        .leaderboard h3 { 
-            color: var(--accent); 
-            font-weight: 900; 
-            font-size: 0.75rem; 
-            letter-spacing: 2px; 
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .leaderboard h3::after { content: ""; flex-grow: 1; height: 1px; background: var(--border); }
-
-        .entry { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 14px 0; 
-            border-bottom: 1px solid var(--border);
-            font-size: 0.95rem;
-        }
-
-        .rank { color: var(--text-dim); font-weight: 700; width: 25px; }
-        .username { flex-grow: 1; color: #ccc; font-weight: 400; }
-        .score-tag { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-weight: 700; }
-
-        /* --- MAIN CARD --- */
-        .game-column { flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
-        .container { 
-            background: var(--card); 
-            border-radius: 32px; 
-            padding: 50px; 
-            border: 1px solid var(--border);
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-        }
-
-        /* --- BOTONES --- */
-        .btn-main { 
-            width: 100%; 
-            padding: 20px; 
-            background: var(--text); 
-            color: var(--bg); 
-            font-weight: 800; 
-            border: none; 
-            border-radius: 16px; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            transition: all 0.3s ease;
-            font-size: 1rem;
-            letter-spacing: 1px;
-        }
-
-        .btn-main:hover { transform: translateY(-2px); background: var(--accent); }
-        .btn-main:disabled { background: #222 !important; color: #444 !important; cursor: default; transform: none; }
-
-        .opt-btn { 
-            width: 100%; 
-            padding: 18px; 
-            margin-bottom: 12px; 
-            background: rgba(255,255,255,0.03); 
-            color: #fff; 
-            text-align: left; 
-            border-radius: 14px; 
-            border: 1px solid var(--border); 
-            cursor: pointer; 
-            font-size: 1rem;
-            transition: 0.2s;
-        }
-
-        .opt-btn:hover { background: rgba(255,255,255,0.07); border-color: var(--accent); }
-
-        /* --- INPUTS --- */
-        input[type="text"], input[type="date"] { 
-            width: 100%; padding: 18px; background: #000; border: 1px solid var(--border); 
-            color: #fff; border-radius: 14px; text-align: center; font-size: 1rem; margin: 15px 0;
-            font-family: 'Outfit';
-        }
-
-        /* --- ANIMACIONES Y ESTADOS --- */
-        .correct { background: var(--success) !important; color: #000 !important; font-weight: 700; }
+        :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh; }
+        .main-layout { display: flex; flex-direction: row; gap: 30px; width: 100%; max-width: 1100px; align-items: flex-start; }
+        .sidebar-ranking { width: 350px; flex-shrink: 0; position: sticky; top: 20px; }
+        .leaderboard { background: #0d0d12; border-radius: 20px; padding: 20px; border: 1px solid #222; }
+        .leaderboard h3 { color: var(--accent); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; font-size: 0.85rem; }
+        .rank { font-weight: 900; width: 25px; color: #444; }
+        .username { flex-grow: 1; font-weight: 600; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .score-tag { font-family: monospace; color: var(--accent); font-weight: bold; margin-left: 10px; }
+        .time-tag { font-family: monospace; color: #555; font-size: 0.7rem; margin-left: 8px; }
+        .game-column { flex-grow: 1; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 25px; padding: 35px; border: 1px solid #222; text-align: center; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 15px; }
+        .btn-main:disabled { background: #1a1a1a !important; color: #444 !important; border: 1px solid #222; cursor: default; }
+        input { width: 100%; padding: 15px; background: #1a1a24; border: 1px solid #333; color: #fff; border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
+        .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; background: #1c1c26; color: #fff; text-align: left; border-radius: 10px; border: 1px solid #333; cursor: pointer; }
+        .correct { background: var(--success) !important; color: #000; font-weight: bold; }
         .wrong { background: var(--error) !important; }
-        .streak-badge { background: #ff880022; color: #ff8800; padding: 6px 16px; border-radius: 100px; font-weight: 700; font-size: 0.8rem; border: 1px solid #ff880044; }
-
-        @media (max-width: 900px) { .main-layout { flex-direction: column; } .sidebar-ranking { width: 100%; order: 2; } }
+        .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
+        @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
     </style>
 </head>
 <body>
@@ -143,45 +39,37 @@
             <h3>RANKING HOY</h3>
             <div id="lead-list">Filtrando usuarios...</div>
         </div>
-        
-        <div class="leaderboard" style="margin-top: 20px;">
-            <h3>DÍAS ANTERIORES</h3>
-            <input type="date" id="history-date">
-            <div id="history-list" style="font-size: 0.8rem; color: var(--text-dim); text-align: center; margin-top: 10px;">
-                Selecciona una fecha para ver el ranking
-            </div>
-        </div>
     </aside>
 
     <main class="game-column">
         <div class="container">
             <div id="screen-auth" class="screen">
-                <h1 style="font-weight: 900; font-size: 2.5rem;">CULTURA BRUTAL</h1>
-                <p style="color: var(--text-dim);">Entra en el ranking diario de mentes despiertas.</p>
-                <input type="text" id="username-input" placeholder="Tu apodo artístico">
-                <button class="btn-main" id="btn-save-name">COMENZAR</button>
+                <h2>Tu Apodo</h2>
+                <input type="text" id="username-input" placeholder="Ej: Mateo">
+                <button class="btn-main" id="btn-save-name">ENTRAR AL RETO</button>
             </div>
 
-            <div id="screen-home" class="screen" style="display: none;">
-                <span class="streak-badge">🔥 RACHA: <span id="streak-num">0</span> DÍAS</span>
-                <h1 id="welcome-msg" style="margin-top: 20px; font-size: 3rem;"></h1>
+            <div id="screen-home" class="screen">
+                <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
+                <h1 id="welcome-msg"></h1>
                 <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
             </div>
 
-            <div id="screen-game" class="screen" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                    <span id="q-count" style="font-weight: 700; color: var(--text-dim);">1 DE 10</span>
-                    <span id="timer" style="color: var(--accent); font-family: 'JetBrains Mono'; font-size: 1.2rem;">00:00</span>
+            <div id="screen-game" class="screen">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span id="q-count">1/10</span>
+                    <span id="timer" style="color: var(--accent);">00:00</span>
                 </div>
-                <h2 id="q-text" style="text-align: left; min-height: 80px; font-size: 1.6rem; margin-bottom: 30px;"></h2>
+                <h3 id="q-text"></h3>
                 <div id="options-box"></div>
             </div>
 
-            <div id="screen-result" class="screen" style="display: none;">
-                <h2 style="font-weight: 900;">RETO COMPLETADO</h2>
-                <div id="final-stats" style="font-size: 5rem; font-weight: 900; color: var(--accent); line-height: 1;">0/10</div>
-                <p id="final-time" style="margin-top: 10px; color: var(--text-dim);"></p>
-                <button class="btn-main" onclick="location.reload()" style="margin-top: 30px;">VOLVER AL INICIO</button>
+            <div id="screen-result" class="screen">
+                <h2>¡RETO FINALIZADO!</h2>
+                <div id="final-stats" style="font-size: 3.5rem; font-weight: 900; color: var(--accent);">0/10</div>
+                <p id="final-time"></p>
+                <div id="save-msg" style="margin-bottom: 15px; font-weight: bold;"></div>
+                <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
             </div>
         </div>
     </main>
@@ -207,7 +95,7 @@
     
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
-const masterBank = [
+    const masterBank = [
     { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
     { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
     { q: "¿Pintor de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: "Miguel Ángel" },
@@ -460,36 +348,39 @@ const masterBank = [
     { q: "¿Qué ciudad es la capital de Venezuela?", o: ["Caracas", "Maracaibo", "Valencia", "Bolívar"], a: "Caracas" }
 ];
 
-   function showScreen(id) {
-        document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-        document.getElementById(id).style.display = 'block';
-    }
+    const showScreen = (id) => {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    };
 
-    // CARGAR RANKING CON FILTRO ANTI-DUPLICADOS
-    function loadRanking(targetDate, targetListId) {
-        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(targetDate));
+    function syncRanking() {
+        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
         onValue(rRef, (snap) => {
-            const uniqueUsers = new Map();
-            snap.forEach(c => {
-                const data = c.val();
-                const name = data.user.toLowerCase().trim();
-                if (!uniqueUsers.has(name) || data.points > uniqueUsers.get(name).points) {
-                    uniqueUsers.set(name, data);
+            let rawList = [];
+            snap.forEach(c => { rawList.push(c.val()); });
+            
+            // --- FILTRO DE ÚNICOS ---
+            // Solo dejamos la mejor puntuación de cada nombre
+            const uniqueMap = new Map();
+            rawList.forEach(item => {
+                const nameKey = item.user.toLowerCase().trim();
+                if (!uniqueMap.has(nameKey) || item.points > uniqueMap.get(nameKey).points) {
+                    uniqueMap.set(nameKey, item);
                 }
             });
 
-            let list = Array.from(uniqueUsers.values())
-                .sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
+            let list = Array.from(uniqueMap.values());
+            list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
             
             let html = "";
             for(let i=0; i<10; i++){
                 if(list[i]) {
-                    html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${list[i].user}</span><span class="score-tag">${list[i].points}/10</span></div>`;
+                    html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${list[i].user}</span><span class="score-tag">${list[i].points}/10</span><span class="time-tag">${list[i].time}</span></div>`;
                 } else {
-                    html += `<div class="entry" style="opacity:0.15"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
+                    html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
                 }
             }
-            document.getElementById(targetListId).innerHTML = html || "Sin datos este día";
+            document.getElementById('lead-list').innerHTML = html;
         });
     }
 
@@ -501,18 +392,45 @@ const masterBank = [
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
             if(localStorage.getItem('lastPlayed_' + hoy)) {
-                const btn = document.getElementById('play-today-btn');
-                btn.disabled = true; btn.innerText = "RETADO COMPLETADO ✅";
+                document.getElementById('play-today-btn').disabled = true;
+                document.getElementById('play-today-btn').innerText = "RETO COMPLETADO ✅";
             }
-            loadRanking(hoy, 'lead-list');
+            syncRanking();
         }
     }
 
-    // INICIAR JUEGO
-    document.getElementById('play-today-btn').onclick = () => {
+    const initGame = () => {
         currentQuestions = [...masterBank].sort(() => Math.random() - 0.5).slice(0,10);
         currentStep = 0; score = 0;
         showScreen('screen-game');
+        startTimer();
+        loadQuestion();
+    };
+
+    function loadQuestion() {
+        const qData = currentQuestions[currentStep];
+        document.getElementById('q-count').innerText = `${currentStep+1}/10`;
+        document.getElementById('q-text').innerText = qData.q;
+        let options = [...qData.o].sort(() => Math.random() - 0.5);
+        const box = document.getElementById('options-box');
+        box.innerHTML = "";
+        options.forEach(opt => {
+            const b = document.createElement('button');
+            b.className = 'opt-btn'; b.innerText = opt;
+            b.onclick = () => {
+                if(document.querySelector('.correct')) return;
+                if(opt === qData.a) { b.classList.add('correct'); score++; }
+                else { b.classList.add('wrong'); }
+                setTimeout(() => {
+                    currentStep++;
+                    if(currentStep < 10) loadQuestion(); else finish();
+                }, 800);
+            };
+            box.appendChild(b);
+        });
+    }
+
+    function startTimer() {
         let start = Date.now();
         timerInterval = setInterval(() => {
             let diff = Date.now() - start;
@@ -520,56 +438,35 @@ const masterBank = [
             let s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
             document.getElementById('timer').innerText = `${m}:${s}`;
         }, 1000);
-        loadQuestion();
-    };
-
-    function loadQuestion() {
-        const qData = currentQuestions[currentStep];
-        document.getElementById('q-count').innerText = `${currentStep+1} DE 10`;
-        document.getElementById('q-text').innerText = qData.q;
-        const box = document.getElementById('options-box');
-        box.innerHTML = "";
-        [...qData.o].sort(() => Math.random() - 0.5).forEach(opt => {
-            const b = document.createElement('button');
-            b.className = 'opt-btn'; b.innerText = opt;
-            b.onclick = () => {
-                if(document.querySelector('.correct')) return;
-                if(opt === qData.a) { b.classList.add('correct'); score++; }
-                else b.classList.add('wrong');
-                setTimeout(() => {
-                    currentStep++;
-                    if(currentStep < 10) loadQuestion(); 
-                    else {
-                        clearInterval(timerInterval);
-                        finish();
-                    }
-                }, 800);
-            };
-            box.appendChild(b);
-        });
     }
 
     function finish() {
+        clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = `TIEMPO RÉCORD: ${t}`;
-        
         const name = localStorage.getItem('triviaUser');
         const userKey = name.toLowerCase().replace(/\s+/g, '_');
-        set(ref(db, `ranking/${hoy}_${userKey}`), {
+        const entryRef = ref(db, `ranking/${hoy}_${userKey}`);
+
+        set(entryRef, {
             user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
+        }).then(() => {
+            localStorage.setItem('lastPlayed_' + hoy, 'true');
+            let streak = parseInt(localStorage.getItem('userStreak') || 0);
+            if (localStorage.getItem('lastDatePlayed') !== hoy) {
+                streak++;
+                localStorage.setItem('userStreak', streak);
+                localStorage.setItem('lastDatePlayed', hoy);
+            }
         });
-        localStorage.setItem('lastPlayed_' + hoy, 'true');
     }
 
     document.getElementById('btn-save-name').onclick = () => {
         const val = document.getElementById('username-input').value.trim();
         if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
     };
-
-    document.getElementById('history-date').onchange = (e) => loadRanking(e.target.value, 'history-list');
-
+    document.getElementById('play-today-btn').onclick = () => initGame();
     checkAuth();
 </script>
 </body>
