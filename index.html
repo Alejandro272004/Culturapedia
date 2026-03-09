@@ -139,28 +139,28 @@
         }
     }
 
- function checkStreak() {
+function checkStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
         
         if (lastDate && lastDate !== hoy) {
-            const dLast = new Date(lastDate);
-            const dHoy = new Date(hoy);
+            // Creamos fechas puras (solo año-mes-día) para comparar días naturales
+            const dLast = new Date(lastDate + "T00:00:00");
+            const dHoy = new Date(hoy + "T00:00:00");
             
-            // Calculamos la diferencia exacta en días
-            const diffTime = Math.abs(dHoy - dLast);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            // Calculamos la diferencia en milisegundos y pasamos a días
+            const diffTime = dHoy - dLast;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             
-            // Si han pasado 2 días o más sin jugar, racha a 0
+            // CASO PABLO GÓMEZ: Si han pasado 2 o más días sin jugar, racha a 0
             if (diffDays >= 2) {
                 streak = 0;
-                localStorage.setItem('userStreak', 0);
-                localStorage.setItem('lastDatePlayed', ""); // Limpiamos rastro
+                localStorage.setItem('userStreak', "0");
+                localStorage.setItem('lastDatePlayed', ""); 
             }
         }
         document.getElementById('streak-num').innerText = streak;
     }
-
     function updateStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
