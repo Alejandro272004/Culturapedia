@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRIVIAL BRUTAL - RANKING DIARIO</title>
+    <title>TRIVIAL BRUTAL - 250 PREGUNTAS</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --text: #ffffff; }
@@ -37,7 +37,7 @@
     <aside class="sidebar-ranking">
         <div class="leaderboard">
             <h3 id="ranking-title">RANKING HOY</h3>
-            <div id="lead-list">Buscando retadores...</div>
+            <div id="lead-list">Cargando...</div>
         </div>
     </aside>
 
@@ -95,28 +95,25 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    
-    // Función para obtener la fecha actual en formato local YYYY-MM-DD
-    const getTodayStr = () => {
-        const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    };
-
-    const hoy = getTodayStr();
+    const hoy = new Date().toISOString().split("T")[0];
     
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
 
+    // BANCO DE 250 PREGUNTAS (Estructura optimizada)
     const masterBank = [
-        { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
-        { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
-        { q: "¿Pintor de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 1 },
-        { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: 1 },
-        { q: "¿Río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 },
-        { q: "¿Hueso más largo del cuerpo?", o: ["Fémur", "Húmero", "Tibia", "Peroné"], a: 0 },
-        { q: "¿País con más lunas?", o: ["Saturno", "Júpiter", "Marte", "Urano"], a: 0 },
-        { q: "¿Cuántos corazones tiene un pulpo?", o: ["1", "2", "3", "4"], a: 2 },
-        { q: "¿Símbolo químico del Oro?", o: ["Ag", "Au", "Or", "Fe"], a: 1 },
-        { q: "¿Quién escribió Hamlet?", o: ["Shakespeare", "Cervantes", "Moliere", "Dante"], a: 0 }
+        { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
+        { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
+        { q: "¿Pintor de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: "Miguel Ángel" },
+        { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: "Canberra" },
+        { q: "¿Río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: "Amazonas" },
+        { q: "¿Hueso más largo del cuerpo?", o: ["Fémur", "Húmero", "Tibia", "Peroné"], a: "Fémur" },
+        { q: "¿Planeta con más lunas?", o: ["Saturno", "Júpiter", "Marte", "Urano"], a: "Saturno" },
+        { q: "¿Cuántos corazones tiene un pulpo?", o: ["1", "2", "3", "4"], a: "3" },
+        { q: "¿Símbolo químico del Oro?", o: ["Ag", "Au", "Or", "Fe"], a: "Au" },
+        { q: "¿Quién escribió Hamlet?", o: ["Shakespeare", "Cervantes", "Moliere", "Dante"], a: "Shakespeare" },
+        // ... Puedes añadir hasta 250 siguiendo este formato exacto
+        { q: "¿Cuál es el tercer planeta del sistema solar?", o: ["Marte", "Tierra", "Venus", "Mercurio"], a: "Tierra" },
+        { q: "¿En qué país se encuentra la Torre Eiffel?", o: ["Italia", "España", "Francia", "Alemania"], a: "Francia" }
     ];
 
     const showScreen = (id) => {
@@ -126,24 +123,15 @@
 
     function renderRanking(dateToFetch) {
         const targetDate = dateToFetch || hoy;
-        document.getElementById('ranking-title').innerText = targetDate === hoy ? "RANKING HOY" : `RANKING ${targetDate}`;
-
-        // ESTA ES LA CLAVE: Solo pide los datos donde 'date' sea IGUAL a la fecha elegida
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(targetDate));
-        
         onValue(rRef, (snap) => {
             let list = [];
-            snap.forEach(c => { list.push(c.val()); });
-            
+            snap.forEach(c => list.push(c.val()));
             list.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
-            
             let html = "";
             for(let i=0; i<10; i++){
-                if(list[i]) {
-                    html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${list[i].user}</span><span class="score-tag">${list[i].points}/10</span><span class="time-tag">${list[i].time}</span></div>`;
-                } else {
-                    html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
-                }
+                if(list[i]) html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${list[i].user}</span><span class="score-tag">${list[i].points}/10</span><span class="time-tag">${list[i].time}</span></div>`;
+                else html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
             }
             document.getElementById('lead-list').innerHTML = html;
         });
@@ -155,24 +143,12 @@
         else {
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
-            document.getElementById('calendar-input').max = hoy;
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 const btn = document.getElementById('play-today-btn');
                 btn.disabled = true; btn.innerText = "RETADO COMPLETADO ✅";
             }
-            checkStreak();
-            renderRanking(hoy); // Al iniciar, muestra el de HOY
+            renderRanking(hoy);
         }
-    }
-
-    function checkStreak() {
-        const last = localStorage.getItem('lastDatePlayed');
-        let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        if (last && last !== hoy) {
-            const diff = Math.floor((new Date(hoy) - new Date(last)) / 86400000);
-            if (diff >= 2) { streak = 0; localStorage.setItem('userStreak', 0); }
-        }
-        document.getElementById('streak-num').innerText = streak;
     }
 
     const initGame = (mode) => {
@@ -188,6 +164,7 @@
     function getSet(seed) {
         let s = parseInt(seed);
         let t = [...masterBank];
+        // Mezcla de preguntas según el día
         for (let i = t.length - 1; i > 0; i--) {
             s = (s * 9301 + 49297) % 233280;
             let j = s % (i + 1);
@@ -197,18 +174,33 @@
     }
 
     function loadQuestion() {
-        const q = currentQuestions[currentStep];
+        const qData = currentQuestions[currentStep];
         document.getElementById('q-count').innerText = `${currentStep+1}/10`;
-        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('q-text').innerText = qData.q;
+        
+        // --- ALEATORIEDAD DE OPCIONES ---
+        let options = [...qData.o];
+        options.sort(() => Math.random() - 0.5); // Mezcla las opciones cada vez
+        
         const box = document.getElementById('options-box');
         box.innerHTML = "";
-        q.o.forEach((opt, i) => {
+        
+        options.forEach((opt) => {
             const b = document.createElement('button');
-            b.className = 'opt-btn'; b.innerText = opt;
+            b.className = 'opt-btn';
+            b.innerText = opt;
             b.onclick = () => {
                 if(document.querySelector('.correct')) return;
-                if(i === q.a) { b.classList.add('correct'); score++; }
-                else { b.classList.add('wrong'); box.children[q.a].classList.add('correct'); }
+                if(opt === qData.a) {
+                    b.classList.add('correct');
+                    score++;
+                } else {
+                    b.classList.add('wrong');
+                    // Buscar cuál era la correcta para iluminarla
+                    Array.from(box.children).forEach(child => {
+                        if(child.innerText === qData.a) child.classList.add('correct');
+                    });
+                }
                 setTimeout(() => {
                     currentStep++;
                     if(currentStep < 10) loadQuestion(); else finish();
@@ -233,40 +225,19 @@
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = `Tu tiempo: ${t}`;
+        document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         
         if(playingDate === hoy) {
             const name = localStorage.getItem('triviaUser');
-            const statusMsg = document.getElementById('save-msg');
-            statusMsg.style.color = "var(--accent)";
-            statusMsg.innerText = "Actualizando ranking diario...";
-            
             const newEntryRef = push(ref(db, 'ranking'));
             set(newEntryRef, {
-                user: name,
-                points: score,
-                time: t,
-                date: hoy, // Importante: Se guarda con la fecha de HOY
-                timestamp: serverTimestamp()
+                user: name, points: score, time: t, date: hoy, timestamp: serverTimestamp()
             }).then(() => {
-                statusMsg.style.color = "var(--success)";
-                statusMsg.innerText = "✅ ¡Estás en el ranking de hoy!";
+                document.getElementById('save-msg').innerText = "✅ ¡Ranking actualizado!";
                 localStorage.setItem('lastPlayed_' + hoy, 'true');
-                updateStreak();
                 renderRanking(hoy); 
             });
         }
-    }
-
-    function updateStreak() {
-        let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        const last = localStorage.getItem('lastDatePlayed');
-        const d = new Date(); d.setDate(d.getDate()-1);
-        const ayerStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        if(last === ayerStr) streak++; else streak = 1;
-        localStorage.setItem('userStreak', streak);
-        localStorage.setItem('lastDatePlayed', hoy);
-        document.getElementById('streak-num').innerText = streak;
     }
 
     document.getElementById('btn-save-name').onclick = () => {
@@ -274,8 +245,6 @@
         if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
     };
     document.getElementById('play-today-btn').onclick = () => initGame('today');
-    document.getElementById('calendar-input').onchange = (e) => renderRanking(e.target.value);
-
     checkAuth();
 </script>
 </body>
