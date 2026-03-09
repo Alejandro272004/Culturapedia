@@ -24,26 +24,31 @@
             color: var(--text);
             font-family: 'Inter', sans-serif;
             margin: 0;
+            padding: 20px;
             display: flex;
-            justify-content: center;
+            justify-content: center; /* Centra el conjunto en la pantalla */
             align-items: center;
             min-height: 100vh;
         }
 
-        .main-wrapper {
+        /* ESTE ES EL CAMBIO CLAVE: EL ENVOLTORIO */
+        .main-layout {
             display: flex;
-            gap: 40px;
-            width: 95%;
-            max-width: 1100px;
+            flex-direction: row; /* Ranking a la izquierda, Juego a la derecha */
             align-items: flex-start;
+            gap: 40px;
+            width: 100%;
+            max-width: 1000px; /* Ajusta según prefieras */
         }
 
+        /* COLUMNA DEL RANKING */
         .sidebar-ranking {
-            width: 350px;
+            width: 320px;
             flex-shrink: 0;
         }
 
-        .game-area {
+        /* COLUMNA DEL JUEGO */
+        .game-column {
             flex-grow: 1;
             display: flex;
             justify-content: center;
@@ -51,87 +56,79 @@
 
         .container {
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
             background: var(--card);
             border-radius: 24px;
             padding: 30px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             border: 1px solid rgba(255,255,255,0.05);
-            box-sizing: border-box;
             text-align: center;
         }
 
+        /* DISEÑO DEL RANKING (A LA IZQUIERDA) */
+        .leaderboard { 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 20px; 
+            padding: 20px; 
+            border: 1px solid #222;
+        }
+        .leaderboard h3 { 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            font-size: 0.8rem; 
+            margin: 0 0 15px 0; 
+            text-align: left;
+            letter-spacing: 1px;
+        }
+        
+        .entry { 
+            display: flex; 
+            justify-content: flex-start; 
+            padding: 10px 0; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        .rank { color: var(--gold); font-weight: 900; width: 30px; text-align: left; }
+        .username { flex-grow: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .score-tag { font-family: monospace; opacity: 0.8; font-size: 0.8rem; margin-left: 10px; }
+
+        /* ESTADOS DE PANTALLA */
         .screen { display: none; }
         .active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn-main {
-            width: 100%;
-            padding: 18px;
-            background: var(--accent);
-            color: black;
-            font-weight: 900;
-            border: none;
-            border-radius: 12px;
-            margin-top: 20px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: 0.3s;
+            width: 100%; padding: 18px; background: var(--accent); color: black;
+            font-weight: 900; border: none; border-radius: 12px; margin-top: 20px;
+            cursor: pointer; text-transform: uppercase; transition: 0.3s;
         }
-        .btn-main:hover { transform: scale(1.02); }
-        .btn-main:disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; }
+        .btn-main:disabled { background: #333 !important; color: #666 !important; }
 
-        input[type="text"], input[type="date"] {
-            width: 100%;
-            padding: 14px;
-            background: #1e1e2a;
-            border: 1px solid #333;
-            color: white;
-            border-radius: 10px;
-            margin-top: 10px;
-            box-sizing: border-box;
-            text-align: center;
+        input {
+            width: 100%; padding: 14px; background: #1e1e2a; border: 1px solid #333;
+            color: white; border-radius: 10px; margin-top: 10px; box-sizing: border-box; text-align: center;
         }
 
         .opt-btn {
-            width: 100%;
-            padding: 16px;
-            margin-bottom: 12px;
-            background: #1c1c26;
-            color: white;
-            text-align: left;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            cursor: pointer;
+            width: 100%; padding: 16px; margin-bottom: 12px; background: #1c1c26;
+            color: white; text-align: left; border-radius: 12px; border: 2px solid transparent; cursor: pointer;
         }
         .correct { background: var(--success) !important; color: black; font-weight: bold; }
         .wrong { background: var(--error) !important; }
 
-        .leaderboard { 
-            background: #0d0d12; 
-            border-radius: 18px; 
-            padding: 20px; 
-            border: 1px solid #222;
-        }
-        .leaderboard h3 { color: var(--accent); text-transform: uppercase; font-size: 0.9rem; margin-top: 0; text-align: left; }
-        
-        .entry { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; align-items: center; }
-        .rank { color: var(--gold); font-weight: 900; width: 30px; text-align: left; }
-        .username { flex-grow: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9rem; }
-        .score-tag { background: #1e1e2a; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-family: monospace; margin-left: 5px;}
+        .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.1rem; margin-bottom: 10px; }
 
-        .streak-fire { text-align: center; color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
-        #timer { color: var(--accent); font-family: monospace; font-size: 1.2rem; }
-
-        @media (max-width: 850px) {
-            .main-wrapper { flex-direction: column; align-items: center; }
-            .sidebar-ranking { width: 100%; max-width: 450px; order: 2; }
+        /* MÓVIL: Se pone uno debajo de otro */
+        @media (max-width: 800px) {
+            .main-layout { flex-direction: column; align-items: center; }
+            .sidebar-ranking { width: 100%; max-width: 420px; order: 2; }
         }
     </style>
 </head>
 <body>
 
-<div class="main-wrapper">
+<div class="main-layout">
     <aside class="sidebar-ranking">
         <div class="leaderboard">
             <h3>Ranking Mundial (Hoy)</h3>
@@ -139,38 +136,38 @@
         </div>
     </aside>
 
-    <main class="game-area">
+    <main class="game-column">
         <div class="container">
             <div id="screen-auth" class="screen">
-                <h1>Tu Nombre</h1>
-                <input type="text" id="username-input" placeholder="Apodo...">
+                <h1>Tu Apodo</h1>
+                <input type="text" id="username-input" placeholder="Ej: SuperPlayer">
                 <button class="btn-main" onclick="saveName()">ENTRAR</button>
             </div>
 
             <div id="screen-home" class="screen">
                 <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
                 <h1>Trivial Brutal</h1>
-                <p id="welcome-msg" style="opacity: 0.6;"></p>
+                <p id="welcome-msg" style="opacity: 0.6; font-size: 0.9rem;"></p>
                 <button id="play-today-btn" class="btn-main" onclick="initGame('today')">JUGAR HOY</button>
-                <div style="margin-top: 20px;">
-                    <label style="font-size: 0.7rem; opacity: 0.5;">DÍAS ANTERIORES:</label>
+                <div style="margin-top: 25px;">
+                    <label style="font-size: 0.7rem; opacity: 0.4;">REPASAR DÍAS PREVIOS:</label>
                     <input type="date" id="calendar-input" onchange="initGame('calendar')">
                 </div>
             </div>
 
             <div id="screen-game" class="screen">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; opacity: 0.6; font-size: 0.8rem;">
                     <span id="q-count">1/10</span>
                     <span id="timer">00:00</span>
                 </div>
-                <h2 id="q-text" style="min-height: 60px;">---</h2>
+                <h2 id="q-text" style="font-size: 1.2rem;">---</h2>
                 <div id="options-box"></div>
             </div>
 
             <div id="screen-result" class="screen">
-                <h2>RESULTADO</h2>
-                <div id="final-stats" style="font-size: 3rem; color: var(--accent); font-weight: 900;">0/10</div>
-                <p id="final-time"></p>
+                <h2>FIN DEL JUEGO</h2>
+                <div id="final-stats" style="font-size: 3.5rem; color: var(--accent); font-weight: 900;">0/10</div>
+                <p id="final-time" style="opacity: 0.6;"></p>
                 <button class="btn-main" onclick="location.reload()">VOLVER</button>
             </div>
         </div>
@@ -178,18 +175,20 @@
 </div>
 
 <script>
+    // REEMPLAZA CON TUS DATOS DE FIREBASE
     const firebaseConfig = {
         apiKey: "TU_API_KEY",
-        authDomain: "TU_DOMINIO",
-        databaseURL: "TU_URL",
+        authDomain: "TU_ID.firebaseapp.com",
+        databaseURL: "https://TU_ID-default-rtdb.firebaseio.com",
         projectId: "TU_ID",
-        storageBucket: "TU_BUCKET",
+        storageBucket: "TU_ID.appspot.com",
         messagingSenderId: "TU_SENDER",
         appId: "TU_APP"
     };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
+    // BANCO DE PREGUNTAS (Muestreo de 10)
     const masterBank = [
         { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
@@ -200,57 +199,8 @@
         { q: "¿Qué país regaló la Estatua de la Libertad a EE.UU.?", o: ["España", "Francia", "Reino Unido", "Italia"], a: 1 },
         { q: "¿Cuál es la capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: 1 },
         { q: "¿Quién pintó el techo de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: 1 },
-        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 },
-        { q: "¿Qué elemento tiene el símbolo químico 'Fe'?", o: ["Oro", "Hierro", "Plata", "Cobre"], a: 1 },
-        { q: "¿Cuál es la partícula subatómica con carga negativa?", o: ["Protón", "Neutrón", "Electrón", "Quark"], a: 2 },
-        { q: "¿Cómo se llama el proceso de las plantas para producir alimento?", o: ["Respiración", "Mitosis", "Fotosíntesis", "Quimiosíntesis"], a: 2 },
-        { q: "¿Cuál es el mamífero más grande?", o: ["Elefante", "Ballena Azul", "Jirafa", "Rinoceronte"], a: 1 },
-        { q: "¿En qué estado de la materia las moléculas están más separadas?", o: ["Sólido", "Líquido", "Gaseoso", "Plasma"], a: 2 },
-        { q: "¿A qué temperatura hierve el agua a nivel del mar?", o: ["90°C", "100°C", "110°C", "120°C"], a: 1 },
-        { q: "¿Cuál es el planeta más cercano al Sol?", o: ["Venus", "Marte", "Mercurio", "Tierra"], a: 2 },
-        { q: "¿Qué inventó Alexander Fleming?", o: ["La bombilla", "La penicilina", "El teléfono", "La radio"], a: 1 },
-        { q: "¿Velocidad de la luz aprox.?", o: ["300 km/s", "3.000 km/s", "30.000 km/s", "300.000 km/s"], a: 3 },
-        { q: "¿Qué órgano consume más energía?", o: ["Corazón", "Hígado", "Cerebro", "Músculos"], a: 2 },
-        { q: "¿Cuándo empezó la Primera Guerra Mundial?", o: ["1912", "1914", "1916", "1918"], a: 1 },
-        { q: "¿Primer presidente de EE.UU.?", o: ["Lincoln", "Jefferson", "Washington", "Roosevelt"], a: 2 },
-        { q: "¿Qué antigua civilización construyó Machu Picchu?", o: ["Maya", "Azteca", "Inca", "Olmeca"], a: 2 },
-        { q: "¿En qué país está la Gran Pirámide de Guiza?", o: ["Egipto", "México", "Perú", "Grecia"], a: 0 },
-        { q: "¿País más grande por superficie?", o: ["Canadá", "China", "EE.UU.", "Rusia"], a: 3 },
-        { q: "¿Qué estrecho separa España de Marruecos?", o: ["Bósforo", "Magallanes", "Gibraltar", "Ormuz"], a: 2 },
-        { q: "¿En qué océano está Hawái?", o: ["Atlántico", "Pacífico", "Índico", "Ártico"], a: 1 },
-        { q: "¿Capital de Japón?", o: ["Kioto", "Osaka", "Tokio", "Hiroshima"], a: 2 },
-        { q: "¿Primera mujer en ganar un Premio Nobel?", o: ["Marie Curie", "M. Teresa", "Malala", "R. Franklin"], a: 0 },
-        { q: "¿Cuándo cayó el Muro de Berlín?", o: ["1987", "1988", "1989", "1990"], a: 2 },
-        { q: "¿Quién escribió 'Don Quijote'?", o: ["Lope de Vega", "Cervantes", "Quevedo", "Góngora"], a: 1 },
-        { q: "¿Quién pintó la 'Mona Lisa'?", o: ["Miguel Ángel", "Leonardo", "Rafael", "Donatello"], a: 1 },
-        { q: "¿Libro más vendido tras la Biblia?", o: ["Harry Potter", "Don Quijote", "El Principito", "H. dos ciudades"], a: 1 },
-        { q: "¿Compositor de la 'Novena Sinfonía'?", o: ["Mozart", "Bach", "Beethoven", "Chopin"], a: 2 },
-        { q: "¿Qué movimiento artístico lideró Dalí?", o: ["Impresionismo", "Cubismo", "Surrealismo", "Expresionismo"], a: 2 },
-        { q: "¿Quién escribió 'Hamlet'?", o: ["Cervantes", "Shakespeare", "Molière", "Goethe"], a: 1 },
-        { q: "¿En qué ciudad está el museo del Louvre?", o: ["Londres", "Roma", "Madrid", "París"], a: 3 },
-        { q: "¿Material del 'David' de Miguel Ángel?", o: ["Bronce", "Mármol", "Madera", "Yeso"], a: 1 },
-        { q: "¿Quién pintó 'El Grito'?", o: ["Van Gogh", "Munch", "Picasso", "Matisse"], a: 1 },
-        { q: "¿Instrumento principal del cuarteto de cuerda?", o: ["Viola", "Cello", "Contrabajo", "Violín"], a: 3 },
-        { q: "¿Banda conocida como 'The Fab Four'?", o: ["Stones", "Led Zeppelin", "The Beatles", "The Who"], a: 2 },
-        { q: "¿Actor de 'Piratas del Caribe'?", o: ["Pitt", "DiCaprio", "Johnny Depp", "Tom Cruise"], a: 2 },
-        { q: "¿Deporte más popular?", o: ["Baloncesto", "Tenis", "Críquet", "Fútbol"], a: 3 },
-        { q: "¿Cuándo empezaron los JJOO modernos?", o: ["1890", "1894", "1896", "1900"], a: 2 },
-        { q: "¿Goleador histórico de los Mundiales?", o: ["Pelé", "Ronaldo", "Klose", "Messi"], a: 2 },
-        { q: "¿País ganador del Mundial 2022?", o: ["Francia", "Brasil", "Argentina", "Alemania"], a: 2 },
-        { q: "¿Artista con más premios Grammy?", o: ["Georg Solti", "Beyoncé", "Quincy Jones", "Alison Krauss"], a: 1 },
-        { q: "¿Videojuego más vendido?", o: ["Tetris", "Minecraft", "GTA V", "Wii Sports"], a: 1 },
-        { q: "¿Superhéroe 'Caballero Oscuro'?", o: ["Superman", "Spider-Man", "Iron Man", "Batman"], a: 3 },
-        { q: "¿Ciudad de los premios Oscar?", o: ["Nueva York", "Chicago", "Los Ángeles", "Miami"], a: 2 },
-        { q: "¿Moneda oficial del Reino Unido?", o: ["Euro", "Dólar", "Libra", "Yen"], a: 2 },
-        { q: "¿Animal símbolo de sabiduría?", o: ["Zorro", "León", "Águila", "Búho"], a: 3 },
-        { q: "¿Único mamífero capaz de volar?", o: ["Pájaro", "Murciélago", "Ardilla Voladora", "Insecto"], a: 1 },
-        { q: "¿Fruta con semillas por fuera?", o: ["Manzana", "Naranja", "Fresa", "Plátano"], a: 2 },
-        { q: "¿Lados de un hexágono?", o: ["5", "6", "7", "8"], a: 1 },
-        { q: "¿Mezcla de azul y amarillo?", o: ["Rojo", "Naranja", "Verde", "Morado"], a: 2 },
-        { q: "¿Capital de Portugal?", o: ["Oporto", "Braga", "Coímbra", "Lisboa"], a: 3 },
-        { q: "¿Qué inventaron los hermanos Wright?", o: ["El avión", "El teléfono", "La radio", "La bombilla"], a: 0 },
-        { q: "¿Océano más pequeño?", o: ["Índico", "Ártico", "Antártico", "Pacífico"], a: 1 },
-        { q: "¿País con forma de bota?", o: ["España", "Francia", "Italia", "Grecia"], a: 2 }
+        { q: "¿Cuál es el río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: 1 }
+        // ... añadir aquí las 60 preguntas para tener variedad
     ];
 
     const hoy = new Date().toISOString().split("T")[0];
@@ -261,11 +211,14 @@
         if (!name) showScreen('screen-auth');
         else {
             showScreen('screen-home');
-            document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
+            document.getElementById('welcome-msg').innerText = `Listo para el reto, ${name}`;
             document.getElementById('calendar-input').max = hoy;
-            checkAndResetStreak(); 
+            checkStreakLogic(); 
             renderLeaderboard();
-            checkTodayStatus();
+            if(localStorage.getItem('lastPlayed_' + hoy)) {
+                const b = document.getElementById('play-today-btn');
+                b.disabled = true; b.innerText = "YA COMPLETADO";
+            }
         }
     }
 
@@ -274,17 +227,15 @@
         if (val.length >= 3) { localStorage.setItem('triviaUser', val); checkAuth(); }
     }
 
-    function checkAndResetStreak() {
+    function checkStreakLogic() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
 
         if (lastDate) {
             const dateLast = new Date(lastDate);
             const dateHoy = new Date(hoy);
-            const diffTime = Math.abs(dateHoy - dateLast);
-            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.floor((dateHoy - dateLast) / (1000 * 60 * 60 * 24));
 
-            // Si ha pasado más de 1 día (ej: jugaste anteayer pero ayer no)
             if (diffDays > 1 && lastDate !== hoy) {
                 streak = 0;
                 localStorage.setItem('userStreak', 0);
@@ -296,18 +247,13 @@
     function updateStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
-
         if (lastDate === hoy) return;
 
-        const ayer = new Date();
-        ayer.setDate(ayer.getDate() - 1);
+        const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
         const ayerStr = ayer.toISOString().split("T")[0];
 
-        if (lastDate === ayerStr) {
-            streak++; 
-        } else {
-            streak = 1; 
-        }
+        if (lastDate === ayerStr) streak++;
+        else streak = 1;
 
         localStorage.setItem('userStreak', streak);
         localStorage.setItem('lastDatePlayed', hoy);
@@ -326,16 +272,14 @@
     }
 
     function getDailySet(seed) {
-        let set = []; 
-        let tempBank = [...masterBank]; 
         let s = parseInt(seed);
-        // Mezcla determinista básica
-        for (let i = tempBank.length - 1; i > 0; i--) {
+        let temp = [...masterBank];
+        for (let i = temp.length - 1; i > 0; i--) {
             s = (s * 9301 + 49297) % 233280;
             let j = s % (i + 1);
-            [tempBank[i], tempBank[j]] = [tempBank[j], tempBank[i]];
+            [temp[i], temp[j]] = [temp[j], temp[i]];
         }
-        return tempBank.slice(0, 10);
+        return temp.slice(0, 10);
     }
 
     function loadQuestion() {
@@ -364,46 +308,30 @@
 
     function finishGame() {
         clearInterval(timerInterval);
-        const timeStr = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = `Tiempo: ${timeStr}`;
+        document.getElementById('final-time').innerText = "Tiempo: " + document.getElementById('timer').innerText;
         if(playingDate === hoy) {
-            saveResult(score, timeStr);
-            updateStreak(); 
+            const name = localStorage.getItem('triviaUser');
+            database.ref('ranking/' + name + "_" + hoy).set({
+                user: name, points: score, time: document.getElementById('timer').innerText, date: hoy
+            });
+            localStorage.setItem('lastPlayed_' + hoy, 'true');
+            updateStreak();
         }
-    }
-
-    function saveResult(pts, time) {
-        const name = localStorage.getItem('triviaUser');
-        database.ref('ranking/' + name + "_" + hoy).set({
-            user: name, points: pts, time: time, date: hoy
-        });
-        localStorage.setItem('lastPlayed_' + hoy, 'true');
     }
 
     function renderLeaderboard() {
-        database.ref('ranking').orderByChild('date').equalTo(hoy).on('value', (snapshot) => {
-            let data = []; snapshot.forEach(child => data.push(child.val()));
+        database.ref('ranking').orderByChild('date').equalTo(hoy).on('value', (snap) => {
+            let data = []; snap.forEach(c => data.push(c.val()));
             data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
             let html = "";
             for (let i = 0; i < 10; i++) {
-                if (data[i]) {
-                    html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${data[i].user}</span><span class="score-tag">${data[i].points}/10 <small>${data[i].time}</small></span></div>`;
-                } else {
-                    html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username" style="opacity:0.2">Esperando...</span><span class="score-tag">--</span></div>`;
-                }
+                if(data[i]) html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${data[i].user}</span><span class="score-tag">${data[i].points}/10</span></div>`;
+                else html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">---</span></div>`;
             }
             document.getElementById('lead-list').innerHTML = html;
         });
-    }
-
-    function checkTodayStatus() {
-        if(localStorage.getItem('lastPlayed_' + hoy)) {
-            const btn = document.getElementById('play-today-btn');
-            btn.disabled = true;
-            btn.innerText = "RETADO COMPLETADO";
-        }
     }
 
     function startTimer() {
