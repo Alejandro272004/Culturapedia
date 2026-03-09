@@ -9,25 +9,28 @@
         :root { --bg: #08080a; --card: #12121a; --accent: #00f2ff; --success: #00ff88; --error: #ff3e3e; --gold: #ffcc00; --text: #ffffff; }
         body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .main-layout { display: flex; flex-direction: row; gap: 40px; width: 100%; max-width: 1100px; }
-        .sidebar-ranking { width: 380px; flex-shrink: 0; }
-        .leaderboard { background: #0d0d12; border-radius: 20px; padding: 25px; border: 1px solid #222; }
-        .leaderboard h3 { color: var(--accent); text-transform: uppercase; font-size: 0.85rem; margin-bottom: 20px; letter-spacing: 2px; font-weight: 900; }
         
-        /* Ajuste para incluir el tiempo en el ranking */
-        .entry { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; font-size: 0.9rem; }
+        /* ESTILO DEL RANKING */
+        .sidebar-ranking { width: 380px; flex-shrink: 0; }
+        .leaderboard { background: #0d0d12; border-radius: 20px; padding: 25px; border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .leaderboard h3 { color: var(--accent); text-transform: uppercase; font-size: 0.85rem; margin-bottom: 20px; letter-spacing: 2px; font-weight: 900; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        
+        .entry { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
         .rank { font-weight: 900; width: 30px; color: #555; }
-        .username { flex-grow: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
-        .score-box { display: flex; gap: 8px; align-items: center; }
-        .score-tag { font-family: monospace; background: #1a1a24; padding: 4px 8px; border-radius: 6px; color: var(--success); font-weight: bold; }
-        .time-tag { font-family: monospace; color: #777; font-size: 0.8rem; }
+        .entry:nth-child(2) .rank { color: var(--gold); } /* Oro para el 1º */
+        
+        .username { flex-grow: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #eee; }
+        .score-box { display: flex; gap: 10px; align-items: center; }
+        .time-tag { font-family: monospace; color: #666; font-size: 0.8rem; }
+        .score-tag { font-family: monospace; background: #1a1a24; padding: 4px 10px; border-radius: 6px; color: var(--accent); font-weight: bold; border: 1px solid #333; }
 
+        /* ESTILO DEL JUEGO */
         .game-column { flex-grow: 1; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 450px; background: var(--card); border-radius: 28px; padding: 40px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
-        
         .screen { display: none; }
         .screen.active { display: block; animation: fadeIn 0.4s ease; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+        
         .btn-main { width: 100%; padding: 20px; background: var(--accent); color: black; font-weight: 900; border: none; border-radius: 14px; margin-top: 20px; cursor: pointer; text-transform: uppercase; }
         .btn-main:disabled { background: #222 !important; color: #555 !important; cursor: not-allowed; }
         input { width: 100%; padding: 16px; background: #1e1e2a; border: 1px solid #333; color: white; border-radius: 12px; margin-top: 10px; box-sizing: border-box; text-align: center; }
@@ -35,6 +38,7 @@
         .correct { background: var(--success) !important; color: black; font-weight: 900; }
         .wrong { background: var(--error) !important; }
         .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.3rem; margin-bottom: 15px; }
+
         @media (max-width: 900px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
     </style>
 </head>
@@ -44,7 +48,7 @@
     <aside class="sidebar-ranking">
         <div class="leaderboard">
             <h3>TOP 10 MUNDIAL (HOY)</h3>
-            <div id="lead-list">Cargando...</div>
+            <div id="lead-list">Cargando clasificación...</div>
         </div>
     </aside>
 
@@ -135,10 +139,11 @@
                 btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
             }
             checkStreak();
-            renderLeaderboard();
+            renderLeaderboard(); // Esto carga el ranking
         }
     }
 
+    // LÓGICA DE RACHA (Si no juega en 2 días, a 0)
     function checkStreak() {
         const lastDate = localStorage.getItem('lastDatePlayed');
         let streak = parseInt(localStorage.getItem('userStreak') || 0);
@@ -149,7 +154,6 @@
             if (diffDays >= 2) {
                 streak = 0;
                 localStorage.setItem('userStreak', 0);
-                localStorage.setItem('lastDatePlayed', "");
             }
         }
         document.getElementById('streak-num').innerText = streak;
@@ -168,13 +172,15 @@
         document.getElementById('streak-num').innerText = streak;
     }
 
+    // FUNCIÓN DEL RANKING
     function renderLeaderboard() {
         const rankingRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
         onValue(rankingRef, (snapshot) => {
             let data = [];
             snapshot.forEach(child => data.push(child.val()));
-            // Ordenar por puntos (desc) y luego por tiempo (asc)
+            // ORDEN: Más puntos -> Menos tiempo
             data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
+            
             let html = "";
             for (let i = 0; i < 10; i++) {
                 if(data[i]) {
@@ -236,6 +242,7 @@
         document.getElementById('final-time-display').innerText = `Tiempo: ${timeStr}`;
         if(playingDate === hoy) {
             const name = localStorage.getItem('triviaUser');
+            // Guardar en Firebase incluyendo el tiempo
             set(ref(db, 'ranking/' + name + "_" + hoy), { user: name, points: score, time: timeStr, date: hoy });
             localStorage.setItem('lastPlayed_' + hoy, 'true');
             updateStreak();
@@ -256,22 +263,8 @@
         const val = document.getElementById('username-input').value.trim();
         if (val.length >= 3) { localStorage.setItem('triviaUser', val); checkAuth(); }
     };
-    document.getElementById('play-today-btn').onclick = () => { 
-        playingDate = hoy; 
-        currentQuestions = getDailySet(hoy.replace(/-/g,"")); 
-        currentStep = 0; score = 0; 
-        showScreen('screen-game'); 
-        startTimer(); 
-        loadQuestion(); 
-    };
-    document.getElementById('calendar-input').onchange = (e) => { 
-        playingDate = e.target.value; 
-        currentQuestions = getDailySet(playingDate.replace(/-/g,"")); 
-        currentStep = 0; score = 0; 
-        showScreen('screen-game'); 
-        startTimer(); 
-        loadQuestion(); 
-    };
+    document.getElementById('play-today-btn').onclick = () => { playingDate = hoy; currentQuestions = getDailySet(hoy.replace(/-/g,"")); currentStep = 0; score = 0; showScreen('screen-game'); startTimer(); loadQuestion(); };
+    document.getElementById('calendar-input').onchange = (e) => { playingDate = e.target.value; currentQuestions = getDailySet(playingDate.replace(/-/g,"")); currentStep = 0; score = 0; showScreen('screen-game'); startTimer(); loadQuestion(); };
     document.getElementById('btn-reload').onclick = () => location.reload();
 
     checkAuth();
