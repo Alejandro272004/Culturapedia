@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRIVIAL BRUTAL DIARIO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
     <style>
         :root {
@@ -31,7 +29,6 @@
             min-height: 100vh;
         }
 
-        /* ESTRUCTURA DE DOS COLUMNAS */
         .main-layout {
             display: flex;
             flex-direction: row;
@@ -41,7 +38,6 @@
             max-width: 1100px;
         }
 
-        /* COLUMNA IZQUIERDA: RANKING TOP 10 */
         .sidebar-ranking {
             width: 350px;
             flex-shrink: 0;
@@ -74,14 +70,13 @@
         .entry:last-child { border: none; }
 
         .rank { font-weight: 900; width: 35px; color: #555; }
-        .entry:nth-child(2) .rank { color: var(--gold); } /* Top 1 */
-        .entry:nth-child(3) .rank { color: #c0c0c0; } /* Top 2 */
-        .entry:nth-child(4) .rank { color: #cd7f32; } /* Top 3 */
+        .entry:nth-child(2) .rank { color: var(--gold); }
+        .entry:nth-child(3) .rank { color: #c0c0c0; }
+        .entry:nth-child(4) .rank { color: #cd7f32; }
 
         .username { flex-grow: 1; text-align: left; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .score-tag { font-family: monospace; font-size: 0.85rem; background: #1a1a24; padding: 4px 8px; border-radius: 6px; }
 
-        /* COLUMNA DERECHA: JUEGO */
         .game-column {
             flex-grow: 1;
             display: flex;
@@ -146,19 +141,18 @@
         <div class="container">
             <div id="screen-auth" class="screen">
                 <h1>Tu Apodo</h1>
-                <p style="opacity:0.5">Escribe tu nombre para el ranking</p>
                 <input type="text" id="username-input" placeholder="Ej: Neo99">
-                <button class="btn-main" onclick="saveName()">ENTRAR AL RETO</button>
+                <button class="btn-main" id="btn-save-name">ENTRAR AL RETO</button>
             </div>
 
             <div id="screen-home" class="screen">
                 <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
                 <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Trivial Brutal</h1>
                 <p id="welcome-msg" style="opacity: 0.6; margin-bottom: 30px;"></p>
-                <button id="play-today-btn" class="btn-main" onclick="initGame('today')">JUGAR RETO DE HOY</button>
+                <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
                 <div style="margin-top: 30px; border-top: 1px solid #222; padding-top: 20px;">
-                    <label style="font-size: 0.7rem; opacity: 0.4; display: block; margin-bottom: 10px;">REPASAR DÍAS ANTERIORES:</label>
-                    <input type="date" id="calendar-input" onchange="initGame('calendar')">
+                    <label style="font-size: 0.7rem; opacity: 0.4; display: block; margin-bottom: 10px;">DÍAS ANTERIORES:</label>
+                    <input type="date" id="calendar-input">
                 </div>
             </div>
 
@@ -167,35 +161,38 @@
                     <span id="q-count" style="font-weight: 900; opacity: 0.5;">1/10</span>
                     <span id="timer">00:00</span>
                 </div>
-                <h2 id="q-text" style="min-height: 80px; font-size: 1.4rem; line-height: 1.3;">Cargando pregunta...</h2>
+                <h2 id="q-text" style="min-height: 80px; font-size: 1.4rem; line-height: 1.3;">Cargando...</h2>
                 <div id="options-box" style="margin-top: 20px;"></div>
             </div>
 
             <div id="screen-result" class="screen">
-                <h2 style="opacity: 0.5;">RETO FINALIZADO</h2>
+                <h2 style="opacity: 0.5;">FIN DEL RETO</h2>
                 <div id="final-stats" style="font-size: 4.5rem; color: var(--accent); font-weight: 900;">0/10</div>
                 <p id="final-time" style="font-family: monospace; font-size: 1.2rem;"></p>
-                <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
+                <button class="btn-main" id="btn-reload">VOLVER AL INICIO</button>
             </div>
         </div>
     </main>
 </div>
 
-<script>
-    // CONFIGURACIÓN FIREBASE
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+
     const firebaseConfig = {
-        apiKey: "TU_API_KEY",
+        apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
         authDomain: "trivialbrutal.firebaseapp.com",
         databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com",
         projectId: "trivialbrutal",
-        storageBucket: "trivialbrutal.appspot.com",
-        messagingSenderId: "TU_SENDER_ID",
-        appId: "TU_APP_ID"
+        storageBucket: "trivialbrutal.firebasestorage.app",
+        messagingSenderId: "428554501222",
+        appId: "1:428554501222:web:0985d7e8784cd46657c1a7",
+        measurementId: "G-JV1QM4GVL4"
     };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
 
-    // BANCO DE 60 PREGUNTAS
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
     const masterBank = [
         { q: "¿Qué gas constituye el 78% de la atmósfera?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: 1 },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: 0 },
@@ -262,55 +259,12 @@
     const hoy = new Date().toISOString().split("T")[0];
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
 
-    function checkAuth() {
-        const name = localStorage.getItem('triviaUser');
-        if (!name) showScreen('screen-auth');
-        else {
-            showScreen('screen-home');
-            document.getElementById('welcome-msg').innerText = `Listo para el reto, ${name}`;
-            document.getElementById('calendar-input').max = hoy;
-            checkStreak();
-            renderLeaderboard();
-            if(localStorage.getItem('lastPlayed_' + hoy)) {
-                const btn = document.getElementById('play-today-btn');
-                btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
-            }
-        }
-    }
-
-    function saveName() {
+    window.saveName = () => {
         const val = document.getElementById('username-input').value.trim();
         if (val.length >= 3) { localStorage.setItem('triviaUser', val); checkAuth(); }
-    }
+    };
 
-    // LÓGICA DE RACHA
-    function checkStreak() {
-        const lastDate = localStorage.getItem('lastDatePlayed');
-        let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        if (lastDate) {
-            const dateLast = new Date(lastDate);
-            const dateHoy = new Date(hoy);
-            const diffDays = Math.floor((dateHoy - dateLast) / (1000 * 60 * 60 * 24));
-            if (diffDays > 1 && lastDate !== hoy) {
-                streak = 0; localStorage.setItem('userStreak', 0);
-            }
-        }
-        document.getElementById('streak-num').innerText = streak;
-    }
-
-    function updateStreak() {
-        const lastDate = localStorage.getItem('lastDatePlayed');
-        let streak = parseInt(localStorage.getItem('userStreak') || 0);
-        if (lastDate === hoy) return;
-        const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
-        const ayerStr = ayer.toISOString().split("T")[0];
-        if (lastDate === ayerStr) streak++; else streak = 1;
-        localStorage.setItem('userStreak', streak);
-        localStorage.setItem('lastDatePlayed', hoy);
-        document.getElementById('streak-num').innerText = streak;
-    }
-
-    function initGame(mode) {
+    window.initGame = (mode) => {
         playingDate = (mode === 'today') ? hoy : document.getElementById('calendar-input').value;
         if (!playingDate) return;
         const seed = playingDate.split("-").join("");
@@ -319,6 +273,36 @@
         showScreen('screen-game');
         startTimer();
         loadQuestion();
+    };
+
+    function checkAuth() {
+        const name = localStorage.getItem('triviaUser');
+        if (!name) showScreen('screen-auth');
+        else {
+            showScreen('screen-home');
+            document.getElementById('welcome-msg').innerText = `Listo para el reto, ${name}`;
+            document.getElementById('calendar-input').max = hoy;
+            renderLeaderboard();
+            if(localStorage.getItem('lastPlayed_' + hoy)) {
+                const btn = document.getElementById('play-today-btn');
+                btn.disabled = true; btn.innerText = "RETO COMPLETADO ✅";
+            }
+        }
+    }
+
+    function renderLeaderboard() {
+        const rankingRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
+        onValue(rankingRef, (snapshot) => {
+            let data = [];
+            snapshot.forEach(child => data.push(child.val()));
+            data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
+            let html = "";
+            for (let i = 0; i < 10; i++) {
+                if(data[i]) html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${data[i].user}</span><span class="score-tag">${data[i].points}/10 <small style="opacity:0.4">${data[i].time}</small></span></div>`;
+                else html += `<div class="entry" style="opacity:0.2"><span class="rank">#${i+1}</span><span class="username">Esperando...</span><span class="score-tag">--</span></div>`;
+            }
+            document.getElementById('lead-list').innerHTML = html;
+        });
     }
 
     function getDailySet(seed) {
@@ -362,36 +346,11 @@
         document.getElementById('final-time').innerText = "TIEMPO: " + timeStr;
         if(playingDate === hoy) {
             const name = localStorage.getItem('triviaUser');
-            database.ref('ranking/' + name + "_" + hoy).set({
+            set(ref(db, 'ranking/' + name + "_" + hoy), {
                 user: name, points: score, time: timeStr, date: hoy
             });
             localStorage.setItem('lastPlayed_' + hoy, 'true');
-            updateStreak();
         }
-    }
-
-    function renderLeaderboard() {
-        database.ref('ranking').orderByChild('date').equalTo(hoy).on('value', (snap) => {
-            let data = []; snap.forEach(c => data.push(c.val()));
-            data.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
-            let html = "";
-            for (let i = 0; i < 10; i++) {
-                if(data[i]) {
-                    html += `<div class="entry">
-                        <span class="rank">#${i+1}</span>
-                        <span class="username">${data[i].user}</span>
-                        <span class="score-tag">${data[i].points}/10 <small style="opacity:0.4">${data[i].time}</small></span>
-                    </div>`;
-                } else {
-                    html += `<div class="entry" style="opacity:0.2">
-                        <span class="rank">#${i+1}</span>
-                        <span class="username">Esperando...</span>
-                        <span class="score-tag">--</span>
-                    </div>`;
-                }
-            }
-            document.getElementById('lead-list').innerHTML = html;
-        });
     }
 
     function startTimer() {
@@ -408,6 +367,12 @@
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
+
+    // Listeners para botones (necesario en type="module")
+    document.getElementById('btn-save-name').onclick = window.saveName;
+    document.getElementById('play-today-btn').onclick = () => window.initGame('today');
+    document.getElementById('calendar-input').onchange = () => window.initGame('calendar');
+    document.getElementById('btn-reload').onclick = () => location.reload();
 
     checkAuth();
 </script>
