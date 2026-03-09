@@ -6,246 +6,110 @@
     <title>TRIVIAL BRUTAL - DELUXE</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* Variables de Tema */
+        /* TEMA DINÁMICO */
         [data-theme="dark"] {
-            --bg: #050508;
-            --container-bg: #0f0f16;
-            --card-inner: #161622;
-            --text: #ffffff;
-            --text-dim: #a0a0b8;
-            --accent: #00f2ff;
-            --accent-glow: rgba(0, 242, 255, 0.3);
-            --border: #222230;
+            --bg: #050508; --container-bg: #0f0f16; --card-inner: #161622;
+            --text: #ffffff; --text-dim: #a0a0b8; --accent: #00f2ff;
+            --accent-glow: rgba(0, 242, 255, 0.3); --border: #222230;
         }
         [data-theme="light"] {
-            --bg: #f0f2f5;
-            --container-bg: #ffffff;
-            --card-inner: #f8f9fa;
-            --text: #1a1a2e;
-            --text-dim: #64748b;
-            --accent: #0070f3;
-            --accent-glow: rgba(0, 112, 243, 0.2);
-            --border: #e2e8f0;
+            --bg: #f0f2f5; --container-bg: #ffffff; --card-inner: #f8f9fa;
+            --text: #1a1a2e; --text-dim: #64748b; --accent: #0070f3;
+            --accent-glow: rgba(0, 112, 243, 0.2); --border: #e2e8f0;
         }
-
-        :root {
-            --success: #00ff88;
-            --error: #ff3e3e;
-            --radius-lg: 24px;
-            --radius-md: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        :root { --success: #00ff88; --error: #ff3e3e; --transition: all 0.3s ease; }
 
         body { 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            margin: 0; 
-            padding: 20px; 
-            display: flex; 
-            justify-content: center; 
-            min-height: 100vh;
+            background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; padding: 20px; display: flex; justify-content: center; min-height: 100vh;
             transition: var(--transition);
         }
 
-        /* Switch de Tema */
         .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--container-bg);
-            border: 1px solid var(--border);
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: fixed; top: 20px; right: 20px; background: var(--container-bg);
+            border: 1px solid var(--border); padding: 10px; border-radius: 50%; cursor: pointer;
+            z-index: 100; font-size: 1.2rem;
         }
 
-        .main-layout { display: flex; flex-direction: row; gap: 40px; width: 100%; max-width: 1200px; align-items: flex-start; }
+        .main-layout { display: flex; gap: 40px; width: 100%; max-width: 1100px; align-items: flex-start; }
 
-        /* Estilo Ranking */
+        /* RANKING */
         .sidebar-ranking { width: 320px; flex-shrink: 0; position: sticky; top: 20px; }
-        .leaderboard { 
-            background: var(--container-bg); 
-            border-radius: var(--radius-lg); 
-            padding: 24px; 
-            border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-        .leaderboard h3 { 
-            color: var(--accent); 
-            text-transform: uppercase; 
-            font-size: 0.7rem; 
-            letter-spacing: 3px; 
-            margin-bottom: 20px; 
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border);
-        }
-        .entry { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 12px 16px; 
-            background: var(--card-inner);
-            border-radius: var(--radius-md);
-            margin-bottom: 8px;
-            align-items: center; 
-            font-size: 0.85rem;
-            transition: var(--transition);
-        }
-        .entry:hover { transform: translateX(5px); border-color: var(--accent); }
-        .rank { font-weight: 800; width: 30px; color: var(--text-dim); }
-        .username { flex-grow: 1; font-weight: 600; }
-        .score-tag { font-family: 'Monaco', monospace; color: var(--accent); font-weight: bold; }
+        .leaderboard { background: var(--container-bg); border-radius: 24px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .leaderboard h3 { color: var(--accent); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        .entry { display: flex; justify-content: space-between; padding: 12px; background: var(--card-inner); border-radius: 12px; margin-bottom: 8px; font-size: 0.9rem; }
+        .score-tag { color: var(--accent); font-weight: 800; }
 
-        /* Contenedor Juego */
-        .game-column { flex-grow: 1; display: flex; justify-content: center; }
-        .container { 
-            width: 100%; 
-            max-width: 500px; 
-            background: var(--container-bg); 
-            border-radius: var(--radius-lg); 
-            padding: 40px; 
-            border: 1px solid var(--border); 
-            text-align: center;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
-            position: relative;
-        }
-
-        .screen { display: none; animation: fadeIn 0.4s ease-out; }
-        .screen.active { display: block; }
-
+        /* JUEGO */
+        .container { flex-grow: 1; max-width: 500px; background: var(--container-bg); border-radius: 24px; padding: 40px; border: 1px solid var(--border); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Botones y Inputs */
-        .btn-main { 
-            width: 100%; 
-            padding: 20px; 
-            background: var(--accent); 
-            color: #fff; 
-            font-weight: 800; 
-            border: none; 
-            border-radius: var(--radius-md); 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            margin-top: 20px;
-            box-shadow: 0 8px 16px var(--accent-glow);
-            transition: var(--transition);
-        }
-        .btn-main:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .btn-main:disabled { background: var(--border) !important; color: var(--text-dim) !important; cursor: not-allowed; box-shadow: none; }
+        .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 20px; transition: var(--transition); }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px var(--accent-glow); }
+        .btn-main:disabled { background: var(--border) !important; color: var(--text-dim) !important; cursor: not-allowed; }
 
-        input { 
-            width: 100%; 
-            padding: 18px; 
-            background: var(--card-inner); 
-            border: 2px solid var(--border); 
-            color: var(--text); 
-            border-radius: var(--radius-md); 
-            margin-top: 15px; 
-            text-align: center; 
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-        input:focus { border-color: var(--accent); outline: none; }
+        .opt-btn { width: 100%; padding: 16px; margin-bottom: 10px; background: var(--card-inner); color: var(--text); text-align: left; border-radius: 12px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
+        .opt-btn:hover { border-color: var(--accent); background: var(--border); }
+        .correct { background: var(--success) !important; color: #000 !important; font-weight: 800; }
+        .wrong { background: var(--error) !important; color: #fff !important; }
 
-        .opt-btn { 
-            width: 100%; 
-            padding: 18px; 
-            margin-bottom: 12px; 
-            background: var(--card-inner); 
-            color: var(--text); 
-            text-align: left; 
-            border-radius: var(--radius-md); 
-            border: 1px solid var(--border); 
-            cursor: pointer; 
-            font-size: 0.95rem;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-        .opt-btn:hover { background: var(--border); transform: scale(1.02); }
+        input { width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
+        .streak-fire { color: #ff8800; font-weight: 800; margin-bottom: 15px; display: inline-block; padding: 5px 15px; background: rgba(255,136,0,0.1); border-radius: 20px; }
 
-        .correct { background: var(--success) !important; color: #000 !important; font-weight: 800; border-color: var(--success); }
-        .wrong { background: var(--error) !important; color: #fff !important; border-color: var(--error); }
-
-        .streak-fire { 
-            display: inline-block;
-            background: rgba(255, 136, 0, 0.1);
-            color: #ff8800;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 800;
-            margin-bottom: 20px;
-        }
-
-        #timer { font-weight: 800; font-variant-numeric: tabular-nums; }
-
-        @media (max-width: 850px) { 
-            .main-layout { flex-direction: column; align-items: center; } 
-            .sidebar-ranking { width: 100%; order: 2; } 
-        }
+        @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
     </style>
 </head>
 <body>
 
-<button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">🌓</button>
+<button class="theme-toggle" onclick="toggleTheme()">🌓</button>
 
 <div class="main-layout">
     <aside class="sidebar-ranking">
         <div class="leaderboard">
-            <h3>🏆 TOP GLOBAL HOY</h3>
+            <h3>🏆 TOP HOY</h3>
             <div id="lead-list">Cargando...</div>
         </div>
     </aside>
 
-    <main class="game-column">
-        <div class="container">
-            <div id="screen-auth" class="screen">
-                <h1 style="font-size: 2rem; margin-bottom: 10px;">¡Bienvenido!</h1>
-                <p style="color: var(--text-dim);">Dinos cómo te llamas para el ranking</p>
-                <input type="text" id="username-input" placeholder="Tu nombre o apodo">
-                <button class="btn-main" id="btn-save-name">EMPEZAR AVENTURA</button>
-            </div>
+    <main class="container">
+        <div id="screen-auth" class="screen">
+            <h1>CULTURA BRUTAL</h1>
+            <p style="color: var(--text-dim);">Introduce tu nombre para el ranking</p>
+            <input type="text" id="username-input" placeholder="Tu apodo">
+            <button class="btn-main" id="btn-save-name">ENTRAR</button>
+        </div>
 
-            <div id="screen-home" class="screen">
-                <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
-                <h1 id="welcome-msg" style="font-size: 2.2rem;"></h1>
-                <p style="color: var(--text-dim); margin-bottom: 30px;">¿Listo para el reto de 10 preguntas de hoy?</p>
-                <button id="play-today-btn" class="btn-main">LANZAR RETO DIARIO</button>
-            </div>
+        <div id="screen-home" class="screen">
+            <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
+            <h1 id="welcome-msg"></h1>
+            <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
+        </div>
 
-            <div id="screen-game" class="screen">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 25px; align-items: center;">
-                    <span id="q-count" style="font-weight: 800; color: var(--text-dim);">1/10</span>
-                    <span id="timer" style="color: var(--accent); background: var(--accent-glow); padding: 5px 12px; border-radius: 8px;">00:00</span>
-                </div>
-                <h3 id="q-text" style="font-size: 1.4rem; margin-bottom: 30px; line-height: 1.4;"></h3>
-                <div id="options-box"></div>
+        <div id="screen-game" class="screen">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <span id="q-count">1/10</span>
+                <span id="timer" style="color: var(--accent); font-weight: 800;">00:00</span>
             </div>
+            <h3 id="q-text"></h3>
+            <div id="options-box"></div>
+        </div>
 
-            <div id="screen-result" class="screen">
-                <h2 style="letter-spacing: 2px;">RETO COMPLETADO</h2>
-                <div id="final-stats" style="font-size: 4rem; font-weight: 800; color: var(--accent); margin: 20px 0;">0/10</div>
-                <p id="final-time" style="font-weight: 600; color: var(--text-dim);"></p>
-                <div id="save-msg" style="margin: 20px 0; color: var(--success);"></div>
-                <button class="btn-main" onclick="location.reload()">VOLVER AL PANEL</button>
-            </div>
+        <div id="screen-result" class="screen">
+            <h2>¡FINALIZADO!</h2>
+            <div id="final-stats" style="font-size: 4rem; font-weight: 900; color: var(--accent);">0/10</div>
+            <p id="final-time"></p>
+            <button class="btn-main" onclick="location.reload()">VOLVER</button>
         </div>
     </main>
 </div>
 
 <script>
-    // Función para el modo claro/oscuro
     function toggleTheme() {
         const html = document.documentElement;
-        const current = html.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', next);
-        localStorage.setItem('trivialTheme', next);
-    }
-    // Cargar tema preferido
-    if(localStorage.getItem('trivialTheme')) {
-        document.documentElement.setAttribute('data-theme', localStorage.getItem('trivialTheme'));
     }
 </script>
 
@@ -253,7 +117,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
-    // MANTENEMOS TU CONFIGURACIÓN EXACTA [cite: 357]
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
         authDomain: "trivialbrutal.firebaseapp.com",
@@ -268,59 +131,7 @@
     const db = getDatabase(app);
     const hoy = new Date().toISOString().split("T")[0];
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
-
-    // BANCO DE PREGUNTAS (Sin cambios) [cite: 359, 394]
-    const masterBank = [
-    { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
-    { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
-    { q: "¿Pintor de la Capilla Sixtina?", o: ["Leonardo", "Miguel Ángel", "Rafael", "Donatello"], a: "Miguel Ángel" },
-    { q: "¿Capital de Australia?", o: ["Sídney", "Canberra", "Melbourne", "Perth"], a: "Canberra" },
-    { q: "¿Río más largo del mundo?", o: ["Nilo", "Amazonas", "Yangtsé", "Misisipi"], a: "Amazonas" },
-    { q: "¿Hueso más largo del cuerpo?", o: ["Fémur", "Húmero", "Tibia", "Peroné"], a: "Fémur" },
-    { q: "¿Planeta con más lunas?", o: ["Saturno", "Júpiter", "Marte", "Urano"], a: "Saturno" },
-    { q: "¿Símbolo químico del Oro?", o: ["Ag", "Au", "Or", "Fe"], a: "Au" },
-    { q: "¿Quién escribió Hamlet?", o: ["Shakespeare", "Cervantes", "Moliere", "Dante"], a: "Shakespeare" },
-    { q: "¿Animal terrestre más rápido?", o: ["León", "Guepardo", "Tigre", "Avestruz"], a: "Guepardo" },
-    { q: "¿En qué país se encuentra la Torre Pisa?", o: ["Francia", "Italia", "España", "Grecia"], a: "Italia" },
-    { q: "¿Cuántos elementos tiene la tabla periódica?", o: ["118", "105", "124", "98"], a: "118" },
-    { q: "¿Cuál es el océano más grande?", o: ["Atlántico", "Índico", "Pacífico", "Ártico"], a: "Pacífico" },
-    { q: "¿En qué año llegó el hombre a la Luna?", o: ["1969", "1965", "1972", "1959"], a: "1969" },
-    { q: "¿Quién pintó 'La última cena'?", o: ["Picasso", "Da Vinci", "Dalí", "Van Gogh"], a: "Da Vinci" },
-    { q: "¿Qué país tiene forma de bota?", o: ["Grecia", "Italia", "España", "Portugal"], a: "Italia" },
-    { q: "¿Cuál es la moneda de Japón?", o: ["Yuan", "Yen", "Dólar", "Won"], a: "Yen" },
-    { q: "¿Cuál es el metal más caro del mundo?", o: ["Oro", "Platino", "Rodio", "Paladio"], a: "Rodio" },
-    { q: "¿Qué órgano produce la insulina?", o: ["Hígado", "Páncreas", "Riñón", "Bazo"], a: "Páncreas" },
-    { q: "¿Quién descubrió la penicilina?", o: ["Einstein", "Fleming", "Newton", "Pasteur"], a: "Fleming" },
-    { q: "¿Cuál es el país más grande del mundo?", o: ["China", "Rusia", "Canadá", "EEUU"], a: "Rusia" },
-    { q: "¿Cómo se llama el miedo a las arañas?", o: ["Acrofobia", "Aracnofobia", "Claustrofobia", "Agorafobia"], a: "Aracnofobia" },
-    { q: "¿Cuál es el tercer planeta del sistema solar?", o: ["Marte", "Tierra", "Venus", "Saturno"], a: "Tierra" },
-    { q: "¿Qué instrumento tocaba Sherlock Holmes?", o: ["Piano", "Violín", "Flauta", "Guitarra"], a: "Violín" },
-    { q: "¿En qué continente está el desierto del Sahara?", o: ["Asia", "África", "Oceanía", "América"], a: "África" },
-    { q: "¿Cuál es la ciudad de los canales?", o: ["París", "Venecia", "Ámsterdam", "Roma"], a: "Venecia" },
-    { q: "¿Quién fue el primer presidente de EEUU?", o: ["Lincoln", "Washington", "Jefferson", "Roosevelt"], a: "Washington" },
-    { q: "¿Cuál es el ave que no vuela?", o: ["Águila", "Avestruz", "Loro", "Canario"], a: "Avestruz" },
-    { q: "¿Qué parte del cuerpo tiene más huesos?", o: ["Pie", "Mano", "Cabeza", "Columna"], a: "Mano" },
-    { q: "¿Cuántos años tiene un siglo?", o: ["10", "50", "100", "1000"], a: "100" },
-    { q: "¿Cuál es el edificio más alto del mundo?", o: ["Empire State", "Burj Khalifa", "Torre Eiffel", "Big Ben"], a: "Burj Khalifa" },
-    { q: "¿En qué guerra participó Juana de Arco?", o: ["Guerra de los 100 años", "Cruzadas", "Guerra Civil", "Guerra de secesión"], a: "Guerra de los 100 años" },
-    { q: "¿Cuál es el país con más habitantes?", o: ["India", "China", "Rusia", "EEUU"], a: "India" },
-    { q: "¿Qué idioma se habla en Brasil?", o: ["Español", "Portugués", "Francés", "Inglés"], a: "Portugués" },
-    { q: "¿Cuál es el animal más grande del mundo?", o: ["Elefante", "Ballena Azul", "Tiburón Blanco", "Jirafa"], a: "Ballena Azul" },
-    { q: "¿Quién escribió 'Don Quijote de la Mancha'?", o: ["Lope de Vega", "Cervantes", "Quevedo", "Góngora"], a: "Cervantes" },
-    { q: "¿Cuál es la capital de Italia?", o: ["Milán", "Roma", "Nápoles", "Florencia"], a: "Roma" },
-    { q: "¿Qué ciencia estudia los astros?", o: ["Astrología", "Astronomía", "Geología", "Biología"], a: "Astronomía" },
-    { q: "¿Cuántos lados tiene un hexágono?", o: ["5", "6", "7", "8"], a: "6" },
-    { q: "¿Quién fue el dios del trueno nórdico?", o: ["Odín", "Thor", "Loki", "Freya"], a: "Thor" },
-    { q: "¿Cuál es el color de la esmeralda?", o: ["Azul", "Rojo", "Verde", "Amarillo"], a: "Verde" },
-    { q: "¿En qué país nació Albert Einstein?", o: ["EEUU", "Alemania", "Suiza", "Austria"], a: "Alemania" },
-    { q: "¿Cuál es la montaña más alta del mundo?", o: ["K2", "Everest", "Teide", "Anapurna"], a: "Everest" },
-    { q: "¿Qué selección ganó el mundial de 2022?", o: ["Francia", "Argentina", "Brasil", "Alemania"], a: "Argentina" },
-    { q: "¿Quién pintó 'El Grito'?", o: ["Munch", "Klimt", "Warhol", "Monet"], a: "Munch" },
-    { q: "¿Cuál es la capital de Francia?", o: ["Lyon", "París", "Marsella", "Niza"], a: "París" },
-    { q: "¿Cuántos corazones tienen los calamares?", o: ["1", "2", "3", "4"], a: "3" },
-    { q: "¿Qué sistema del cuerpo bombea sangre?", o: ["Digestivo", "Circulatorio", "Respiratorio", "Nervioso"], a: "Circulatorio" },
-    { q: "¿Cuál es la ciudad más poblada de EEUU?", o: ["Los Ángeles", "Chicago", "Nueva York", "Miami"], a: "Nueva York" },
-    { q: "¿En qué año terminó la II Guerra Mundial?", o: ["1918", "1939", "1945", "1950"], a: "1945" }
+const masterBank = [
     { q: "¿Qué país regaló la Estatua de la Libertad a EEUU?", o: ["España", "Francia", "Reino Unido", "Alemania"], a: "Francia" },
     { q: "¿Cuál es el río más caudaloso del mundo?", o: ["Nilo", "Misisipi", "Amazonas", "Danubio"], a: "Amazonas" },
     { q: "¿Qué elemento químico tiene el símbolo 'Fe'?", o: ["Flúor", "Fósforo", "Hierro", "Fermio"], a: "Hierro" },
@@ -425,105 +236,8 @@
     { q: "¿Qué gas absorben las plantas para hacer la fotosíntesis?", o: ["Oxígeno", "Dióxido de carbono", "Hidrógeno", "Ozono"], a: "Dióxido de carbono" },
     { q: "¿Cuál es la capital de Irlanda?", o: ["Belfast", "Cork", "Dublín", "Galway"], a: "Dublín" },
     { q: "¿Qué navegante dio la primera vuelta al mundo?", o: ["Colón", "Magallanes-Elcano", "Vasco de Gama", "Cook"], a: "Magallanes-Elcano" },
-    { q: "¿Cuál es el metal más ligero?", o: ["Aluminio", "Litio", "Magnesio", "Sodio"], a: "Litio" },
-    { q: "¿Quién escribió 'El viejo y el mar'?", o: ["Hemingway", "Steinbeck", "Faulkner", "Fitzgerald"], a: "Hemingway" },
-    { q: "¿Cuál es la capital de Tailandia?", o: ["Phuket", "Bangkok", "Seúl", "Hanoi"], a: "Bangkok" },
-    { q: "¿Qué parte de la célula contiene el ADN?", o: ["Citoplasma", "Núcleo", "Ribosomas", "Membrana"], a: "Núcleo" },
-    { q: "¿En qué país se inventó la pizza?", o: ["Grecia", "Italia", "EEUU", "Francia"], a: "Italia" },
-    { q: "¿Quién fue el dios romano del mar?", o: ["Júpiter", "Poseidón", "Neptuno", "Marte"], a: "Neptuno" },
-    { q: "¿Cuál es la capital de Cuba?", o: ["Santiago", "La Habana", "Holguín", "Varadero"], a: "La Habana" },
-    { q: "¿Qué ciudad fue la capital del Imperio Bizantino?", o: ["Roma", "Atenas", "Constantinopla", "Alejandría"], a: "Constantinopla" },
-    { q: "¿Cuál es la capital de Suiza?", o: ["Ginebra", "Zúrich", "Berna", "Basilea"], a: "Berna" },
-    { q: "¿Qué elemento químico es el grafito?", o: ["Plomo", "Carbono", "Hierro", "Fósforo"], a: "Carbono" },
-    { q: "¿Quién pintó 'Las Meninas'?", o: ["Goya", "Velázquez", "Picasso", "Dalí"], a: "Velázquez" },
-    { q: "¿Cuál es el país con más hablantes de español?", o: ["España", "México", "Colombia", "Argentina"], a: "México" },
-    { q: "¿Qué científico descubrió la gravedad?", o: ["Einstein", "Newton", "Galileo", "Kepler"], a: "Newton" },
-    { q: "¿Cuál es la capital de Corea del Sur?", o: ["Pekín", "Tokio", "Seúl", "Pyongyang"], a: "Seúl" },
-    { q: "¿Qué animal es el emblema de Australia?", o: ["Koala", "Canguro", "Ornitorrinco", "Dingo"], a: "Canguro" },
-    { q: "¿Quién fue el primer hombre en el espacio?", o: ["Neil Armstrong", "Yuri Gagarin", "Buzz Aldrin", "John Glenn"], a: "Yuri Gagarin" },
-    { q: "¿Cuál es la capital de Kenia?", o: ["Nairobi", "Mombasa", "Addis Abeba", "Lagos"], a: "Nairobi" },
-    { q: "¿Qué país tiene más fronteras con otros países?", o: ["Rusia", "China", "Brasil", "Alemania"], a: "China" },
-    { q: "¿Quién escribió 'Frankenstein'?", o: ["Jane Austen", "Mary Shelley", "Bram Stoker", "Edgar Allan Poe"], a: "Mary Shelley" },
-    { q: "¿Cuál es el componente principal del vidrio?", o: ["Carbonato", "Arena de sílice", "Calcio", "Plomo"], a: "Arena de sílice" },
-    { q: "¿Qué imperio construyó el muro de Adriano?", o: ["Griego", "Romano", "Persa", "Chino"], a: "Romano" },
-    { q: "¿Cuál es la capital de Dinamarca?", o: ["Oslo", "Estocolmo", "Copenhague", "Helsinki"], a: "Copenhague" },
-    { q: "¿Qué instrumento mide la presión atmosférica?", o: ["Termómetro", "Barómetro", "Higrómetro", "Anemómetro"], a: "Barómetro" },
-    { q: "¿Cuál es el país más joven del mundo?", o: ["Timor Oriental", "Sudán del Sur", "Kosovo", "Montenegro"], a: "Sudán del Sur" },
-    { q: "¿Quién es el autor de 'El retrato de Dorian Gray'?", o: ["Oscar Wilde", "Charles Dickens", "Virginia Woolf", "James Joyce"], a: "Oscar Wilde" },
-    { q: "¿Qué color se obtiene mezclando azul y amarillo?", o: ["Morado", "Naranja", "Verde", "Marrón"], a: "Verde" },
-    { q: "¿Cuál es la capital de Finlandia?", o: ["Helsinki", "Turku", "Tampere", "Rovaniemi"], a: "Helsinki" },
-    { q: "¿Qué sustancia es el 'oro negro'?", o: ["Carbón", "Petróleo", "Grafito", "Obsidiana"], a: "Petróleo" },
-    { q: "¿En qué país se encuentra la Gran Muralla?", o: ["Japón", "Mongolia", "China", "India"], a: "China" },
-    { q: "¿Quién es el padre del psicoanálisis?", o: ["Jung", "Freud", "Skinner", "Piaget"], a: "Freud" },
-    { q: "¿Cuál es el animal más pesado que ha existido?", o: ["Megalodón", "Ballena Azul", "Argentinosaurio", "Mamut"], a: "Ballena Azul" },
-    { q: "¿Qué país inventó el papel?", o: ["Egipto", "China", "Grecia", "India"], a: "China" },
-    { q: "¿Cuál es la capital de Hungría?", o: ["Bucarest", "Praga", "Budapest", "Varsovia"], a: "Budapest" },
-    { q: "¿Qué revolucionario era apodado 'El Che'?", o: ["Fidel Castro", "Ernesto Guevara", "Camilo Cienfuegos", "Hugo Chávez"], a: "Ernesto Guevara" },
-    { q: "¿Cuál es el hueso más pequeño del cuerpo?", o: ["Martillo", "Yunque", "Estribo", "Falange"], a: "Estribo" },
-    { q: "¿Qué ciudad es la capital de Holanda?", o: ["La Haya", "Ámsterdam", "Rotterdam", "Utrecht"], a: "Ámsterdam" },
-    { q: "¿Quién pintó 'Guernica'?", o: ["Dalí", "Miró", "Picasso", "Velázquez"], a: "Picasso" },
-    { q: "¿Qué país produce más vino en el mundo?", o: ["Francia", "España", "Italia", "EEUU"], a: "Italia" },
-    { q: "¿Cuál es la capital de la República Checa?", o: ["Bratislava", "Praga", "Viena", "Varsovia"], a: "Praga" },
-    { q: "¿Qué mineral se encuentra en los dientes y huesos?", o: ["Hierro", "Calcio", "Potasio", "Sodio"], a: "Calcio" },
-    { q: "¿Quién escribió 'La isla del tesoro'?", o: ["Stevenson", "Defoe", "Swift", "Verne"], a: "Stevenson" },
-    { q: "¿Cuál es el país más grande de África?", o: ["Nigeria", "Argelia", "Egipto", "Sudáfrica"], a: "Argelia" },
-    { q: "¿Qué ciudad tiene el metro más grande del mundo?", o: ["Nueva York", "Londres", "Tokio", "Shanghái"], a: "Shanghái" },
-    { q: "¿En qué año cayó la Unión Soviética (URSS)?", o: ["1989", "1991", "1993", "1995"], a: "1991" },
-    { q: "¿Cuál es la capital de Chile?", o: ["Santiago", "Valparaíso", "Concepción", "La Paz"], a: "Santiago" },
-    { q: "¿Qué tipo de animal es una orca?", o: ["Pez", "Tiburón", "Mamífero", "Reptil"], a: "Mamífero" }
-    { q: "¿Cuál es la capital de Austria?", o: ["Viena", "Salzburgo", "Insbruck", "Graz"], a: "Viena" },
-    { q: "¿Qué inventaron los hermanos Wright?", o: ["El teléfono", "El avión", "El coche", "El submarino"], a: "El avión" },
-    { q: "¿Cuál es el símbolo químico de la plata?", o: ["Pt", "Pl", "Ag", "Au"], a: "Ag" },
-    { q: "¿Quién escribió 'La Odisea'?", o: ["Platón", "Aristóteles", "Homero", "Sófocles"], a: "Homero" },
-    { q: "¿Cuál es la capital de Grecia?", o: ["Esparta", "Rodas", "Atenas", "Creta"], a: "Atenas" },
-    { q: "¿Qué ciudad es conocida como la 'Eterna'?", o: ["París", "Atenas", "Roma", "Jerusalén"], a: "Roma" },
-    { q: "¿Quién fue el dios griego de la guerra?", o: ["Hades", "Zeus", "Ares", "Hermes"], a: "Ares" },
-    { q: "¿Cuál es el componente más abundante del universo?", o: ["Oxígeno", "Hidrógeno", "Helio", "Nitrógeno"], a: "Hidrógeno" },
-    { q: "¿Qué país tiene el mayor número de lagos?", o: ["EEUU", "Canadá", "Rusia", "Brasil"], a: "Canadá" },
-    { q: "¿Quién pintó 'El jardín de las delicias'?", o: ["El Bosco", "Velázquez", "Goya", "El Greco"], a: "El Bosco" },
-    { q: "¿Cuál es la capital de Islandia?", o: ["Oslo", "Reykjavík", "Helsinki", "Bergen"], a: "Reykjavík" },
-    { q: "¿Qué parte de la planta realiza la fotosíntesis?", o: ["Raíz", "Tallo", "Flor", "Hojas"], a: "Hojas" },
-    { q: "¿En qué país se encuentra la ciudad de Petra?", o: ["Egipto", "Jordania", "Irak", "Siria"], a: "Jordania" },
-    { q: "¿Quién inventó el código Morse?", o: ["Samuel Morse", "Alexander Bell", "Edison", "Tesla"], a: "Samuel Morse" },
-    { q: "¿Cuál es el metal más caro?", o: ["Oro", "Rodio", "Platino", "Paladio"], a: "Rodio" },
-    { q: "¿Cuál es la capital de Vietnam?", o: ["Seúl", "Hanoi", "Ho Chi Minh", "Bangkok"], a: "Hanoi" },
-    { q: "¿Qué país tiene más fronteras terrestres?", o: ["Rusia", "China", "Brasil", "Alemania"], a: "China" },
-    { q: "¿Quién fue el autor de 'Guerra y Paz'?", o: ["Dostoyevski", "Tolstói", "Chéjov", "Gorki"], a: "Tolstói" },
-    { q: "¿Cuál es el planeta más frío?", o: ["Neptuno", "Urano", "Saturno", "Plutón"], a: "Urano" },
-    { q: "¿En qué país se habla el idioma farsi?", o: ["Irak", "Irán", "Afganistán", "Turquía"], a: "Irán" },
-    { q: "¿Qué ciudad es la capital de Polonia?", o: ["Cracovia", "Varsovia", "Praga", "Gdansk"], a: "Varsovia" },
-    { q: "¿Quién escribió 'Drácula'?", o: ["Mary Shelley", "Bram Stoker", "H.P. Lovecraft", "Stephen King"], a: "Bram Stoker" },
-    { q: "¿Cuál es el animal terrestre más pesado?", o: ["Rinoceronte", "Hipopótamo", "Elefante africano", "Jirafa"], a: "Elefante africano" },
-    { q: "¿En qué año se lanzó el primer iPhone?", o: ["2005", "2007", "2009", "2010"], a: "2007" },
-    { q: "¿Cuál es la capital de Ucrania?", o: ["Kiev", "Odesa", "Leópolis", "Donetsk"], a: "Kiev" },
-    { q: "¿Qué guerra terminó con el tratado de Versalles?", o: ["Guerra Civil EEUU", "Guerra de los 100 años", "I Guerra Mundial", "II Guerra Mundial"], a: "I Guerra Mundial" },
-    { q: "¿Quién es el autor de 'El nombre de la rosa'?", o: ["Italo Calvino", "Umberto Eco", "Dante", "Machiavelli"], a: "Umberto Eco" },
-    { q: "¿Cuál es el océano más pequeño?", o: ["Índico", "Ártico", "Antártico", "Pacífico"], a: "Ártico" },
-    { q: "¿Qué país tiene la mayor reserva de petróleo?", o: ["Arabia Saudita", "Venezuela", "Rusia", "EEUU"], a: "Venezuela" },
-    { q: "¿Qué tipo de animal es el ornitorrinco?", o: ["Reptil", "Mamífero", "Ave", "Anfibio"], a: "Mamífero" },
-    { q: "¿Cuál es la capital de Nueva Zelanda?", o: ["Auckland", "Wellington", "Christchurch", "Sídney"], a: "Wellington" },
-    { q: "¿Quién fue la primera mujer en ganar un Nobel?", o: ["Rosalind Franklin", "Marie Curie", "Ada Lovelace", "Jane Goodall"], a: "Marie Curie" },
-    { q: "¿Cuál es la lengua más antigua del mundo aún hablada?", o: ["Chino", "Griego", "Euskera", "Tamil"], a: "Tamil" },
-    { q: "¿En qué país se encuentra el Monte Kilimanjaro?", o: ["Kenia", "Tanzania", "Etiopía", "Uganda"], a: "Tanzania" },
-    { q: "¿Quién compuso la 'Novena Sinfonía'?", o: ["Mozart", "Bach", "Beethoven", "Wagner"], a: "Beethoven" },
-    { q: "¿Cuál es la capital de Rumanía?", o: ["Budapest", "Bucarest", "Sofía", "Belgrado"], a: "Bucarest" },
-    { q: "¿Qué ciudad es famosa por su carnaval?", o: ["Madrid", "Londres", "Río de Janeiro", "Berlín"], a: "Río de Janeiro" },
-    { q: "¿Quién fue el primer emperador de China?", o: ["Mao Zedong", "Qin Shi Huang", "Sun Yat-sen", "Confucio"], a: "Qin Shi Huang" },
-    { q: "¿Cuál es la capital de Croacia?", o: ["Split", "Zagreb", "Dubrovnik", "Liubliana"], a: "Zagreb" },
-    { q: "¿Qué gas es esencial para la respiración humana?", o: ["Nitrógeno", "Oxígeno", "Argón", "Helio"], a: "Oxígeno" },
-    { q: "¿Quién escribió 'Los Miserables'?", o: ["Julio Verne", "Victor Hugo", "Balzac", "Flaubert"], a: "Victor Hugo" },
-    { q: "¿Cuál es la capital de Tailandia?", o: ["Bangkok", "Hanoi", "Seúl", "Phuket"], a: "Bangkok" },
-    { q: "¿Qué inventor ideó la corriente alterna?", o: ["Thomas Edison", "Nikola Tesla", "James Watt", "Michael Faraday"], a: "Nikola Tesla" },
-    { q: "¿Cuál es el país más grande de Oceanía?", o: ["Nueva Zelanda", "Fiyi", "Australia", "Papúa Nueva Guinea"], a: "Australia" },
-    { q: "¿En qué ciudad se encuentra el Big Ben?", o: ["Edimburgo", "Dublín", "Londres", "Mánchester"], a: "Londres" },
-    { q: "¿Quién pintó 'La libertad guiando al pueblo'?", o: ["Delacroix", "Gericault", "Monet", "Degas"], a: "Delacroix" },
-    { q: "¿Cuál es la capital de Uruguay?", o: ["Asunción", "Montevideo", "Santiago", "Buenos Aires"], a: "Montevideo" },
-    { q: "¿Qué país inventó el primer reloj de pulsera?", o: ["Suiza", "Francia", "Alemania", "Reino Unido"], a: "Suiza" },
-    { q: "¿Cuál es el elemento químico con símbolo 'H'?", o: ["Helio", "Hierro", "Hidrógeno", "Hafnio"], a: "Hidrógeno" },
-    { q: "¿Qué ciudad es la capital de Venezuela?", o: ["Caracas", "Maracaibo", "Valencia", "Bolívar"], a: "Caracas" }
-];
-
-    // LÓGICA FUNCIONAL (IDÉNTICA A LA TUYA) [cite: 358]
+    ];
+    
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -532,12 +246,12 @@
     function loadRanking() {
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
         onValue(rRef, (snap) => {
-            let html = "";
             let list = [];
             snap.forEach(c => list.push(c.val()));
-            list.sort((a,b) => b.points - a.points);
-            list.slice(0,10).forEach((data, i) => {
-                html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${data.user}</span><span class="score-tag">${data.points}/10</span></div>`;
+            list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
+            let html = "";
+            list.slice(0,10).forEach((d, i) => {
+                html += `<div class="entry"><span>#${i+1} ${d.user}</span><span class="score-tag">${d.points}/10</span></div>`;
             });
             document.getElementById('lead-list').innerHTML = html || "Sin datos hoy";
         });
@@ -548,11 +262,11 @@
         if (!name) showScreen('screen-auth');
         else {
             showScreen('screen-home');
-            document.getElementById('welcome-msg').innerText = `¡Hola, ${name}!`;
+            document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             document.getElementById('streak-num').innerText = localStorage.getItem('userStreak') || 0;
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 document.getElementById('play-today-btn').disabled = true;
-                document.getElementById('play-today-btn').innerText = "Vuelve mañana";
+                document.getElementById('play-today-btn').innerText = "VUELVE MAÑANA";
             }
             loadRanking();
         }
@@ -564,8 +278,7 @@
     };
 
     document.getElementById('play-today-btn').onclick = () => {
-        currentQuestions = [...masterBank].sort(() => Math.random() - 0.5).slice(0,10);
-        currentStep = 0; score = 0;
+        currentQuestions = [...masterBank].sort(() => Math.random() - 0.5);
         showScreen('screen-game');
         startTimer();
         loadQuestion();
@@ -589,16 +302,14 @@
         box.innerHTML = "";
         qData.o.forEach(opt => {
             const b = document.createElement('button');
-            b.className = 'opt-btn';
-            b.innerText = opt;
+            b.className = 'opt-btn'; b.innerText = opt;
             b.onclick = () => {
                 if(document.querySelector('.correct')) return;
                 if(opt === qData.a) { b.classList.add('correct'); score++; }
-                else { b.classList.add('wrong'); }
+                else b.classList.add('wrong');
                 setTimeout(() => {
                     currentStep++;
-                    if(currentStep < 10) loadQuestion();
-                    else finish();
+                    if(currentStep < 10) loadQuestion(); else finish();
                 }, 800);
             };
             box.appendChild(b);
@@ -610,19 +321,12 @@
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
+        document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         const name = localStorage.getItem('triviaUser');
-        const userKey = name.toLowerCase().replace(/\s+/g, '_');
-        set(ref(db, `ranking/${hoy}_${userKey}`), {
+        set(ref(db, `ranking/${hoy}_${name.toLowerCase().replace(/\s/g, '_')}`), {
             user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
-        }).then(() => {
-            localStorage.setItem('lastPlayed_' + hoy, 'true');
-            let streak = parseInt(localStorage.getItem('userStreak') || 0);
-            if (localStorage.getItem('lastDatePlayed') !== hoy) {
-                streak++;
-                localStorage.setItem('userStreak', streak);
-                localStorage.setItem('lastDatePlayed', hoy);
-            }
         });
+        localStorage.setItem('lastPlayed_' + hoy, 'true');
     }
 
     checkAuth();
