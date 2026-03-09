@@ -27,7 +27,6 @@
         .opt-btn { width: 100%; padding: 15px; margin-bottom: 10px; background: #1c1c26; color: #fff; text-align: left; border-radius: 10px; border: 1px solid #333; cursor: pointer; }
         .correct { background: var(--success) !important; color: #000; font-weight: bold; }
         .wrong { background: var(--error) !important; }
-        .streak-fire { color: #ff8800; font-weight: 900; font-size: 1.2rem; margin-bottom: 10px; }
         @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
     </style>
 </head>
@@ -37,7 +36,7 @@
     <aside class="sidebar-ranking">
         <div class="leaderboard">
             <h3 id="ranking-title">RANKING HOY</h3>
-            <div id="lead-list">Cargando...</div>
+            <div id="lead-list">Sincronizando...</div>
         </div>
     </aside>
 
@@ -50,13 +49,8 @@
             </div>
 
             <div id="screen-home" class="screen">
-                <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
                 <h1 id="welcome-msg"></h1>
                 <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
-                <div style="margin-top: 25px; opacity: 0.5;">
-                    <small>Días anteriores:</small><br>
-                    <input type="date" id="calendar-input">
-                </div>
             </div>
 
             <div id="screen-game" class="screen">
@@ -72,7 +66,7 @@
                 <h2>¡RETO FINALIZADO!</h2>
                 <div id="final-stats" style="font-size: 3.5rem; font-weight: 900; color: var(--accent);">0/10</div>
                 <p id="final-time"></p>
-                <div id="save-msg" style="font-size: 0.9rem; font-weight: bold; margin-bottom: 10px;"></div>
+                <div id="save-msg"></div>
                 <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
             </div>
         </div>
@@ -97,9 +91,8 @@
     const db = getDatabase(app);
     const hoy = new Date().toISOString().split("T")[0];
     
-    let timerInterval, currentQuestions = [], currentStep = 0, score = 0, playingDate = "";
+    let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
-    // BANCO DE 250 PREGUNTAS (Estructura optimizada)
     const masterBank = [
         { q: "¿Qué gas constituye el 78% del aire?", o: ["Oxígeno", "Nitrógeno", "Argón", "CO2"], a: "Nitrógeno" },
         { q: "¿En qué año se hundió el Titanic?", o: ["1912", "1905", "1915", "1920"], a: "1912" },
@@ -110,10 +103,8 @@
         { q: "¿Planeta con más lunas?", o: ["Saturno", "Júpiter", "Marte", "Urano"], a: "Saturno" },
         { q: "¿Cuántos corazones tiene un pulpo?", o: ["1", "2", "3", "4"], a: "3" },
         { q: "¿Símbolo químico del Oro?", o: ["Ag", "Au", "Or", "Fe"], a: "Au" },
-        { q: "¿Quién escribió Hamlet?", o: ["Shakespeare", "Cervantes", "Moliere", "Dante"], a: "Shakespeare" },
-        // ... Puedes añadir hasta 250 siguiendo este formato exacto
-        { q: "¿Cuál es el tercer planeta del sistema solar?", o: ["Marte", "Tierra", "Venus", "Mercurio"], a: "Tierra" },
-        { q: "¿En qué país se encuentra la Torre Eiffel?", o: ["Italia", "España", "Francia", "Alemania"], a: "Francia" }
+        { q: "¿Quién escribió Hamlet?", o: ["Shakespeare", "Cervantes", "Moliere", "Dante"], a: "Shakespeare" }
+        // ... aquí irían las 250
     ];
 
     const showScreen = (id) => {
@@ -121,13 +112,15 @@
         document.getElementById(id).classList.add('active');
     };
 
-    function renderRanking(dateToFetch) {
-        const targetDate = dateToFetch || hoy;
-        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(targetDate));
+    // --- ARREGLO DE SINCRONIZACIÓN EN TIEMPO REAL ---
+    function syncRanking() {
+        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
+        // Usamos onValue para que escuche cambios constantes sin recargar
         onValue(rRef, (snap) => {
             let list = [];
             snap.forEach(c => list.push(c.val()));
             list.sort((a,b) => b.points - a.points || a.time.localeCompare(b.time));
+            
             let html = "";
             for(let i=0; i<10; i++){
                 if(list[i]) html += `<div class="entry"><span class="rank">#${i+1}</span><span class="username">${list[i].user}</span><span class="score-tag">${list[i].points}/10</span><span class="time-tag">${list[i].time}</span></div>`;
@@ -147,14 +140,12 @@
                 const btn = document.getElementById('play-today-btn');
                 btn.disabled = true; btn.innerText = "RETADO COMPLETADO ✅";
             }
-            renderRanking(hoy);
+            syncRanking(); // Inicia la escucha constante
         }
     }
 
-    const initGame = (mode) => {
-        playingDate = (mode === 'today') ? hoy : document.getElementById('calendar-input').value;
-        if(!playingDate) return;
-        currentQuestions = getSet(playingDate.replace(/-/g, ""));
+    const initGame = () => {
+        currentQuestions = getSet(hoy.replace(/-/g, ""));
         currentStep = 0; score = 0;
         showScreen('screen-game');
         startTimer();
@@ -164,7 +155,6 @@
     function getSet(seed) {
         let s = parseInt(seed);
         let t = [...masterBank];
-        // Mezcla de preguntas según el día
         for (let i = t.length - 1; i > 0; i--) {
             s = (s * 9301 + 49297) % 233280;
             let j = s % (i + 1);
@@ -178,9 +168,8 @@
         document.getElementById('q-count').innerText = `${currentStep+1}/10`;
         document.getElementById('q-text').innerText = qData.q;
         
-        // --- ALEATORIEDAD DE OPCIONES ---
         let options = [...qData.o];
-        options.sort(() => Math.random() - 0.5); // Mezcla las opciones cada vez
+        options.sort(() => Math.random() - 0.5); 
         
         const box = document.getElementById('options-box');
         box.innerHTML = "";
@@ -191,16 +180,8 @@
             b.innerText = opt;
             b.onclick = () => {
                 if(document.querySelector('.correct')) return;
-                if(opt === qData.a) {
-                    b.classList.add('correct');
-                    score++;
-                } else {
-                    b.classList.add('wrong');
-                    // Buscar cuál era la correcta para iluminarla
-                    Array.from(box.children).forEach(child => {
-                        if(child.innerText === qData.a) child.classList.add('correct');
-                    });
-                }
+                if(opt === qData.a) { b.classList.add('correct'); score++; }
+                else { b.classList.add('wrong'); }
                 setTimeout(() => {
                     currentStep++;
                     if(currentStep < 10) loadQuestion(); else finish();
@@ -227,24 +208,21 @@
         document.getElementById('final-stats').innerText = `${score}/10`;
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         
-        if(playingDate === hoy) {
-            const name = localStorage.getItem('triviaUser');
-            const newEntryRef = push(ref(db, 'ranking'));
-            set(newEntryRef, {
-                user: name, points: score, time: t, date: hoy, timestamp: serverTimestamp()
-            }).then(() => {
-                document.getElementById('save-msg').innerText = "✅ ¡Ranking actualizado!";
-                localStorage.setItem('lastPlayed_' + hoy, 'true');
-                renderRanking(hoy); 
-            });
-        }
+        const name = localStorage.getItem('triviaUser');
+        const newEntryRef = push(ref(db, 'ranking'));
+        set(newEntryRef, {
+            user: name, points: score, time: t, date: hoy, timestamp: serverTimestamp()
+        }).then(() => {
+            localStorage.setItem('lastPlayed_' + hoy, 'true');
+        });
     }
 
     document.getElementById('btn-save-name').onclick = () => {
         const val = document.getElementById('username-input').value.trim();
         if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
     };
-    document.getElementById('play-today-btn').onclick = () => initGame('today');
+    document.getElementById('play-today-btn').onclick = () => initGame();
+    
     checkAuth();
 </script>
 </body>
