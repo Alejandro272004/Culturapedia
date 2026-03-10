@@ -6,18 +6,18 @@
     <title>TRIVIAL BRUTAL - DELUXE</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* TEMA DINÁMICO - RUTAS CORREGIDAS PARA GITHUB */
+        /* TEMA DINÁMICO - CONEXIÓN CON TUS ARCHIVOS DE GITHUB */
         [data-theme="dark"] {
             --bg: #050508; --container-bg: #0f0f16; --card-inner: #161622;
             --text: #ffffff; --text-dim: #a0a0b8; --accent: #00f2ff;
             --accent-glow: rgba(0, 242, 255, 0.3); --border: #222230;
-            --logo-url: url('Logotipo Blanco Vertical.png'); /* Archivo local en tu GitHub */
+            --logo-url: url('Logotipo Blanco Vertical.png'); 
         }
         [data-theme="light"] {
             --bg: #f0f2f5; --container-bg: #ffffff; --card-inner: #f8f9fa;
             --text: #1a1a2e; --text-dim: #64748b; --accent: #0070f3;
             --accent-glow: rgba(0, 112, 243, 0.2); --border: #e2e8f0;
-            --logo-url: url('Logotipo Negro Vertical.png'); /* Archivo local en tu GitHub */
+            --logo-url: url('Logotipo Negro Vertical.png');
         }
         :root { --success: #00ff88; --error: #ff3e3e; --transition: all 0.3s ease; }
 
@@ -29,12 +29,12 @@
             overflow-x: hidden;
         }
 
-        /* LOGO ESQUINA IZQUIERDA */
+        /* LOGO ESQUINA IZQUIERDA - TAMAÑO AUMENTADO */
         .corner-logo {
-            position: fixed; top: 15px; left: 15px; width: 65px; height: 65px;
+            position: fixed; top: 20px; left: 20px; width: 110px; height: 110px;
             background-image: var(--logo-url); background-size: contain;
             background-repeat: no-repeat; z-index: 90; display: none;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+            filter: drop-shadow(0 2px 10px rgba(0,0,0,0.3));
         }
 
         /* ANIMACIÓN INICIAL */
@@ -44,49 +44,40 @@
             z-index: 1000; text-align: center;
         }
         .intro-logo {
-            width: 180px; height: 180px; background-image: var(--logo-url);
+            width: 220px; height: 220px; background-image: var(--logo-url);
             background-size: contain; background-repeat: no-repeat; background-position: center;
             animation: pulse 2s infinite ease-in-out;
         }
-        @keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
+        @keyframes pulse { 0% { transform: scale(0.9); opacity: 0.7; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0.9); opacity: 0.7; } }
 
         .theme-toggle {
             position: fixed; top: 20px; right: 20px; background: var(--container-bg);
             border: 1px solid var(--border); padding: 10px; border-radius: 50%; cursor: pointer;
-            z-index: 100; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 100; font-size: 1.2rem;
         }
 
         .main-layout { display: flex; gap: 40px; width: 100%; max-width: 1100px; align-items: center; justify-content: center; display: none; }
         
         .sidebar-ranking { width: 320px; flex-shrink: 0; }
-        .leaderboard { background: var(--container-bg); border-radius: 24px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .leaderboard { background: var(--container-bg); border-radius: 24px; padding: 24px; border: 1px solid var(--border); }
         .leaderboard h3 { color: var(--accent); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
-        .entry { display: flex; justify-content: space-between; padding: 12px; background: var(--card-inner); border-radius: 12px; margin-bottom: 8px; font-size: 0.85rem; align-items: center; border: 1px solid transparent; transition: 0.2s; }
-        .entry:hover { border-color: var(--accent); }
+        .entry { display: flex; justify-content: space-between; padding: 12px; background: var(--card-inner); border-radius: 12px; margin-bottom: 8px; font-size: 0.85rem; align-items: center; }
         .score-tag { color: var(--accent); font-weight: 800; }
 
-        .container { flex-grow: 1; max-width: 500px; background: var(--container-bg); border-radius: 24px; padding: 40px; border: 1px solid var(--border); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .container { flex-grow: 1; max-width: 500px; background: var(--container-bg); border-radius: 24px; padding: 40px; border: 1px solid var(--border); text-align: center; }
         .screen { display: none; }
         .screen.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 20px; transition: var(--transition); }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px var(--accent-glow); }
-        .btn-main:disabled { background: var(--card-inner); color: var(--text-dim); cursor: not-allowed; transform: none; box-shadow: none; }
-        
-        .opt-btn { width: 100%; padding: 16px; margin-bottom: 10px; background: var(--card-inner); color: var(--text); border-radius: 12px; border: 1px solid var(--border); cursor: pointer; text-align: left; transition: 0.2s; }
-        .opt-btn:hover { border-color: var(--accent); background: var(--bg); }
-        .correct { background: var(--success) !important; color: #000 !important; font-weight: 800; }
+        .opt-btn { width: 100%; padding: 16px; margin-bottom: 10px; background: var(--card-inner); color: var(--text); border-radius: 12px; border: 1px solid var(--border); cursor: pointer; text-align: left; }
+        .correct { background: var(--success) !important; color: #000 !important; }
         .wrong { background: var(--error) !important; color: #fff !important; }
 
-        input { width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; font-size: 1rem; }
-        input:focus { outline: none; border-color: var(--accent); }
-        
-        .streak-fire { color: #ff8800; font-weight: 800; margin-bottom: 15px; display: inline-block; padding: 5px 15px; background: rgba(255,136,0,0.1); border-radius: 20px; font-size: 0.9rem; }
-        
-        #admin-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0f; border: 2px solid var(--accent); padding: 30px; border-radius: 20px; z-index: 10000; display: none; width: 300px; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
+        input { width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; }
+        #admin-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0f; border: 2px solid var(--accent); padding: 30px; border-radius: 20px; z-index: 10000; display: none; width: 300px; }
 
-        @media (max-width: 850px) { .main-layout { flex-direction: column; gap: 20px; } .sidebar-ranking { width: 100%; order: 2; } .corner-logo { width: 50px; height: 50px; } .container { padding: 25px; } }
+        @media (max-width: 850px) { .main-layout { flex-direction: column; } .sidebar-ranking { width: 100%; order: 2; } .corner-logo { width: 70px; height: 70px; top: 10px; left: 10px; } }
     </style>
 </head>
 <body>
@@ -95,7 +86,7 @@
 
 <div id="screen-intro">
     <div class="intro-logo"></div>
-    <h2 style="letter-spacing: 5px; margin-top: 20px; font-weight: 800; font-size: 0.9rem; color: var(--text-dim);">PRESENTA</h2>
+    <h2 style="letter-spacing: 5px; margin-top: 20px;">PRESENTA</h2>
 </div>
 
 <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
@@ -116,9 +107,9 @@
 
     <main class="container">
         <div id="screen-instructions" class="screen">
-            <h1 style="color: var(--accent); font-weight: 800;">¡BIENVENIDO!</h1>
+            <h1 style="color: var(--accent);">¡BIENVENIDO!</h1>
             <p>Estás en el <b>Trivial de Culturapedia</b>.</p>
-            <div style="text-align: left; background: var(--card-inner); padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 0.9rem; line-height: 1.6;">
+            <div style="text-align: left; background: var(--card-inner); padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 0.9rem;">
                 • 10 preguntas de cultura general.<br>
                 • Cuanto más rápido respondas, mejor posición.<br>
                 • Solo tienes un intento diario.
@@ -135,25 +126,25 @@
 
         <div id="screen-home" class="screen">
             <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
-            <h1 id="welcome-msg" style="font-weight: 800;"></h1>
+            <h1 id="welcome-msg"></h1>
             <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
         </div>
 
         <div id="screen-game" class="screen">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 600;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                 <span id="q-count">1/10</span>
                 <span id="timer" style="color: var(--accent); font-weight: 800;">00:00</span>
             </div>
-            <img id="q-img" style="width:100%; border-radius:12px; display:none; margin-bottom:15px; aspect-ratio: 16/9; object-fit: cover;" src="" alt="pregunta">
-            <h3 id="q-text" style="font-size: 1.2rem; margin-bottom: 25px;"></h3>
+            <img id="q-img" style="width:100%; border-radius:12px; display:none; margin-bottom:15px;" src="" alt="pregunta">
+            <h3 id="q-text"></h3>
             <div id="options-box"></div>
         </div>
 
         <div id="screen-result" class="screen">
             <h2>¡FINALIZADO!</h2>
-            <div id="final-stats" style="font-size: 4rem; font-weight: 900; color: var(--accent); margin: 20px 0;">0/10</div>
-            <p id="final-time" style="font-weight: 600; color: var(--text-dim);"></p>
-            <button class="btn-main" onclick="location.reload()">VOLVER AL INICIO</button>
+            <div id="final-stats" style="font-size: 4rem; font-weight: 900; color: var(--accent);">0/10</div>
+            <p id="final-time"></p>
+            <button class="btn-main" onclick="location.reload()">VOLVER</button>
         </div>
     </main>
 </div>
@@ -167,15 +158,11 @@
 
     window.onload = () => {
         setTimeout(() => {
-            document.getElementById('screen-intro').style.transition = 'opacity 0.5s ease';
-            document.getElementById('screen-intro').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('screen-intro').style.display = 'none';
-                document.getElementById('game-layout').style.display = 'flex';
-                document.getElementById('corner-logo').style.display = 'block';
-                showScreen('screen-instructions');
-            }, 500);
-        }, 3000); // Reducido a 3s para mejor experiencia, cambia a 5000 si prefieres 5s.
+            document.getElementById('screen-intro').style.display = 'none';
+            document.getElementById('game-layout').style.display = 'flex';
+            document.getElementById('corner-logo').style.display = 'block';
+            showScreen('screen-instructions');
+        }, 5000); 
     };
 
     function showScreen(id) {
