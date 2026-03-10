@@ -123,8 +123,9 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
+    // ... (Tu config de Firebase se mantiene igual) ...
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
         authDomain: "trivialbrutal.firebaseapp.com",
@@ -140,6 +141,7 @@
     const hoy = new Date().toISOString().split("T")[0];
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
+    // ... (Tu masterBank se mantiene igual) ...
     const masterBank = [
         { q: "¿A qué país pertenece esta bandera única?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Flag_of_Nepal.svg/800px-Flag_of_Nepal.svg.png", o: ["India", "Tíbet", "Nepal", "Bután"], a: "Nepal" },
         { q: "¿Qué país regaló la Estatua de la Libertad a EEUU?", o: ["España", "Francia", "Reino Unido", "Alemania"], a: "Francia" },
@@ -166,61 +168,51 @@
         { q: "¿Qué filósofo dijo 'Solo sé que no sé nada'?", o: ["Platón", "Sócrates", "Aristóteles", "Descartes"], a: "Sócrates" },
         { q: "¿Cuál es el desierto más grande del mundo?", o: ["Sahara", "Gobi", "Atacama", "Antártida"], a: "Antártida" },
     ];
-    
+
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
     }
 
+    // --- CAMBIO 1: Lógica de carga optimizada ---
     function loadRanking() {
-        // Esta línea es clave: filtra solo los resultados que coincidan con la fecha de 'hoy'
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
-        
         onValue(rRef, (snap) => {
             let list = [];
-            // Aquí recorremos todos los registros que Firebase devuelve para hoy
-            snap.forEach(c => list.push(c.val()));
+            snap.forEach(child => {
+                list.push(child.val());
+            });
             
-            // Ordenamos: más puntos primero, y a igualdad de puntos, menor tiempo
-            list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
-            
+            // Ordenamos: Puntos (mayor a menor) y luego Tiempo (menor a mayor)
+            list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
+
             let html = "";
-            // Tomamos los 10 mejores resultados de la lista
-            list.slice(0,10).forEach((d, i) => {
+            list.slice(0, 10).forEach((d, i) => {
                 html += `
                 <div class="entry">
                     <div class="entry-info">
-                        <span>#${i+1} ${d.user}</span>
+                        <span>#${i + 1} ${d.user}</span>
                         <span class="entry-time">⏱️ ${d.time}</span>
                     </div>
                     <span class="score-tag">${d.points}/10</span>
                 </div>`;
             });
-            
-            // Actualizamos el contenedor del ranking en el HTML
             document.getElementById('lead-list').innerHTML = html || "Sin datos hoy";
         });
     }
 
+    // ... (checkAuth, startTimer, loadQuestion se mantienen igual) ...
     function checkAuth() {
         const name = localStorage.getItem('triviaUser');
         if (!name) showScreen('screen-auth');
         else {
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
-            
             const lastDate = localStorage.getItem('lastDatePlayed');
             let streak = parseInt(localStorage.getItem('userStreak') || 0);
-            
-            if (lastDate) {
-                const diffTime = Math.abs(new Date(hoy) - new Date(lastDate));
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                if (diffDays > 1) { 
-                    streak = 0;
-                    localStorage.setItem('userStreak', 0);
-                }
+            if (lastDate && Math.ceil(Math.abs(new Date(hoy) - new Date(lastDate)) / (1000 * 60 * 60 * 24)) > 1) {
+                streak = 0; localStorage.setItem('userStreak', 0);
             }
-            
             document.getElementById('streak-num').innerText = streak;
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 document.getElementById('play-today-btn').disabled = true;
@@ -255,17 +247,10 @@
     function loadQuestion() {
         const qData = currentQuestions[currentStep];
         const imgEl = document.getElementById('q-img');
-        
         document.getElementById('q-count').innerText = `${currentStep+1}/10`;
         document.getElementById('q-text').innerText = qData.q;
-        
-        if(qData.img) {
-            imgEl.src = qData.img;
-            imgEl.classList.add('active');
-        } else {
-            imgEl.classList.remove('active');
-        }
-
+        if(qData.img) { imgEl.src = qData.img; imgEl.classList.add('active'); } 
+        else { imgEl.classList.remove('active'); }
         const box = document.getElementById('options-box');
         box.innerHTML = "";
         qData.o.forEach(opt => {
@@ -284,6 +269,7 @@
         });
     }
 
+    // --- CAMBIO 2: Uso de push() para evitar sobrescritura ---
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
@@ -292,8 +278,14 @@
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         const name = localStorage.getItem('triviaUser');
         
-        set(ref(db, `ranking/${hoy}_${name.toLowerCase().replace(/\s/g, '_')}`), {
-            user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
+        // Usamos push() para crear un ID único para cada partida, evitando que Alejandro borre a María
+        const newEntryRef = push(ref(db, 'ranking'));
+        set(newEntryRef, {
+            user: name, 
+            points: score, 
+            time: t, 
+            date: hoy, 
+            ts: serverTimestamp()
         }).then(() => {
             const lastDate = localStorage.getItem('lastDatePlayed');
             if (lastDate !== hoy) {
