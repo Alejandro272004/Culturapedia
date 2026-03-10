@@ -244,12 +244,15 @@
     }
 
 // --- FUNCIÓN REVISADA: Limpia y filtra duplicados ---
+    // --- CARGA DEL RANKING MEJORADA ---
     function loadRanking() {
-        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
+        // Consultamos todo el ranking para evitar fallos de fecha
+        const rRef = query(ref(db, 'ranking'), orderByChild('points'));
+        
         onValue(rRef, (snap) => {
             const container = document.getElementById('lead-list');
             if (!snap.exists()) {
-                container.innerHTML = "Sin datos hoy";
+                container.innerHTML = "Sin datos aún";
                 return;
             }
 
@@ -258,26 +261,27 @@
                 list.push(child.val());
             });
             
-            // 1. Ordenar por puntos y tiempo
+            // Ordenar: Primero Puntos (desc), luego Tiempo (asc)
             list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
 
-            // 2. Filtrar para que si un usuario jugó varias veces, solo salga su mejor puntuación
-            const uniqueList = [];
-            const seenUsers = new Set();
-            for (const entry of list) {
-                if (!seenUsers.has(entry.user.toLowerCase())) {
-                    uniqueList.push(entry);
-                    seenUsers.add(entry.user.toLowerCase());
+            // Filtro de mejores puntuaciones por usuario (evita que uno llene la lista)
+            const bestScores = new Map();
+            list.forEach(entry => {
+                const userKey = entry.user.trim().toLowerCase();
+                if (!bestScores.has(userKey) || entry.points > bestScores.get(userKey).points) {
+                    bestScores.set(userKey, entry);
                 }
-            }
+            });
 
-            // 3. Renderizar (Máximo 10)
+            const sortedFinal = Array.from(bestScores.values())
+                .sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
+
             let html = "";
-            uniqueList.slice(0, 10).forEach((d, i) => {
+            sortedFinal.slice(0, 10).forEach((d, i) => {
                 html += `
                 <div class="entry">
                     <div class="entry-info">
-                        <span>#${i + 1} ${d.user}</span>
+                        <span>#${i + 1} <b>${d.user}</b></span>
                         <span class="entry-time">⏱️ ${d.time}</span>
                     </div>
                     <span class="score-tag">${d.points}/10</span>
@@ -287,16 +291,17 @@
         });
     }
 
-    // --- FUNCIÓN REVISADA: Asegura el guardado único ---
+    // --- FUNCIÓN DE FINALIZACIÓN ---
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
+        
         const name = localStorage.getItem('triviaUser');
         
-        // Guardamos con push para que no falle la escritura simultánea
+        // Guardar con ID único (push)
         const newEntryRef = push(ref(db, 'ranking'));
         set(newEntryRef, {
             user: name, 
@@ -305,6 +310,7 @@
             date: hoy, 
             ts: serverTimestamp()
         }).then(() => {
+            // Manejo de racha y bloqueo diario
             const lastDate = localStorage.getItem('lastDatePlayed');
             if (lastDate !== hoy) {
                 let streak = parseInt(localStorage.getItem('userStreak') || 0);
@@ -313,10 +319,11 @@
                 localStorage.setItem('lastDatePlayed', hoy);
             }
             localStorage.setItem('lastPlayed_' + hoy, 'true');
-            // No hace falta recargar, onValue lo hará solo sin duplicar
+            
+            // Forzar actualización inmediata para que María se vea
+            loadRanking();
         });
     }
-
     checkAuth();
 </script>
 </body>
