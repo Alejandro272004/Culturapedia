@@ -65,35 +65,26 @@
         input { width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
         .streak-fire { color: #ff8800; font-weight: 800; margin-bottom: 15px; display: inline-block; padding: 5px 15px; background: rgba(255,136,0,0.1); border-radius: 20px; }
 
-        /* EASTER EGG ADMIN */
-        .corner-trigger { position: fixed; width: 60px; height: 60px; z-index: 999; cursor: crosshair; }
-        #tl { top: 0; left: 0; } #tr { top: 0; right: 0; } #br { bottom: 0; right: 0; } #bl { bottom: 0; left: 0; }
-        
+        /* MODAL ADMIN */
         #admin-panel { 
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: #1a1a2e; border: 2px solid var(--accent); padding: 30px; border-radius: 20px;
-            z-index: 1000; display: none; box-shadow: 0 0 50px #000; min-width: 300px;
+            background: #0a0a0f; border: 2px solid var(--accent); padding: 30px; border-radius: 20px;
+            z-index: 10000; display: none; box-shadow: 0 0 50px rgba(0,242,255,0.4); width: 300px;
         }
 
         @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
     </style>
 </head>
-<body onclick="handleCornerClick(event)">
-
-<div class="corner-trigger" id="tl" data-id="1"></div>
-<div class="corner-trigger" id="tr" data-id="2"></div>
-<div class="corner-trigger" id="br" data-id="3"></div>
-<div class="corner-trigger" id="bl" data-id="4"></div>
-
-<div id="admin-panel">
-    <h2 style="color:var(--accent)">MODO ADMIN</h2>
-    <p>¿Qué acción deseas realizar?</p>
-    <button class="btn-main" style="background:var(--error); color:white" onclick="resetToday()">BORRAR TODO EL RANKING HOY</button>
-    <button class="btn-main" style="background:var(--text-dim)" onclick="clearLocal()">BORRAR MI SESIÓN (REINTENTAR)</button>
-    <button class="btn-main" onclick="document.getElementById('admin-panel').style.display='none'">CERRAR</button>
-</div>
+<body>
 
 <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
+
+<div id="admin-panel">
+    <h3 style="color:var(--accent); margin-top:0;">MODO ADMIN</h3>
+    <button class="btn-main" style="background:var(--error); color:white;" onclick="resetRanking()">BORRAR HOY</button>
+    <button class="btn-main" style="background:var(--card-inner); color:var(--text);" onclick="localStorage.clear(); location.reload();">RESET LOCAL</button>
+    <button class="btn-main" style="background:transparent; color:var(--text-dim); border:1px solid var(--border);" onclick="document.getElementById('admin-panel').style.display='none'">CERRAR</button>
+</div>
 
 <div class="main-layout">
     <aside class="sidebar-ranking">
@@ -143,26 +134,23 @@
         html.setAttribute('data-theme', next);
     }
 
-    // LÓGICA DE LAS 4 ESQUINAS
-    let sequence = [];
-    function handleCornerClick(e) {
-        if(e.target.classList.contains('corner-trigger')) {
-            const id = e.target.getAttribute('data-id');
-            sequence.push(id);
-            if(sequence.join('') === '1234') {
-                document.getElementById('admin-panel').style.display = 'block';
-                sequence = [];
-            }
-            if(sequence.length > 4) sequence = [];
-        } else {
-            sequence = [];
+    // LÓGICA DE CÓDIGO SECRETO (FLECHAS + 197384265)
+    let inputBuffer = "";
+    const secretCode = "ArrowUpArrowDownArrowLeftArrowRight197384265";
+
+    window.addEventListener('keydown', (e) => {
+        inputBuffer += e.key;
+        if (inputBuffer.includes(secretCode)) {
+            document.getElementById('admin-panel').style.display = 'block';
+            inputBuffer = "";
         }
-    }
+        if (inputBuffer.length > 100) inputBuffer = inputBuffer.substring(50); // Limpiar buffer
+    });
 </script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, remove, serverTimestamp, push, get } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, remove, get, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
@@ -179,21 +167,12 @@
     const hoy = new Date().toISOString().split("T")[0];
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
-    // EXPONER FUNCIONES ADMIN AL WINDOW
-    window.resetToday = async () => {
-        if(!confirm("¿BORRAR TODO EL RANKING DE HOY? No se puede deshacer.")) return;
+    // Función Admin para borrar hoy
+    window.resetRanking = async () => {
+        if(!confirm("¿Borrar todos los rankings de hoy?")) return;
         const rRef = ref(db, 'ranking');
         const snap = await get(rRef);
-        snap.forEach(child => {
-            if(child.val().date === hoy) remove(ref(db, `ranking/${child.key}`));
-        });
-        alert("Ranking de hoy limpiado.");
-        location.reload();
-    };
-
-    window.clearLocal = () => {
-        localStorage.clear();
-        alert("Datos locales borrados. Puedes volver a entrar.");
+        snap.forEach(child => { if(child.val().date === hoy) remove(ref(db, `ranking/${child.key}`)); });
         location.reload();
     };
 
@@ -233,10 +212,7 @@
         const rRef = query(ref(db, 'ranking'), orderByChild('points'));
         onValue(rRef, (snap) => {
             const container = document.getElementById('lead-list');
-            if (!snap.exists()) {
-                container.innerHTML = "Sin datos aún hoy";
-                return;
-            }
+            if (!snap.exists()) { container.innerHTML = "Sin datos aún hoy"; return; }
             let list = [];
             snap.forEach(child => { 
                 const data = child.val();
@@ -246,23 +222,12 @@
             const bestScores = new Map();
             list.forEach(entry => {
                 const userKey = entry.user.trim().toLowerCase();
-                if (!bestScores.has(userKey) || entry.points > bestScores.get(userKey).points) {
-                    bestScores.set(userKey, entry);
-                }
+                if (!bestScores.has(userKey) || entry.points > bestScores.get(userKey).points) bestScores.set(userKey, entry);
             });
-            const sortedFinal = Array.from(bestScores.values())
-                .sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
-
+            const sortedFinal = Array.from(bestScores.values()).sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
             let html = "";
             sortedFinal.slice(0, 10).forEach((d, i) => {
-                html += `
-                <div class="entry">
-                    <div class="entry-info">
-                        <span>#${i + 1} <b>${d.user}</b></span>
-                        <span class="entry-time">⏱️ ${d.time}</span>
-                    </div>
-                    <span class="score-tag">${d.points}/10</span>
-                </div>`;
+                html += `<div class="entry"><div class="entry-info"><span>#${i + 1} <b>${d.user}</b></span><span class="entry-time">⏱️ ${d.time}</span></div><span class="score-tag">${d.points}/10</span></div>`;
             });
             container.innerHTML = html || "Sin datos hoy";
         });
@@ -344,9 +309,7 @@
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         const name = localStorage.getItem('triviaUser');
         const newEntryRef = push(ref(db, 'ranking'));
-        set(newEntryRef, {
-            user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
-        }).then(() => {
+        set(newEntryRef, { user: name, points: score, time: t, date: hoy, ts: serverTimestamp() }).then(() => {
             const lastDate = localStorage.getItem('lastDatePlayed');
             if (lastDate !== hoy) {
                 let streak = parseInt(localStorage.getItem('userStreak') || 0);
