@@ -49,6 +49,10 @@
         .screen.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* NUEVO: ESTILO PARA IMÁGENES */
+        .q-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 12px; margin-bottom: 15px; display: none; }
+        .q-img.active { display: block; }
+
         .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 20px; transition: var(--transition); }
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 5px 15px var(--accent-glow); }
         .btn-main:disabled { background: var(--border) !important; color: var(--text-dim) !important; cursor: not-allowed; }
@@ -95,6 +99,7 @@
                 <span id="q-count">1/10</span>
                 <span id="timer" style="color: var(--accent); font-weight: 800;">00:00</span>
             </div>
+            <img id="q-img" class="q-img" src="" alt="pregunta">
             <h3 id="q-text"></h3>
             <div id="options-box"></div>
         </div>
@@ -136,6 +141,8 @@
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
     const masterBank = [
+        // EJEMPLO CON IMAGEN
+        { q: "¿A qué país pertenece esta bandera única?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Flag_of_Nepal.svg/800px-Flag_of_Nepal.svg.png", o: ["India", "Tíbet", "Nepal", "Bután"], a: "Nepal" },
         { q: "¿Qué país regaló la Estatua de la Libertad a EEUU?", o: ["España", "Francia", "Reino Unido", "Alemania"], a: "Francia" },
         { q: "¿Cuál es el río más caudaloso del mundo?", o: ["Nilo", "Misisipi", "Amazonas", "Danubio"], a: "Amazonas" },
         { q: "¿Qué elemento químico tiene el símbolo 'Fe'?", o: ["Flúor", "Fósforo", "Hierro", "Fermio"], a: "Hierro" },
@@ -174,7 +181,6 @@
             list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
             let html = "";
             list.slice(0,10).forEach((d, i) => {
-                // AQUÍ SE PONEN LOS SEGUNDOS EN EL RANKING
                 html += `
                 <div class="entry">
                     <div class="entry-info">
@@ -195,14 +201,13 @@
             showScreen('screen-home');
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             
-            // LÓGICA DE RACHA REINICIABLE
             const lastDate = localStorage.getItem('lastDatePlayed');
             let streak = parseInt(localStorage.getItem('userStreak') || 0);
             
             if (lastDate) {
                 const diffTime = Math.abs(new Date(hoy) - new Date(lastDate));
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                if (diffDays > 1) { // Si ha pasado más de 1 día sin jugar
+                if (diffDays > 1) { 
                     streak = 0;
                     localStorage.setItem('userStreak', 0);
                 }
@@ -241,8 +246,19 @@
 
     function loadQuestion() {
         const qData = currentQuestions[currentStep];
+        const imgEl = document.getElementById('q-img');
+        
         document.getElementById('q-count').innerText = `${currentStep+1}/10`;
         document.getElementById('q-text').innerText = qData.q;
+        
+        // Muestra imagen si existe, si no la oculta
+        if(qData.img) {
+            imgEl.src = qData.img;
+            imgEl.classList.add('active');
+        } else {
+            imgEl.classList.remove('active');
+        }
+
         const box = document.getElementById('options-box');
         box.innerHTML = "";
         qData.o.forEach(opt => {
@@ -269,11 +285,9 @@
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         const name = localStorage.getItem('triviaUser');
         
-        // Guardar en Firebase
         set(ref(db, `ranking/${hoy}_${name.toLowerCase().replace(/\s/g, '_')}`), {
             user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
         }).then(() => {
-            // Actualizar racha al terminar
             const lastDate = localStorage.getItem('lastDatePlayed');
             if (lastDate !== hoy) {
                 let streak = parseInt(localStorage.getItem('userStreak') || 0);
