@@ -141,7 +141,6 @@
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
     const masterBank = [
-        // EJEMPLO CON IMAGEN
         { q: "¿A qué país pertenece esta bandera única?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Flag_of_Nepal.svg/800px-Flag_of_Nepal.svg.png", o: ["India", "Tíbet", "Nepal", "Bután"], a: "Nepal" },
         { q: "¿Qué país regaló la Estatua de la Libertad a EEUU?", o: ["España", "Francia", "Reino Unido", "Alemania"], a: "Francia" },
         { q: "¿Cuál es el río más caudaloso del mundo?", o: ["Nilo", "Misisipi", "Amazonas", "Danubio"], a: "Amazonas" },
@@ -178,8 +177,10 @@
         onValue(rRef, (snap) => {
             let list = [];
             snap.forEach(c => list.push(c.val()));
+            // ORDENACIÓN: Puntos descendente, Tiempo ascendente
             list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
             let html = "";
+            // MUESTRA SOLO EL TOP 10
             list.slice(0,10).forEach((d, i) => {
                 html += `
                 <div class="entry">
@@ -251,7 +252,6 @@
         document.getElementById('q-count').innerText = `${currentStep+1}/10`;
         document.getElementById('q-text').innerText = qData.q;
         
-        // Muestra imagen si existe, si no la oculta
         if(qData.img) {
             imgEl.src = qData.img;
             imgEl.classList.add('active');
