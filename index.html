@@ -75,7 +75,7 @@
 <div class="main-layout">
     <aside class="sidebar-ranking">
         <div class="leaderboard">
-            <h3>🏆 TOP GLOBAL</h3>
+            <h3>🏆 TOP HOY</h3>
             <div id="lead-list">Cargando...</div>
         </div>
     </aside>
@@ -172,24 +172,30 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // CARGA DEL RANKING MEJORADA (Sin filtros de fecha para que siempre se vea a todos)
+    // CARGA DEL RANKING DIARIO (Solo muestra los resultados de hoy)
     function loadRanking() {
         const rRef = query(ref(db, 'ranking'), orderByChild('points'));
         
         onValue(rRef, (snap) => {
             const container = document.getElementById('lead-list');
             if (!snap.exists()) {
-                container.innerHTML = "Sin datos aún";
+                container.innerHTML = "Sin datos aún hoy";
                 return;
             }
 
             let list = [];
-            snap.forEach(child => { list.push(child.val()); });
+            snap.forEach(child => { 
+                const data = child.val();
+                // Filtro para mostrar solo el día actual
+                if (data.date === hoy) {
+                    list.push(data); 
+                }
+            });
             
             // Ordenar: Puntos desc, Tiempo asc
             list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
 
-            // Filtro de mejores puntuaciones por usuario
+            // Filtro para que cada usuario solo aparezca una vez con su mejor puntuación de hoy
             const bestScores = new Map();
             list.forEach(entry => {
                 const userKey = entry.user.trim().toLowerCase();
@@ -212,7 +218,7 @@
                     <span class="score-tag">${d.points}/10</span>
                 </div>`;
             });
-            container.innerHTML = html;
+            container.innerHTML = html || "Sin datos hoy";
         });
     }
 
@@ -247,7 +253,7 @@
 
     document.getElementById('play-today-btn').onclick = () => {
         currentQuestions = [...masterBank].sort(() => Math.random() - 0.5);
-        currentStep = 0; score = 0; // Reiniciar variables
+        currentStep = 0; score = 0;
         showScreen('screen-game');
         startTimer();
         loadQuestion();
