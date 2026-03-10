@@ -125,7 +125,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
-    // ... (Tu config de Firebase se mantiene igual) ...
+    // Tu config se mantiene igual
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
         authDomain: "trivialbrutal.firebaseapp.com",
@@ -174,7 +174,7 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // --- CAMBIO 1: Lógica de carga optimizada ---
+    // CARGA OPTIMIZADA
     function loadRanking() {
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
         onValue(rRef, (snap) => {
@@ -183,7 +183,7 @@
                 list.push(child.val());
             });
             
-            // Ordenamos: Puntos (mayor a menor) y luego Tiempo (menor a mayor)
+            // Orden: Puntos desc, Tiempo asc
             list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
 
             let html = "";
@@ -201,7 +201,6 @@
         });
     }
 
-    // ... (checkAuth, startTimer, loadQuestion se mantienen igual) ...
     function checkAuth() {
         const name = localStorage.getItem('triviaUser');
         if (!name) showScreen('screen-auth');
@@ -269,7 +268,6 @@
         });
     }
 
-    // --- CAMBIO 2: Uso de push() para evitar sobrescritura ---
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
@@ -278,7 +276,7 @@
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         const name = localStorage.getItem('triviaUser');
         
-        // Usamos push() para crear un ID único para cada partida, evitando que Alejandro borre a María
+        // CORRECCIÓN: Generar un ID único por partida para que no se pisen
         const newEntryRef = push(ref(db, 'ranking'));
         set(newEntryRef, {
             user: name, 
@@ -295,6 +293,8 @@
                 localStorage.setItem('lastDatePlayed', hoy);
             }
             localStorage.setItem('lastPlayed_' + hoy, 'true');
+            // Forzamos recarga del ranking para que María aparezca de inmediato
+            loadRanking();
         });
     }
 
