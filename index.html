@@ -243,31 +243,51 @@
         }, 1000);
     }
 
-    function loadQuestion() {
-        const qData = currentQuestions[currentStep];
-        const imgEl = document.getElementById('q-img');
-        document.getElementById('q-count').innerText = `${currentStep+1}/10`;
-        document.getElementById('q-text').innerText = qData.q;
-        if(qData.img) { imgEl.src = qData.img; imgEl.classList.add('active'); } 
-        else { imgEl.classList.remove('active'); }
-        const box = document.getElementById('options-box');
-        box.innerHTML = "";
-        qData.o.forEach(opt => {
-            const b = document.createElement('button');
-            b.className = 'opt-btn'; b.innerText = opt;
-            b.onclick = () => {
-                if(document.querySelector('.correct')) return;
-                if(opt === qData.a) { b.classList.add('correct'); score++; }
-                else b.classList.add('wrong');
-                setTimeout(() => {
-                    currentStep++;
-                    if(currentStep < 10) loadQuestion(); else finish();
-                }, 800);
-            };
-            box.appendChild(b);
+// --- FUNCIÓN REVISADA: Limpia y filtra duplicados ---
+    function loadRanking() {
+        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
+        onValue(rRef, (snap) => {
+            const container = document.getElementById('lead-list');
+            if (!snap.exists()) {
+                container.innerHTML = "Sin datos hoy";
+                return;
+            }
+
+            let list = [];
+            snap.forEach(child => {
+                list.push(child.val());
+            });
+            
+            // 1. Ordenar por puntos y tiempo
+            list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
+
+            // 2. Filtrar para que si un usuario jugó varias veces, solo salga su mejor puntuación
+            const uniqueList = [];
+            const seenUsers = new Set();
+            for (const entry of list) {
+                if (!seenUsers.has(entry.user.toLowerCase())) {
+                    uniqueList.push(entry);
+                    seenUsers.add(entry.user.toLowerCase());
+                }
+            }
+
+            // 3. Renderizar (Máximo 10)
+            let html = "";
+            uniqueList.slice(0, 10).forEach((d, i) => {
+                html += `
+                <div class="entry">
+                    <div class="entry-info">
+                        <span>#${i + 1} ${d.user}</span>
+                        <span class="entry-time">⏱️ ${d.time}</span>
+                    </div>
+                    <span class="score-tag">${d.points}/10</span>
+                </div>`;
+            });
+            container.innerHTML = html;
         });
     }
 
+    // --- FUNCIÓN REVISADA: Asegura el guardado único ---
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
@@ -276,7 +296,7 @@
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         const name = localStorage.getItem('triviaUser');
         
-        // CORRECCIÓN: Generar un ID único por partida para que no se pisen
+        // Guardamos con push para que no falle la escritura simultánea
         const newEntryRef = push(ref(db, 'ranking'));
         set(newEntryRef, {
             user: name, 
@@ -293,8 +313,7 @@
                 localStorage.setItem('lastDatePlayed', hoy);
             }
             localStorage.setItem('lastPlayed_' + hoy, 'true');
-            // Forzamos recarga del ranking para que María aparezca de inmediato
-            loadRanking();
+            // No hace falta recargar, onValue lo hará solo sin duplicar
         });
     }
 
