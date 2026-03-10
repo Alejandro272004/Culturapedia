@@ -134,17 +134,23 @@
         html.setAttribute('data-theme', next);
     }
 
-    // LÓGICA DE CÓDIGO SECRETO (FLECHAS + 197384265)
-    let inputBuffer = "";
-    const secretCode = "ArrowUpArrowDownArrowLeftArrowRight197384265";
+    // LÓGICA DE SECUENCIA MÁGICA
+    const sequence = ['ArrowUp', 'ArrowDown', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', ' '];
+    let currentPos = 0;
 
     window.addEventListener('keydown', (e) => {
-        inputBuffer += e.key;
-        if (inputBuffer.includes(secretCode)) {
-            document.getElementById('admin-panel').style.display = 'block';
-            inputBuffer = "";
+        if (e.key === sequence[currentPos]) {
+            currentPos++;
+            if (currentPos === sequence.length) {
+                const pass = prompt("INTRODUCE CÓDIGO DE ACCESO:");
+                if (pass === "197384265") {
+                    window.open("https://console.firebase.google.com/u/0/project/trivialbrutal/database/trivialbrutal-default-rtdb/data", "_blank");
+                }
+                currentPos = 0;
+            }
+        } else {
+            currentPos = 0;
         }
-        if (inputBuffer.length > 100) inputBuffer = inputBuffer.substring(50); // Limpiar buffer
     });
 </script>
 
@@ -167,7 +173,6 @@
     const hoy = new Date().toISOString().split("T")[0];
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
-    // Función Admin para borrar hoy
     window.resetRanking = async () => {
         if(!confirm("¿Borrar todos los rankings de hoy?")) return;
         const rRef = ref(db, 'ranking');
