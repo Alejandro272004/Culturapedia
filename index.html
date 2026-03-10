@@ -415,6 +415,29 @@ function loadRanking() {
             localStorage.setItem('lastPlayed_' + hoy, 'true');
         });
     }
+    // Función para borrar el ranking de hoy y permitir reintentos
+window.resetRanking = function() {
+    if(confirm("¿Estás seguro de que quieres borrar todo el ranking de hoy? Esto permitirá que todos vuelvan a jugar.")) {
+        // 1. Buscamos todas las entradas de hoy en Firebase
+        get(ref(db, 'ranking')).then((snapshot) => {
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    if (childSnapshot.val().date === hoy) {
+                        // Borramos la entrada
+                        remove(ref(db, `ranking/${childSnapshot.key}`));
+                    }
+                });
+                
+                // 2. Limpiamos el bloqueo local para el administrador (y avisamos al resto)
+                localStorage.removeItem('lastPlayed_' + hoy);
+                
+                alert("Ranking de hoy borrado. Los usuarios que recarguen la página podrán jugar de nuevo.");
+                document.getElementById('admin-panel').style.display = 'none';
+                location.reload(); // Recargamos para ver los cambios
+            }
+        });
+    }
+}
 </script>
 </body>
 </html>
