@@ -65,10 +65,33 @@
         input { width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
         .streak-fire { color: #ff8800; font-weight: 800; margin-bottom: 15px; display: inline-block; padding: 5px 15px; background: rgba(255,136,0,0.1); border-radius: 20px; }
 
+        /* EASTER EGG ADMIN */
+        .corner-trigger { position: fixed; width: 60px; height: 60px; z-index: 999; cursor: crosshair; }
+        #tl { top: 0; left: 0; } #tr { top: 0; right: 0; } #br { bottom: 0; right: 0; } #bl { bottom: 0; left: 0; }
+        
+        #admin-panel { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #1a1a2e; border: 2px solid var(--accent); padding: 30px; border-radius: 20px;
+            z-index: 1000; display: none; box-shadow: 0 0 50px #000; min-width: 300px;
+        }
+
         @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } }
     </style>
 </head>
-<body>
+<body onclick="handleCornerClick(event)">
+
+<div class="corner-trigger" id="tl" data-id="1"></div>
+<div class="corner-trigger" id="tr" data-id="2"></div>
+<div class="corner-trigger" id="br" data-id="3"></div>
+<div class="corner-trigger" id="bl" data-id="4"></div>
+
+<div id="admin-panel">
+    <h2 style="color:var(--accent)">MODO ADMIN</h2>
+    <p>¿Qué acción deseas realizar?</p>
+    <button class="btn-main" style="background:var(--error); color:white" onclick="resetToday()">BORRAR TODO EL RANKING HOY</button>
+    <button class="btn-main" style="background:var(--text-dim)" onclick="clearLocal()">BORRAR MI SESIÓN (REINTENTAR)</button>
+    <button class="btn-main" onclick="document.getElementById('admin-panel').style.display='none'">CERRAR</button>
+</div>
 
 <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
 
@@ -119,11 +142,27 @@
         const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', next);
     }
+
+    // LÓGICA DE LAS 4 ESQUINAS
+    let sequence = [];
+    function handleCornerClick(e) {
+        if(e.target.classList.contains('corner-trigger')) {
+            const id = e.target.getAttribute('data-id');
+            sequence.push(id);
+            if(sequence.join('') === '1234') {
+                document.getElementById('admin-panel').style.display = 'block';
+                sequence = [];
+            }
+            if(sequence.length > 4) sequence = [];
+        } else {
+            sequence = [];
+        }
+    }
 </script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, query, orderByChild, remove, serverTimestamp, push, get } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
@@ -139,6 +178,24 @@
     const db = getDatabase(app);
     const hoy = new Date().toISOString().split("T")[0];
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
+
+    // EXPONER FUNCIONES ADMIN AL WINDOW
+    window.resetToday = async () => {
+        if(!confirm("¿BORRAR TODO EL RANKING DE HOY? No se puede deshacer.")) return;
+        const rRef = ref(db, 'ranking');
+        const snap = await get(rRef);
+        snap.forEach(child => {
+            if(child.val().date === hoy) remove(ref(db, `ranking/${child.key}`));
+        });
+        alert("Ranking de hoy limpiado.");
+        location.reload();
+    };
+
+    window.clearLocal = () => {
+        localStorage.clear();
+        alert("Datos locales borrados. Puedes volver a entrar.");
+        location.reload();
+    };
 
     const masterBank = [
         { q: "¿A qué país pertenece esta bandera única?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Flag_of_Nepal.svg/800px-Flag_of_Nepal.svg.png", o: ["India", "Tíbet", "Nepal", "Bután"], a: "Nepal" },
@@ -172,30 +229,20 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // CARGA DEL RANKING DIARIO (Solo muestra los resultados de hoy)
     function loadRanking() {
         const rRef = query(ref(db, 'ranking'), orderByChild('points'));
-        
         onValue(rRef, (snap) => {
             const container = document.getElementById('lead-list');
             if (!snap.exists()) {
                 container.innerHTML = "Sin datos aún hoy";
                 return;
             }
-
             let list = [];
             snap.forEach(child => { 
                 const data = child.val();
-                // Filtro para mostrar solo el día actual
-                if (data.date === hoy) {
-                    list.push(data); 
-                }
+                if (data.date === hoy) list.push(data); 
             });
-            
-            // Ordenar: Puntos desc, Tiempo asc
             list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
-
-            // Filtro para que cada usuario solo aparezca una vez con su mejor puntuación de hoy
             const bestScores = new Map();
             list.forEach(entry => {
                 const userKey = entry.user.trim().toLowerCase();
@@ -203,7 +250,6 @@
                     bestScores.set(userKey, entry);
                 }
             });
-
             const sortedFinal = Array.from(bestScores.values())
                 .sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
 
@@ -230,14 +276,10 @@
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             const lastDate = localStorage.getItem('lastDatePlayed');
             let streak = parseInt(localStorage.getItem('userStreak') || 0);
-            
-            // Lógica de racha
             if (lastDate && Math.ceil(Math.abs(new Date(hoy) - new Date(lastDate)) / (1000 * 60 * 60 * 24)) > 1) {
                 streak = 0; localStorage.setItem('userStreak', 0);
             }
             document.getElementById('streak-num').innerText = streak;
-
-            // Bloqueo diario
             if(localStorage.getItem('lastPlayed_' + hoy)) {
                 document.getElementById('play-today-btn').disabled = true;
                 document.getElementById('play-today-btn').innerText = "VUELVE MAÑANA";
@@ -274,10 +316,8 @@
         const imgEl = document.getElementById('q-img');
         document.getElementById('q-count').innerText = `${currentStep+1}/10`;
         document.getElementById('q-text').innerText = qData.q;
-        
         if(qData.img) { imgEl.src = qData.img; imgEl.classList.add('active'); } 
         else { imgEl.classList.remove('active'); }
-        
         const box = document.getElementById('options-box');
         box.innerHTML = "";
         qData.o.forEach(opt => {
@@ -287,7 +327,6 @@
                 if(document.querySelector('.correct')) return;
                 if(opt === qData.a) { b.classList.add('correct'); score++; }
                 else b.classList.add('wrong');
-                
                 setTimeout(() => {
                     currentStep++;
                     if(currentStep < 10) loadQuestion(); else finish();
@@ -303,16 +342,10 @@
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
         document.getElementById('final-time').innerText = `Tiempo: ${t}`;
-        
         const name = localStorage.getItem('triviaUser');
-        
         const newEntryRef = push(ref(db, 'ranking'));
         set(newEntryRef, {
-            user: name, 
-            points: score, 
-            time: t, 
-            date: hoy, 
-            ts: serverTimestamp()
+            user: name, points: score, time: t, date: hoy, ts: serverTimestamp()
         }).then(() => {
             const lastDate = localStorage.getItem('lastDatePlayed');
             if (lastDate !== hoy) {
