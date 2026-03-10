@@ -173,14 +173,19 @@
     }
 
     function loadRanking() {
+        // Esta línea es clave: filtra solo los resultados que coincidan con la fecha de 'hoy'
         const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
+        
         onValue(rRef, (snap) => {
             let list = [];
+            // Aquí recorremos todos los registros que Firebase devuelve para hoy
             snap.forEach(c => list.push(c.val()));
-            // ORDENACIÓN: Puntos descendente, Tiempo ascendente
+            
+            // Ordenamos: más puntos primero, y a igualdad de puntos, menor tiempo
             list.sort((a,b) => (b.points - a.points) || a.time.localeCompare(b.time));
+            
             let html = "";
-            // MUESTRA SOLO EL TOP 10
+            // Tomamos los 10 mejores resultados de la lista
             list.slice(0,10).forEach((d, i) => {
                 html += `
                 <div class="entry">
@@ -191,6 +196,8 @@
                     <span class="score-tag">${d.points}/10</span>
                 </div>`;
             });
+            
+            // Actualizamos el contenedor del ranking en el HTML
             document.getElementById('lead-list').innerHTML = html || "Sin datos hoy";
         });
     }
