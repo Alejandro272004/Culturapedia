@@ -33,15 +33,16 @@
 
         .main-layout { display: flex; gap: 40px; width: 100%; max-width: 1100px; align-items: flex-start; }
 
-        /* RANKING ACTUALIZADO */
+        /* RANKING */
         .sidebar-ranking { width: 320px; flex-shrink: 0; position: sticky; top: 20px; }
         .leaderboard { background: var(--container-bg); border-radius: 24px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .leaderboard h3 { color: var(--accent); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
         
         .entry { display: flex; justify-content: space-between; padding: 12px; background: var(--card-inner); border-radius: 12px; margin-bottom: 8px; font-size: 0.85rem; align-items: center; }
-        .entry-info { display: flex; flex-direction: column; gap: 2px; }
+        .entry-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+        .entry-info span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
         .entry-time { font-size: 0.7rem; color: var(--text-dim); }
-        .score-tag { color: var(--accent); font-weight: 800; }
+        .score-tag { color: var(--accent); font-weight: 800; flex-shrink: 0; margin-left: 10px; }
 
         /* JUEGO */
         .container { flex-grow: 1; max-width: 500px; background: var(--container-bg); border-radius: 24px; padding: 40px; border: 1px solid var(--border); text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
@@ -49,7 +50,6 @@
         .screen.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* NUEVO: ESTILO PARA IMÁGENES */
         .q-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 12px; margin-bottom: 15px; display: none; }
         .q-img.active { display: block; }
 
@@ -75,7 +75,7 @@
 <div class="main-layout">
     <aside class="sidebar-ranking">
         <div class="leaderboard">
-            <h3>🏆 TOP HOY</h3>
+            <h3>🏆 TOP GLOBAL</h3>
             <div id="lead-list">Cargando...</div>
         </div>
     </aside>
@@ -84,7 +84,7 @@
         <div id="screen-auth" class="screen">
             <h1>CULTURA BRUTAL</h1>
             <p style="color: var(--text-dim);">Introduce tu nombre para el ranking</p>
-            <input type="text" id="username-input" placeholder="Tu apodo">
+            <input type="text" id="username-input" placeholder="Tu apodo" maxlength="15">
             <button class="btn-main" id="btn-save-name">ENTRAR</button>
         </div>
 
@@ -125,7 +125,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, query, orderByChild, equalTo, serverTimestamp, push } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
-    // Tu config se mantiene igual
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
         authDomain: "trivialbrutal.firebaseapp.com",
@@ -141,7 +140,6 @@
     const hoy = new Date().toISOString().split("T")[0];
     let timerInterval, currentQuestions = [], currentStep = 0, score = 0;
 
-    // ... (Tu masterBank se mantiene igual) ...
     const masterBank = [
         { q: "¿A qué país pertenece esta bandera única?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Flag_of_Nepal.svg/800px-Flag_of_Nepal.svg.png", o: ["India", "Tíbet", "Nepal", "Bután"], a: "Nepal" },
         { q: "¿Qué país regaló la Estatua de la Libertad a EEUU?", o: ["España", "Francia", "Reino Unido", "Alemania"], a: "Francia" },
@@ -174,79 +172,8 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // CARGA OPTIMIZADA
+    // CARGA DEL RANKING MEJORADA (Sin filtros de fecha para que siempre se vea a todos)
     function loadRanking() {
-        const rRef = query(ref(db, 'ranking'), orderByChild('date'), equalTo(hoy));
-        onValue(rRef, (snap) => {
-            let list = [];
-            snap.forEach(child => {
-                list.push(child.val());
-            });
-            
-            // Orden: Puntos desc, Tiempo asc
-            list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
-
-            let html = "";
-            list.slice(0, 10).forEach((d, i) => {
-                html += `
-                <div class="entry">
-                    <div class="entry-info">
-                        <span>#${i + 1} ${d.user}</span>
-                        <span class="entry-time">⏱️ ${d.time}</span>
-                    </div>
-                    <span class="score-tag">${d.points}/10</span>
-                </div>`;
-            });
-            document.getElementById('lead-list').innerHTML = html || "Sin datos hoy";
-        });
-    }
-
-    function checkAuth() {
-        const name = localStorage.getItem('triviaUser');
-        if (!name) showScreen('screen-auth');
-        else {
-            showScreen('screen-home');
-            document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
-            const lastDate = localStorage.getItem('lastDatePlayed');
-            let streak = parseInt(localStorage.getItem('userStreak') || 0);
-            if (lastDate && Math.ceil(Math.abs(new Date(hoy) - new Date(lastDate)) / (1000 * 60 * 60 * 24)) > 1) {
-                streak = 0; localStorage.setItem('userStreak', 0);
-            }
-            document.getElementById('streak-num').innerText = streak;
-            if(localStorage.getItem('lastPlayed_' + hoy)) {
-                document.getElementById('play-today-btn').disabled = true;
-                document.getElementById('play-today-btn').innerText = "VUELVE MAÑANA";
-            }
-            loadRanking();
-        }
-    }
-
-    document.getElementById('btn-save-name').onclick = () => {
-        const val = document.getElementById('username-input').value.trim();
-        if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
-    };
-
-    document.getElementById('play-today-btn').onclick = () => {
-        currentQuestions = [...masterBank].sort(() => Math.random() - 0.5);
-        showScreen('screen-game');
-        startTimer();
-        loadQuestion();
-    };
-
-    function startTimer() {
-        let start = Date.now();
-        timerInterval = setInterval(() => {
-            let diff = Date.now() - start;
-            let m = Math.floor(diff/60000).toString().padStart(2,'0');
-            let s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
-            document.getElementById('timer').innerText = `${m}:${s}`;
-        }, 1000);
-    }
-
-// --- FUNCIÓN REVISADA: Limpia y filtra duplicados ---
-    // --- CARGA DEL RANKING MEJORADA ---
-    function loadRanking() {
-        // Consultamos todo el ranking para evitar fallos de fecha
         const rRef = query(ref(db, 'ranking'), orderByChild('points'));
         
         onValue(rRef, (snap) => {
@@ -257,14 +184,12 @@
             }
 
             let list = [];
-            snap.forEach(child => {
-                list.push(child.val());
-            });
+            snap.forEach(child => { list.push(child.val()); });
             
-            // Ordenar: Primero Puntos (desc), luego Tiempo (asc)
+            // Ordenar: Puntos desc, Tiempo asc
             list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
 
-            // Filtro de mejores puntuaciones por usuario (evita que uno llene la lista)
+            // Filtro de mejores puntuaciones por usuario
             const bestScores = new Map();
             list.forEach(entry => {
                 const userKey = entry.user.trim().toLowerCase();
@@ -291,7 +216,81 @@
         });
     }
 
-    // --- FUNCIÓN DE FINALIZACIÓN ---
+    function checkAuth() {
+        const name = localStorage.getItem('triviaUser');
+        if (!name) showScreen('screen-auth');
+        else {
+            showScreen('screen-home');
+            document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
+            const lastDate = localStorage.getItem('lastDatePlayed');
+            let streak = parseInt(localStorage.getItem('userStreak') || 0);
+            
+            // Lógica de racha
+            if (lastDate && Math.ceil(Math.abs(new Date(hoy) - new Date(lastDate)) / (1000 * 60 * 60 * 24)) > 1) {
+                streak = 0; localStorage.setItem('userStreak', 0);
+            }
+            document.getElementById('streak-num').innerText = streak;
+
+            // Bloqueo diario
+            if(localStorage.getItem('lastPlayed_' + hoy)) {
+                document.getElementById('play-today-btn').disabled = true;
+                document.getElementById('play-today-btn').innerText = "VUELVE MAÑANA";
+            }
+            loadRanking();
+        }
+    }
+
+    document.getElementById('btn-save-name').onclick = () => {
+        const val = document.getElementById('username-input').value.trim();
+        if(val.length >= 2) { localStorage.setItem('triviaUser', val); checkAuth(); }
+    };
+
+    document.getElementById('play-today-btn').onclick = () => {
+        currentQuestions = [...masterBank].sort(() => Math.random() - 0.5);
+        currentStep = 0; score = 0; // Reiniciar variables
+        showScreen('screen-game');
+        startTimer();
+        loadQuestion();
+    };
+
+    function startTimer() {
+        let start = Date.now();
+        timerInterval = setInterval(() => {
+            let diff = Date.now() - start;
+            let m = Math.floor(diff/60000).toString().padStart(2,'0');
+            let s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }, 1000);
+    }
+
+    function loadQuestion() {
+        const qData = currentQuestions[currentStep];
+        const imgEl = document.getElementById('q-img');
+        document.getElementById('q-count').innerText = `${currentStep+1}/10`;
+        document.getElementById('q-text').innerText = qData.q;
+        
+        if(qData.img) { imgEl.src = qData.img; imgEl.classList.add('active'); } 
+        else { imgEl.classList.remove('active'); }
+        
+        const box = document.getElementById('options-box');
+        box.innerHTML = "";
+        qData.o.forEach(opt => {
+            const b = document.createElement('button');
+            b.className = 'opt-btn'; b.innerText = opt;
+            b.onclick = () => {
+                if(document.querySelector('.correct')) return;
+                if(opt === qData.a) { b.classList.add('correct'); score++; }
+                else b.classList.add('wrong');
+                
+                setTimeout(() => {
+                    currentStep++;
+                    if(currentStep < 10) loadQuestion(); else finish();
+                }, 800);
+            };
+            box.appendChild(b);
+        });
+    }
+
     function finish() {
         clearInterval(timerInterval);
         const t = document.getElementById('timer').innerText;
@@ -301,7 +300,6 @@
         
         const name = localStorage.getItem('triviaUser');
         
-        // Guardar con ID único (push)
         const newEntryRef = push(ref(db, 'ranking'));
         set(newEntryRef, {
             user: name, 
@@ -310,7 +308,6 @@
             date: hoy, 
             ts: serverTimestamp()
         }).then(() => {
-            // Manejo de racha y bloqueo diario
             const lastDate = localStorage.getItem('lastDatePlayed');
             if (lastDate !== hoy) {
                 let streak = parseInt(localStorage.getItem('userStreak') || 0);
@@ -319,11 +316,10 @@
                 localStorage.setItem('lastDatePlayed', hoy);
             }
             localStorage.setItem('lastPlayed_' + hoy, 'true');
-            
-            // Forzar actualización inmediata para que María se vea
             loadRanking();
         });
     }
+
     checkAuth();
 </script>
 </body>
