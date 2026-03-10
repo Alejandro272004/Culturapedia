@@ -238,31 +238,204 @@
         }
     }
 
-    const masterBank = [
-        { q: "¿A qué país pertenece esta bandera única?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Flag_of_Nepal.svg/800px-Flag_of_Nepal.svg.png", o: ["India", "Tíbet", "Nepal", "Bután"], a: "Nepal" },
-        { q: "¿Qué país regaló la Estatua de la Libertad a EEUU?", o: ["España", "Francia", "Reino Unido", "Alemania"], a: "Francia" },
-        { q: "¿Cuál es el río más caudaloso del mundo?", o: ["Nilo", "Misisipi", "Amazonas", "Danubio"], a: "Amazonas" },
-        { q: "¿Qué elemento químico tiene el símbolo 'Fe'?", o: ["Flúor", "Fósforo", "Hierro", "Fermio"], a: "Hierro" },
-        { q: "¿Quién fue el autor de 'La Odisea'?", o: ["Sófocles", "Homero", "Platón", "Aristóteles"], a: "Homero" },
-        { q: "¿En qué país se originaron los Juegos Olímpicos?", o: ["Italia", "Grecia", "Egipto", "China"], a: "Grecia" },
-        { q: "¿Cuál es el planeta más caliente del sistema solar?", o: ["Mercurio", "Marte", "Venus", "Júpiter"], a: "Venus" },
-        { q: "¿Qué órgano humano consume más energía?", o: ["Corazón", "Cerebro", "Hígado", "Músculos"], a: "Cerebro" },
-        { q: "¿Cuál es el idioma más hablado del mundo?", o: ["Español", "Inglés", "Chino Mandarín", "Hindi"], a: "Chino Mandarín" },
-        { q: "¿Quién pintó la 'Mona Lisa'?", o: ["Miguel Ángel", "Rafael", "Leonardo da Vinci", "Donatello"], a: "Leonardo da Vinci" },
-        { q: "¿Qué ciudad es conocida como 'La Gran Manzana'?", o: ["Chicago", "Londres", "Nueva York", "Tokio"], a: "Nueva York" },
-        { q: "¿Cuál es la capital de Alemania?", o: ["Múnich", "Hamburgo", "Berlín", "Frankfurt"], a: "Berlín" },
-        { q: "¿En qué país nació Cristóbal Colón?", o: ["España", "Portugal", "Italia", "Francia"], a: "Italia" },
-        { q: "¿Qué animal es el principal transmisor de la malaria?", o: ["Rata", "Mosquito", "Murciélago", "Pulga"], a: "Mosquito" },
-        { q: "¿Cuál es el metal más abundante en la corteza terrestre?", o: ["Hierro", "Cobre", "Aluminio", "Magnesio"], a: "Aluminio" },
-        { q: "¿Qué ciudad fue destruida por el Vesubio en el 79 d.C.?", o: ["Roma", "Pompeya", "Cartago", "Atenas"], a: "Pompeya" },
-        { q: "¿Cuál es la capital de Portugal?", o: ["Oporto", "Lisboa", "Coimbra", "Faro"], a: "Lisboa" },
-        { q: "¿Quién escribió 'Cien años de soledad'?", o: ["Vargas Llosa", "Neruda", "García Márquez", "Borges"], a: "García Márquez" },
-        { q: "¿Cuántos colores tiene el arcoíris?", o: ["5", "6", "7", "8"], a: "7" },
-        { q: "¿Cuál es el mamífero más rápido del mar?", o: ["Tiburón", "Orca", "Delfín", "Marsopa"], a: "Orca" },
-        { q: "¿En qué año cayó el muro de Berlín?", o: ["1985", "1989", "1991", "1993"], a: "1989" },
-        { q: "¿Cuál es la capital de Canadá?", o: ["Toronto", "Montreal", "Ottawa", "Vancouver"], a: "Ottawa" },
-        { q: "¿Qué filósofo dijo 'Solo sé que no sé nada'?", o: ["Platón", "Sócrates", "Aristóteles", "Descartes"], a: "Sócrates" },
-        { q: "¿Cuál es el desierto más grande del mundo?", o: ["Sahara", "Gobi", "Atacama", "Antártida"], a: "Antártida" },
+   const masterBank = [
+    // --- GEOGRAFÍA Y BANDERAS ---
+    { q: "¿A qué país pertenece esta bandera?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Flag_of_Jamaica.svg/800px-Flag_of_Jamaica.svg.png", o: ["Bahamas", "Jamaica", "Nigeria", "Tanzania"], a: "Jamaica" },
+    { q: "¿Qué famoso monumento es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Dawn_Charles_Bridge_Prague_with_Old_Town_Bridge_Tower.jpg/800px-Dawn_Charles_Bridge_Prague_with_Old_Town_Bridge_Tower.jpg", o: ["Puente de Carlos (Praga)", "Puente de las Artes (París)", "Puente de Rialto (Venecia)", "Puente de la Torre (Londres)"], a: "Puente de Carlos (Praga)" },
+    { q: "¿En qué ciudad se encuentra este edificio?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Las_Lajas_2.jpg/800px-Las_Lajas_2.jpg", o: ["Quito", "Ipiales (Colombia)", "Cuenca", "Santiago"], a: "Ipiales (Colombia)" },
+    { q: "¿Qué país tiene esta forma geográfica?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Japan_location_map.svg/543px-Japan_location_map.svg.png", o: ["Filipinas", "Indonesia", "Japón", "Nueva Zelanda"], a: "Japón" },
+    { q: "¿Cuál es este volcán famoso?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Mount_Fuji_from_Shinkansen.jpg/800px-Mount_Fuji_from_Shinkansen.jpg", o: ["Teide", "Etna", "Monte Fuji", "Popocatépetl"], a: "Monte Fuji" },
+
+    // --- ARTE Y CULTURA ---
+    { q: "¿Quién pintó esta obra titulada 'El Grito'?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/The_Scream.jpg/607px-The_Scream.jpg", o: ["Vincent van Gogh", "Edvard Munch", "Claude Monet", "Pablo Picasso"], a: "Edvard Munch" },
+    { q: "¿Cómo se llama esta famosa escultura?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Selection_from_the_Canova_Galleries_%282054904229%29.jpg/800px-Selection_from_the_Canova_Galleries_%282054904229%29.jpg", o: ["Apolo y Dafne", "Psique reanimada por el beso del amor", "El Rapto de Proserpina", "La Piedad"], a: "Psique reanimada por el beso del amor" },
+    { q: "¿Qué estilo arquitectónico representa esta catedral?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Notre_Dame_de_Paris_2013_001.jpg/800px-Notre_Dame_de_Paris_2013_001.jpg", o: ["Románico", "Barroco", "Gótico", "Neoclásico"], a: "Gótico" },
+    { q: "¿Quién es el autor de este cuadro?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/757px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg", o: ["Paul Gauguin", "Vincent van Gogh", "Salvador Dalí", "Gustav Klimt"], a: "Vincent van Gogh" },
+    { q: "¿A qué civilización pertenece este calendario?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Stone_of_the_Sun_copy.jpg/800px-Stone_of_the_Sun_copy.jpg", o: ["Maya", "Inca", "Azteca", "Olmeca"], a: "Azteca" },
+
+    // --- CIENCIA Y NATURALEZA ---
+    { q: "¿Qué animal es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Axolotl_mexicain.jpg/800px-Axolotl_mexicain.jpg", o: ["Salamandra", "Ajolote", "Tridacna", "Tritón"], a: "Ajolote" },
+    { q: "¿Qué planeta es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Jupiter_and_its_shrunken_Great_Red_Spot.jpg/800px-Jupiter_and_its_shrunken_Great_Red_Spot.jpg", o: ["Marte", "Saturno", "Júpiter", "Neptuno"], a: "Júpiter" },
+    { q: "¿Qué constelación es esta?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Orion_head_to_toe.jpg/500px-Orion_head_to_toe.jpg", o: ["Osa Mayor", "Orión", "Casiopea", "Centauro"], a: "Orión" },
+    { q: "¿Qué elemento de la tabla periódica se extrae de este mineral (Cinabrio)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Cinnabar_crystals_on_quartz_from_China.jpg/800px-Cinnabar_crystals_on_quartz_from_China.jpg", o: ["Oro", "Hierro", "Mercurio", "Cobre"], a: "Mercurio" },
+    { q: "¿Qué parte de la célula es la señalada (Central de energía)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Animal_cell_structure_en.svg/600px-Animal_cell_structure_en.svg.png", o: ["Núcleo", "Mitocondria", "Ribosoma", "Lisosoma"], a: "Mitocondria" },
+
+    // --- HISTORIA ---
+    { q: "¿Quién es este personaje histórico?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Shakespeare.jpg/545px-Shakespeare.jpg", o: ["Miguel de Cervantes", "William Shakespeare", "Dante Alighieri", "Charles Dickens"], a: "William Shakespeare" },
+    { q: "¿Qué ciudad antigua es esta?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/02_Santuario_de_Machu_Picchu.jpg/800px-02_Santuario_de_Machu_Picchu.jpg", o: ["Tulum", "Machu Picchu", "Petra", "Chichén Itzá"], a: "Machu Picchu" },
+    { q: "¿A qué evento pertenece esta fotografía icónica?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Buzz_Aldrin_on_the_Moon.jpg/613px-Buzz_Aldrin_on_the_Moon.jpg", o: ["Primera Guerra Mundial", "Llegada a la Luna", "Caída del Muro", "Guerra Fría"], a: "Llegada a la Luna" }
+// --- CINE Y ANIMACIÓN ---
+    { q: "¿A qué película de Disney pertenece este castillo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Castillo_de_Neuschwanstein_2013.jpg/800px-Castillo_de_Neuschwanstein_2013.jpg", o: ["La Bella y la Bestia", "La Bella Durmiente", "Frozen", "Cenicienta"], a: "La Bella Durmiente" },
+    { q: "¿Qué actor interpreta a este icónico personaje (El Padrino)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Marlon_Brando_Padrino_1972.jpg/439px-Marlon_Brando_Padrino_1972.jpg", o: ["Al Pacino", "Robert De Niro", "Marlon Brando", "James Caan"], a: "Marlon Brando" },
+    { q: "¿Cómo se llama este robot de Star Wars?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/R2-D2_Droid.jpg/400px-R2-D2_Droid.jpg", o: ["C-3PO", "BB-8", "R2-D2", "K-2SO"], a: "R2-D2" },
+    { q: "¿Qué película de 1993 presenta a estos animales?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Tyrannosaurus_rex_mount.jpg/800px-Tyrannosaurus_rex_mount.jpg", o: ["King Kong", "Jurassic Park", "Godzilla", "Ice Age"], a: "Jurassic Park" },
+    { q: "¿A qué estudio de animación pertenece este personaje (Totoro)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Studio_Ghibli_museum_in_Mitaka%2C_Tokyo.jpg/800px-Studio_Ghibli_museum_in_Mitaka%2C_Tokyo.jpg", o: ["Disney", "Pixar", "Studio Ghibli", "DreamWorks"], a: "Studio Ghibli" },
+
+    // --- GEOGRAFÍA Y MONUMENTOS ---
+    { q: "¿En qué país se encuentra esta 'Ciudad Rosa'?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Al_Khazneh_Petra_Jordan_BW_21.jpg/569px-Al_Khazneh_Petra_Jordan_BW_21.jpg", o: ["Egipto", "Jordania", "Turquía", "Irán"], a: "Jordania" },
+    { q: "¿Qué famoso rascacielos de Nueva York es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Empire_State_Building_%28neoclassic_style%29.jpg/402px-Empire_State_Building_%28neoclassic_style%29.jpg", o: ["Chrysler Building", "Empire State Building", "One World Trade Center", "Flatiron Building"], a: "Empire State Building" },
+    { q: "¿Cómo se llama este anfiteatro romano?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Colosseum_in_Rome-Italy.jpg/800px-Colosseum_in_Rome-Italy.jpg", o: ["Teatro de Mérida", "Arena de Verona", "Coliseo", "Panteón"], a: "Coliseo" },
+    { q: "¿Qué río atraviesa esta famosa ciudad (Londres)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg/800px-Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg", o: ["Sena", "Danubio", "Támesis", "Tíber"], a: "Támesis" },
+    { q: "¿A qué antigua civilización pertenece esta pirámide?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Chichen_Itza_3.jpg/800px-Chichen_Itza_3.jpg", o: ["Inca", "Azteca", "Maya", "Egipcia"], a: "Maya" },
+
+    // --- LOGOTIPOS Y MARCAS (SIN NOMBRE) ---
+    { q: "¿A qué red social pertenece este pájaro?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/512px-Logo_of_Twitter.svg.png", o: ["Facebook", "Twitter / X", "Instagram", "LinkedIn"], a: "Twitter / X" },
+    { q: "¿Qué sistema operativo usa este logotipo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/504px-Tux.svg.png", o: ["Windows", "MacOS", "Linux", "Android"], a: "Linux" },
+    { q: "¿A qué marca de coches pertenece este símbolo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/BMW.svg/600px-BMW.svg.png", o: ["Audi", "Mercedes", "BMW", "Volkswagen"], a: "BMW" },
+    { q: "¿Qué consola de videojuegos usa este mando?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/N64-Controller-Gray.jpg/800px-N64-Controller-Gray.jpg", o: ["PlayStation", "Nintendo 64", "Sega Genesis", "Xbox"], a: "Nintendo 64" },
+
+    // --- NATURALEZA Y CIENCIA ---
+    { q: "¿Cómo se llama este fenómeno natural?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Aurora_Borealis_and_Aurora_Australis_from_space.jpg/800px-Aurora_Borealis_and_Aurora_Australis_from_space.jpg", o: ["Arcoíris", "Aurora Boreal", "Eclipse", "Supernova"], a: "Aurora Boreal" },
+    { q: "¿Qué tipo de árbol es este (el más alto del mundo)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Hyperion_%28tree%29.jpg/440px-Hyperion_%28tree%29.jpg", o: ["Pino", "Roble", "Secuoya", "Baobab"], a: "Secuoya" },
+    { q: "¿Qué animal es este primate?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Lemu_catta_01.jpg/545px-Lemu_catta_01.jpg", o: ["Chimpancé", "Lemur", "Babuino", "Gibón"], a: "Lemur" },
+    { q: "¿Qué instrumento musical es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Theremin_p01.jpg/800px-Theremin_p01.jpg", o: ["Sintetizador", "Arpa Laser", "Theremín", "Órgano"], a: "Theremín" },
+    { q: "¿Qué parte de la estructura del ADN es esta?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/DNA_orbit_animated.gif/300px-DNA_orbit_animated.gif", o: ["Proteína", "Doble Hélice", "Átomo", "Cromosoma"], a: "Doble Hélice" },
+    { q: "¿A qué inventor pertenece este boceto de helicóptero?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Leonardo_da_Vinci_-_Air_Screw.jpg/490px-Leonardo_da_Vinci_-_Air_Screw.jpg", o: ["Tesla", "Edison", "Leonardo da Vinci", "Newton"], a: "Leonardo da Vinci" }
+   // --- DEPORTES ---
+    { q: "¿En qué ciudad se encuentra este famoso estadio de tenis (Roland Garros)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Court_Philippe_Chatrier%2C_Roland_Garros_2013.jpg/800px-Court_Philippe_Chatrier%2C_Roland_Garros_2013.jpg", o: ["Madrid", "Londres", "París", "Nueva York"], a: "París" },
+    { q: "¿Qué deporte se juega en este campo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Gillette_Stadium_-_Foxborough%2C_Massachusetts.jpg/800px-Gillette_Stadium_-_Foxborough%2C_Massachusetts.jpg", o: ["Fútbol", "Béisbol", "Fútbol Americano", "Rugby"], a: "Fútbol Americano" },
+    { q: "¿A qué leyenda del baloncesto pertenece esta silueta?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Michael_Jordan_Jumpman_logo.svg/454px-Michael_Jordan_Jumpman_logo.svg.png", o: ["LeBron James", "Kobe Bryant", "Michael Jordan", "Shaquille O'Neal"], a: "Michael Jordan" },
+    { q: "¿Cuál es el nombre de este trofeo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/World_Cup_6.jpg/360px-World_Cup_6.jpg", o: ["Copa América", "Copa del Mundo", "Copa Oro", "Champions League"], a: "Copa del Mundo" },
+    { q: "¿Qué país organiza tradicionalmente este torneo de ciclismo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Tour_de_France_logo.svg/512px-Tour_de_France_logo.svg.png", o: ["Italia", "España", "Francia", "Bélgica"], a: "Francia" },
+
+    // --- VIDEOJUEGOS ---
+    { q: "¿Cómo se llama este fontanero de los videojuegos?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Mario_Series_Logo.svg/512px-Mario_Series_Logo.svg.png", o: ["Luigi", "Wario", "Mario", "Yoshi"], a: "Mario" },
+    { q: "¿A qué saga pertenece esta trifuerza?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Triforce.svg/512px-Triforce.svg.png", o: ["Zelda", "Final Fantasy", "Skyrim", "Elden Ring"], a: "Zelda" },
+    { q: "¿Cuál es el nombre de este pokémon?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Pikachu_en_la_Nintendo_World_Store.jpg/440px-Pikachu_en_la_Nintendo_World_Store.jpg", o: ["Bulbasaur", "Charmander", "Pikachu", "Eevee"], a: "Pikachu" },
+    { q: "¿En qué juego se construyen estructuras con estos cubos?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Minecraft_Block.png/480px-Minecraft_Block.png", o: ["Roblox", "Minecraft", "Terraria", "Fortnite"], a: "Minecraft" },
+    { q: "¿A qué empresa pertenece este mando azul?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/DualShock_4_at_the_PlayStation_Experience.jpg/800px-DualShock_4_at_the_PlayStation_Experience.jpg", o: ["Xbox", "Nintendo", "PlayStation", "SEGA"], a: "PlayStation" },
+
+    // --- CIENCIA Y MUNDO NATURAL ---
+    { q: "¿Cómo se llama este gran felino?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Lion_waiting_in_Namibia.jpg/800px-Lion_waiting_in_Namibia.jpg", o: ["Tigre", "Leopardo", "León", "Guepardo"], a: "León" },
+    { q: "¿Qué estructura humana se ve desde el espacio?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Great_Wall_of_China_at_Jinshanling.jpg/800px-Great_Wall_of_China_at_Jinshanling.jpg", o: ["Canal de Panamá", "Gran Muralla China", "Torre Eiffel", "Pirámides"], a: "Gran Muralla China" },
+    { q: "¿Qué ave es esta, famosa por no poder volar?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Emperor_Penguin_Manchot_empereur.jpg/450px-Emperor_Penguin_Manchot_empereur.jpg", o: ["Avestruz", "Pingüino", "Dodo", "Kiwi"], a: "Pingüino" },
+    { q: "¿Qué nombre recibe este cráneo prehistórico?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Tyrannosaurus_rex_skull_at_the_Museum_für_Naturkunde_Berlin.jpg/800px-Tyrannosaurus_rex_skull_at_the_Museum_für_Naturkunde_Berlin.jpg", o: ["Triceratops", "Velociraptor", "Tyrannosaurus Rex", "Diplodocus"], a: "Tyrannosaurus Rex" },
+    { q: "¿Cómo se llama esta fruta tropical?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Pineapple_and_cross_section.jpg/560px-Pineapple_and_cross_section.jpg", o: ["Mango", "Papaya", "Piña", "Coco"], a: "Piña" },
+
+    // --- MARAVILLAS Y ARQUITECTURA ---
+    { q: "¿En qué país se encuentra este palacio (Taj Mahal)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg/800px-Taj_Mahal%2C_Agra%2C_India_edit3.jpg", o: ["Pakistán", "India", "Tailandia", "Turquía"], a: "India" },
+    { q: "¿Cuál es el nombre de esta famosa ópera?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Sydney_Opera_House_2.jpg/800px-Sydney_Opera_House_2.jpg", o: ["Ópera de Viena", "Ópera de Sídney", "Teatro Colón", "La Scala"], a: "Ópera de Sídney" },
+    { q: "¿Qué nombre recibe este reloj de Londres?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Clock_Tower_-_Palace_of_Westminster%2C_London_-_May_2007.jpg/420px-Clock_Tower_-_Palace_of_Westminster%2C_London_-_May_2007.jpg", o: ["Big Ben", "London Eye", "The Shard", "Westminster"], a: "Big Ben" },
+    { q: "¿En qué ciudad está esta estatua del Cristo Redentor?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Christ_the_Redeemer_-_Rio_de_Janeiro%2C_Brazil.jpg/500px-Christ_the_Redeemer_-_Rio_de_Janeiro%2C_Brazil.jpg", o: ["Lisboa", "Buenos Aires", "Río de Janeiro", "México DF"], a: "Río de Janeiro" },
+    { q: "¿Qué civilización construyó este templo (El Partenón)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/The_Parthenon_in_Athens.jpg/800px-The_Parthenon_in_Athens.jpg", o: ["Romana", "Egipcia", "Griega", "Fenicia"], a: "Griega" }
+    // --- ASTRONOMÍA Y ESPACIO ---
+    { q: "¿Qué planeta es este, conocido por sus anillos?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Saturn_during_Equinox.jpg/800px-Saturn_during_Equinox.jpg", o: ["Júpiter", "Urano", "Saturno", "Neptuno"], a: "Saturno" },
+    { q: "¿Cómo se llama nuestra galaxia?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/The_Milky_Way_seen_from_Easter_Island.jpg/800px-The_Milky_Way_seen_from_Easter_Island.jpg", o: ["Andrómeda", "Vía Láctea", "Sombrero", "Nebulosa"], a: "Vía Láctea" },
+    { q: "¿Qué nombre recibe el satélite natural de la Tierra?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/FullMoon2010.jpg/600px-FullMoon2010.jpg", o: ["Titán", "Europa", "Luna", "Ganímedes"], a: "Luna" },
+    { q: "¿Qué telescopio espacial tomó esta famosa imagen?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Pillars_of_creation_2014_HST_WFC3-UVIS_full-res_denoised.jpg/600px-Pillars_of_creation_2014_HST_WFC3-UVIS_full-res_denoised.jpg", o: ["Hubble", "James Webb", "Kepler", "Galileo"], a: "Hubble" },
+    { q: "¿Qué planeta es el más cercano al Sol?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Mercury_in_color_-_Prockter07-edit1.jpg/600px-Mercury_in_color_-_Prockter07-edit1.jpg", o: ["Venus", "Marte", "Mercurio", "Plutón"], a: "Mercurio" },
+
+    // --- AUTOMOCIÓN (LOGOS) ---
+    { q: "¿A qué marca de coches pertenece este caballo (Mustang)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Ford_Mustang_Logo.svg/512px-Ford_Mustang_Logo.svg.png", o: ["Ferrari", "Ford", "Porsche", "Lamborghini"], a: "Ford" },
+    { q: "¿Qué marca utiliza este escudo con un toro?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Lamborghini_Logo.svg/500px-Lamborghini_Logo.svg.png", o: ["Lamborghini", "Ferrari", "Fiat", "Alfa Romeo"], a: "Lamborghini" },
+    { q: "¿Qué marca eléctrica utiliza este logotipo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Tesla_T_symbol.svg/512px-Tesla_T_symbol.svg.png", o: ["Toyota", "Tesla", "Triumph", "Tata"], a: "Tesla" },
+    { q: "¿A qué fabricante japonés pertenece este logo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Toyota_car_logo.svg/600px-Toyota_car_logo.svg.png", o: ["Nissan", "Mazda", "Toyota", "Honda"], a: "Toyota" },
+    { q: "¿Qué marca de lujo usa este espíritu del éxtasis?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/RR-logo.svg/400px-RR-logo.svg.png", o: ["Bentley", "Rolls-Royce", "Jaguar", "Aston Martin"], a: "Rolls-Royce" },
+
+    // --- CUERPO HUMANO ---
+    { q: "¿Qué órgano bombea la sangre?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Diagram_of_the_human_heart_%28cropped%29.svg/550px-Diagram_of_the_human_heart_%28cropped%29.svg.png", o: ["Pulmones", "Hígado", "Corazón", "Riñones"], a: "Corazón" },
+    { q: "¿Qué hueso es el más largo del cuerpo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/F%C3%A9mur_izquierdo.png/300px-F%C3%A9mur_izquierdo.png", o: ["Húmero", "Fémur", "Tibia", "Radio"], a: "Fémur" },
+    { q: "¿Qué tipo de célula es esta, encargada de transmitir impulsos?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Blausen_0657_MultipolarNeuron.png/600px-Blausen_0657_MultipolarNeuron.png", o: ["Glóbulo Rojo", "Neurona", "Osteocito", "Adipocito"], a: "Neurona" },
+    { q: "¿A qué órgano pertenecen estos alveolos?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Lungs_diagram_detailed.svg/600px-Lungs_diagram_detailed.svg.png", o: ["Estómago", "Pulmones", "Páncreas", "Vejiga"], a: "Pulmones" },
+
+    // --- EUROPA Y CURIOSIDADES ---
+    { q: "¿En qué país se encuentra la Torre de Pisa?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Leaning_Tower_of_Pisa.jpg/400px-Leaning_Tower_of_Pisa.jpg", o: ["Francia", "España", "Italia", "Grecia"], a: "Italia" },
+    { q: "¿Qué nombre recibe este monumento de Berlín?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Brandenburger_Tor_abends.jpg/800px-Brandenburger_Tor_abends.jpg", o: ["Arco de Triunfo", "Puerta de Brandeburgo", "Check-point Charlie", "Reichstag"], a: "Puerta de Brandeburgo" },
+    { q: "¿Cómo se llama este castillo de Segovia?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Alc%C3%A1zar_de_Segovia_01.jpg/800px-Alc%C3%A1zar_de_Segovia_01.jpg", o: ["La Alhambra", "Alcázar de Segovia", "Castillo de Olite", "Palacio Real"], a: "Alcázar de Segovia" },
+    { q: "¿Qué instrumento musical es típico de Escocia?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Great_Highland_Bagpipe.jpg/450px-Great_Highland_Bagpipe.jpg", o: ["Violín", "Gaita", "Flauta", "Arpa"], a: "Gaita" },
+    { q: "¿Qué ciudad europea es famosa por sus canales?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Venice_Canal_Grande_2.jpg/800px-Venice_Canal_Grande_2.jpg", o: ["Madrid", "París", "Venecia", "Berlín"], a: "Venecia" },
+
+    // --- ANIMALES EXÓTICOS ---
+    { q: "¿Cómo se llama este animal australiano?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Koala_climbing_tree.jpg/500px-Koala_climbing_tree.jpg", o: ["Canguro", "Wombat", "Koala", "Quokka"], a: "Koala" },
+    { q: "¿Qué tipo de oso es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Grosser_Panda.JPG/600px-Grosser_Panda.JPG", o: ["Oso Pardo", "Oso Panda", "Oso Polar", "Oso Grizzly"], a: "Oso Panda" },
+    { q: "¿Qué animal marino es este cefalópodo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Octopus2.jpg/600px-Octopus2.jpg", o: ["Calamar", "Sepia", "Pulpo", "Medusa"], a: "Pulpo" },
+    { q: "¿Cómo se llama este mamífero con escamas?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Pangolin_at_San_Diego_Zoo.jpg/600px-Pangolin_at_San_Diego_Zoo.jpg", o: ["Armadillo", "Pangolín", "Equidna", "Puercoespín"], a: "Pangolín" },
+
+    // --- COMIDA DEL MUNDO ---
+    { q: "¿De qué país es originario el Sushi?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Sushi_lot.jpg/800px-Sushi_lot.jpg", o: ["China", "Corea", "Japón", "Tailandia"], a: "Japón" },
+    { q: "¿Cómo se llama este plato típico italiano?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Eq_it-na_pizza-margherita_sep2005_sml.jpg/600px-Eq_it-na_pizza-margherita_sep2005_sml.jpg", o: ["Pasta", "Lasaña", "Pizza", "Risotto"], a: "Pizza" },
+    { q: "¿De qué fruta se obtiene el chocolate?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Cacao_fruit.jpg/600px-Cacao_fruit.jpg", o: ["Café", "Cacao", "Nuez", "Vainilla"], a: "Cacao" },
+
+    // --- PERSONAJES DE FICCIÓN ---
+    { q: "¿Quién es este superhéroe?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Spider-Man_Cosplay.jpg/400px-Spider-Man_Cosplay.jpg", o: ["Batman", "Iron Man", "Spider-Man", "Thor"], a: "Spider-Man" },
+    { q: "¿Cómo se llama este arqueólogo del cine?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Indiana_Jones_cosplay.jpg/450px-Indiana_Jones_cosplay.jpg", o: ["James Bond", "Indiana Jones", "Nathan Drake", "Sherlock Holmes"], a: "Indiana Jones" },
+    { q: "¿Qué personaje de terror usa esta máscara?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Jason_mask.jpg/300px-Jason_mask.jpg", o: ["Freddy Krueger", "Jason Voorhees", "Chucky", "Pennywise"], a: "Jason Voorhees" },
+    { q: "¿A qué película pertenece este alienígena?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/E.T._the_Extra-Terrestrial_%281982%29_logo.svg/600px-E.T._the_Extra-Terrestrial_%281982%29_logo.svg.png", o: ["Alien", "E.T.", "Star Wars", "Predator"], a: "E.T." },
+
+    // --- TECNOLOGÍA ---
+    { q: "¿Qué empresa fabricó el primer iPhone?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/400px-Apple_logo_black.svg.png", o: ["Samsung", "Microsoft", "Apple", "Google"], a: "Apple" },
+    { q: "¿Qué representa este icono inalámbrico?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/WiFi_Logo.svg/512px-WiFi_Logo.svg.png", o: ["Bluetooth", "Wi-Fi", "Infrarrojos", "NFC"], a: "Wi-Fi" },
+    { q: "¿A qué navegador pertenece este logo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/512px-Google_Chrome_icon_%28February_2022%29.svg.png", o: ["Firefox", "Safari", "Chrome", "Edge"], a: "Chrome" },
+
+    // --- ARTE ---
+    { q: "¿Qué escultor creó el 'David'?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/David_von_Michelangelo.jpg/360px-David_von_Michelangelo.jpg", o: ["Donatello", "Bernini", "Miguel Ángel", "Rodin"], a: "Miguel Ángel" },
+    { q: "¿Cómo se llama este cuadro de Dalí?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Dal%C3%AD_The_Persistence_of_Memory.jpg/600px-Dal%C3%AD_The_Persistence_of_Memory.jpg", o: ["El Guernica", "La persistencia de la memoria", "La última cena", "Las Meninas"], a: "La persistencia de la memoria" },
+    { q: "¿Quién es la mujer de este famoso cuadro?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Mona_Lisa_v2.jpg/440px-Mona_Lisa_v2.jpg", o: ["Mona Lisa", "La Venus", "La Joven de la Perla", "La Maja Desnuda"], a: "Mona Lisa" },
+
+    // --- GEOGRAFÍA EXTRA ---
+    { q: "¿En qué país están estas cataratas (Iguazú)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Iguazu_Falls_Dec_2007.jpg/800px-Iguazu_Falls_Dec_2007.jpg", o: ["Brasil / Argentina", "EEUU / Canadá", "Zambia", "Venezuela"], a: "Brasil / Argentina" },
+    { q: "¿Cómo se llama la montaña más alta del mundo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Everest_kalapatthar.jpg/800px-Everest_kalapatthar.jpg", o: ["K2", "Anapurna", "Everest", "Mont Blanc"], a: "Everest" },
+    { q: "¿Qué país tiene esta bandera (con la hoja de arce)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/800px-Flag_of_Canada_%28Pantone%29.svg.png", o: ["EEUU", "Canadá", "Australia", "Suiza"], a: "Canadá" },
+    { q: "¿Qué isla es famosa por estas estatuas (Moáis)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Easter_Island_Moai.jpg/800px-Easter_Island_Moai.jpg", o: ["Hawái", "Isla de Pascua", "Bali", "Madagascar"], a: "Isla de Pascua" }
+    // --- MARCAS Y MODA ---
+    { q: "¿A qué marca de lujo pertenece este monograma?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Louis_Vuitton_logo_and_monogram.svg/512px-Louis_Vuitton_logo_and_monogram.svg.png", o: ["Gucci", "Louis Vuitton", "Prada", "Chanel"], a: "Louis Vuitton" },
+    { q: "¿Qué marca deportiva usa estas tres rayas?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Adidas_Logo.svg/600px-Adidas_Logo.svg.png", o: ["Nike", "Puma", "Adidas", "Reebok"], a: "Adidas" },
+    { q: "¿De qué marca es este famoso 'Swoosh'?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Logo_NIKE.svg/600px-Logo_NIKE.svg.png", o: ["Nike", "Asics", "New Balance", "Kappa"], a: "Nike" },
+    { q: "¿Qué marca utiliza una medusa en su logotipo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Versace_logo.svg/600px-Versace_logo.svg.png", o: ["Versace", "Hermès", "Armani", "Givenchy"], a: "Versace" },
+    { q: "¿A qué marca pertenece este cocodrilo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Lacoste_logo.svg/600px-Lacoste_logo.svg.png", o: ["Polo", "Lacoste", "Columbia", "Crocs"], a: "Lacoste" },
+
+    // --- ASIA Y ORIENTE ---
+    { q: "¿Qué nombre recibe esta antigua fortaleza de Japón?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Himeji_Castle_2015-04-20.jpg/800px-Himeji_Castle_2015-04-20.jpg", o: ["Castillo de Osaka", "Castillo de Himeji", "Palacio Imperial", "Templo de Oro"], a: "Castillo de Himeji" },
+    { q: "¿En qué país se encuentra este templo (Angkor Wat)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Angkor_Wat.jpg/800px-Angkor_Wat.jpg", o: ["Tailandia", "Vietnam", "Camboya", "Laos"], a: "Camboya" },
+    { q: "¿Cómo se llama este famoso rascacielos de Dubái?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Burj_Khalifa.jpg/400px-Burj_Khalifa.jpg", o: ["Taipei 101", "Burj Khalifa", "Burj Al Arab", "Lotte World Tower"], a: "Burj Khalifa" },
+    { q: "¿Qué ciudad es conocida por tener estos 'Supertrees'?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Supertree_Grove%2C_Gardens_by_the_Bay%2C_Singapore_-_20120712-02.jpg/800px-Supertree_Grove%2C_Gardens_by_the_Bay%2C_Singapore_-_20120712-02.jpg", o: ["Tokio", "Hong Kong", "Singapur", "Seúl"], a: "Singapur" },
+    { q: "¿Qué estructura divide estas dos Coreas?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Panmunjom_looking_north.jpg/800px-Panmunjom_looking_north.jpg", o: ["Muro de Berlín", "Paralelo 38", "Gran Muralla", "Zona DMZ"], a: "Zona DMZ" },
+
+    // --- LITERATURA Y ESCRITORES ---
+    { q: "¿Quién escribió 'Don Quijote de la Mancha'?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Cervantes_Miguel_de.jpg/500px-Cervantes_Miguel_de.jpg", o: ["Lope de Vega", "Miguel de Cervantes", "Quevedo", "Góngora"], a: "Miguel de Cervantes" },
+    { q: "¿Qué escritora creó al detective Hercules Poirot?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Agatha_Christie.png/480px-Agatha_Christie.png", o: ["J.K. Rowling", "Agatha Christie", "Mary Shelley", "Virginia Woolf"], a: "Agatha Christie" },
+    { q: "¿A qué autor pertenece este retrato (autor de El Cuervo)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Edgar_Allan_Poe_daguerreotype_edit.vis.jpg/480px-Edgar_Allan_Poe_daguerreotype_edit.vis.jpg", o: ["H.P. Lovecraft", "Edgar Allan Poe", "Oscar Wilde", "Mark Twain"], a: "Edgar Allan Poe" },
+    { q: "¿Quién escribió 'El Diario de...'?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Anne_Frank_1940_school_photo.jpg/480px-Anne_Frank_1940_school_photo.jpg", o: ["Ana Frank", "Marie Curie", "Rosa Parks", "Frida Kahlo"], a: "Ana Frank" },
+
+    // --- INSTRUMENTOS MUSICALES ---
+    { q: "¿Qué instrumento de cuerda es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Violin_frontal_view.jpg/300px-Violin_frontal_view.jpg", o: ["Viola", "Violín", "Violonchelo", "Contrabajo"], a: "Violín" },
+    { q: "¿Cómo se llama este instrumento de viento madera?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Clarinet-Alto-Bass.jpg/600px-Clarinet-Alto-Bass.jpg", o: ["Oboe", "Fagot", "Clarinete", "Flauta"], a: "Clarinete" },
+    { q: "¿Qué instrumento de percusión es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Xylophone_2.jpg/600px-Xylophone_2.jpg", o: ["Marimba", "Xilófono", "Vibráfono", "Triángulo"], a: "Xilófono" },
+    { q: "¿De qué país es típico el Sitar?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Sitar_2.jpg/400px-Sitar_2.jpg", o: ["China", "India", "Egipto", "Marruecos"], a: "India" },
+
+    // --- BANDERAS Y PAÍSES ---
+    { q: "¿De qué país es esta bandera con un dragón?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Flag_of_Bhutan.svg/800px-Flag_of_Bhutan.svg.png", o: ["Gales", "Bután", "Vietnam", "Malta"], a: "Bután" },
+    { q: "¿A qué país pertenece la bandera de la Unión Jack?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%283-2_aspect_ratio%29.svg/800px-Flag_of_the_United_Kingdom_%283-2_aspect_ratio%29.svg.png", o: ["Australia", "Reino Unido", "Nueva Zelanda", "Islandia"], a: "Reino Unido" },
+    { q: "¿Qué país tiene este sol en su bandera?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Flag_of_Argentina.svg/800px-Flag_of_Argentina.svg.png", o: ["Uruguay", "Argentina", "Paraguay", "Bolivia"], a: "Argentina" },
+    { q: "¿Cuál es la bandera de la Unión Europea?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Europe.svg/800px-Flag_of_Europe.svg.png", o: ["ONU", "OTAN", "Unión Europea", "UNESCO"], a: "Unión Europea" },
+    { q: "¿De qué país es esta hoja roja?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Flag_of_Canada_%28Pantone%29.svg/800px-Flag_of_Canada_%28Pantone%29.svg.png", o: ["Canadá", "Perú", "Líbano", "Austria"], a: "Canadá" },
+
+    // --- ARQUEOLOGÍA Y EGIPTO ---
+    { q: "¿Qué faraón tiene esta famosa máscara funeraria?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Tutankhamun_mask_at_Cairo_Museum.jpg/480px-Tutankhamun_mask_at_Cairo_Museum.jpg", o: ["Ramsés II", "Tutankamón", "Akenatón", "Keops"], a: "Tutankamón" },
+    { q: "¿Cómo se llama este monumento con cuerpo de león?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Great_Sphinx_of_Giza_-_20080716a.jpg/800px-Great_Sphinx_of_Giza_-_20080716a.jpg", o: ["Anubis", "Horus", "La Esfinge", "Obelisco"], a: "La Esfinge" },
+    { q: "¿Qué reina egipcia tiene este famoso busto?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Nefertiti_berlin.jpg/400px-Nefertiti_berlin.jpg", o: ["Cleopatra", "Nefertiti", "Hatshepsut", "Isis"], a: "Nefertiti" },
+
+    // --- NATURALEZA Y ANIMALES ---
+    { q: "¿Qué insecto es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/Common_monarch_butterfly_Fws.jpg/600px-Common_monarch_butterfly_Fws.jpg", o: ["Libélula", "Mariposa Monarca", "Polilla", "Abeja"], a: "Mariposa Monarca" },
+    { q: "¿Cómo se llama este pez?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Clown_fish_in_the_Andaman_Coral_Reef.jpg/600px-Clown_fish_in_the_Andaman_Coral_Reef.jpg", o: ["Pez Cirujano", "Pez Payaso", "Pez Globo", "Barracuda"], a: "Pez Payaso" },
+    { q: "¿Qué reptil es este capaz de cambiar de color?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Common_Chameleon_F_crop.jpg/600px-Common_Chameleon_F_crop.jpg", o: ["Iguana", "Gecko", "Camaleón", "Salamandra"], a: "Camaleón" },
+    { q: "¿Cómo se llama el mamífero más grande del mundo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Blue_Whale_0011.jpg/800px-Blue_Whale_0011.jpg", o: ["Elefante", "Ballena Azul", "Tiburón Ballena", "Orca"], a: "Ballena Azul" },
+
+    // --- CIUDADES Y SKYLINE ---
+    { q: "¿Qué ciudad tiene esta famosa bahía y montaña (Pan de Azúcar)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Rio_de_Janeiro_-_Niter%C3%B3i_-_P%C3%A3o_de_A%C3%A7%C3%BAcar_y_Botafogo.jpg/800px-Rio_de_Janeiro_-_Niter%C3%B3i_-_P%C3%A3o_de_A%C3%A7%C3%BAcar_y_Botafogo.jpg", o: ["Barcelona", "Ciudad del Cabo", "Río de Janeiro", "Miami"], a: "Río de Janeiro" },
+    { q: "¿A qué ciudad pertenece este puente rojo (Golden Gate)?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/GoldenGateBridge-001.jpg/800px-GoldenGateBridge-001.jpg", o: ["Nueva York", "San Francisco", "Chicago", "Los Ángeles"], a: "San Francisco" },
+    { q: "¿En qué ciudad se encuentra la Plaza Roja?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Moscow_July_2011-16.jpg/800px-Moscow_July_2011-16.jpg", o: ["Varsovia", "Praga", "Moscú", "Budapest"], a: "Moscú" },
+    { q: "¿Qué nombre recibe este palacio de Londres?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Buckingham_Palace_from_gardens%2C_London.jpg/800px-Buckingham_Palace_from_gardens%2C_London.jpg", o: ["Castillo de Windsor", "Torre de Londres", "Palacio de Buckingham", "Kensington"], a: "Palacio de Buckingham" },
+
+    // --- PERSONAJES HISTÓRICOS ---
+    { q: "¿Quién es este físico autor de la relatividad?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Albert_Einstein_Head.jpg/480px-Albert_Einstein_Head.jpg", o: ["Isaac Newton", "Albert Einstein", "Nikola Tesla", "Stephen Hawking"], a: "Albert Einstein" },
+    { q: "¿Quién fue la primera mujer en ganar un Nobel?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c1900.jpg/400px-Marie_Curie_c1900.jpg", o: ["Amelia Earhart", "Marie Curie", "Ada Lovelace", "Frida Kahlo"], a: "Marie Curie" },
+    { q: "¿Qué líder pacifista indio es este?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Mahatma-Gandhi%2C_studio%2C_1931.jpg/480px-Mahatma-Gandhi%2C_studio%2C_1931.jpg", o: ["Dalai Lama", "Mahatma Gandhi", "Nehru", "Mandela"], a: "Mahatma Gandhi" },
+    { q: "¿A qué filósofo griego pertenece este busto?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Socrates_Louvre.jpg/400px-Socrates_Louvre.jpg", o: ["Sócrates", "Platón", "Aristóteles", "Epicuro"], a: "Sócrates" },
+
+    // --- OBJETOS COTIDIANOS ---
+    { q: "¿Cómo se llama este juguete de los 80?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Rubik%27s_cube.svg/500px-Rubik%27s_cube.svg.png", o: ["Yoyo", "Cubo de Rubik", "Lego", "Tamagotchi"], a: "Cubo de Rubik" },
+    { q: "¿Qué nombre recibe este tipo de calzado japonés?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Geta-japan.jpg/500px-Geta-japan.jpg", o: ["Zueco", "Geta", "Sandalia", "Kimo"], a: "Geta" }
     ];
 
 function loadRanking() {
