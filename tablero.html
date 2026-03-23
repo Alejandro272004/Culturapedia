@@ -124,8 +124,11 @@
     onDisconnect(myPlayerRef).remove();
 
     // 3. ESCUCHAR CAMBIOS EN TIEMPO REAL
+    // 3. ESCUCHAR CAMBIOS EN TIEMPO REAL
     onValue(gameRef, (snapshot) => {
         const data = snapshot.val();
+        
+        // Si no hay datos o jugadores, no hacemos nada
         if (!data || !data.players) {
             document.getElementById('player-count').innerText = "ESPERANDO... (0 / 5)";
             return;
@@ -143,9 +146,18 @@
         if (count >= 5) {
             document.getElementById('lobby-overlay').style.display = 'none';
             
-            // Si no hay turno, el primer ID de la lista empieza
-            if (!data.currentTurn || !playersMap[data.currentTurn]) {
+            // --- CORRECCIÓN AQUÍ: ASIGNAR TURNO INICIAL ---
+            // Si el juego ya debería haber empezado pero no hay turno asignado...
+            if (!data.currentTurn) {
+                // El primer ID de la lista (el que más tiempo lleva) recibe el turno
                 update(gameRef, { currentTurn: playerIds[0] });
+                return; // Salimos para que el siguiente ciclo de onValue aplique el cambio
+            }
+            
+            // Si el jugador que tenía el turno se desconectó, pasamos al siguiente
+            if (!playersMap[data.currentTurn]) {
+                update(gameRef, { currentTurn: playerIds[0] });
+                return;
             }
         } else {
             document.getElementById('lobby-overlay').style.display = 'flex';
@@ -153,11 +165,19 @@
 
         // PANEL DE TURNO
         const turnId = data.currentTurn;
-        const turnName = playersMap[turnId] ? playersMap[turnId].name : "Esperando...";
+        // Buscamos el nombre del jugador al que le toca
+        const turnName = playersMap[turnId] ? playersMap[turnId].name : "Iniciando...";
         document.getElementById('player-turn-name').innerText = turnName;
         
-        // El botón solo funciona si es MI ID el que tiene el turno
-        document.getElementById('roll-btn').disabled = (turnId !== myId);
+        // ACTIVAR BOTÓN: Solo si mi ID es igual al ID del turno
+        const rollBtn = document.getElementById('roll-btn');
+        if (turnId === myId) {
+            rollBtn.disabled = false;
+            rollBtn.style.boxShadow = "0 0 20px var(--accent)"; // Efecto visual para avisar
+        } else {
+            rollBtn.disabled = true;
+            rollBtn.style.boxShadow = "none";
+        }
 
         // ACTUALIZAR FICHAS
         updateFichas(playersMap);
