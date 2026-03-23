@@ -95,17 +95,57 @@
     const db = getDatabase(app);
     const myName = localStorage.getItem('triviaUser') || "Invitado";
 
-    // COORDENADAS PRECISAS (X% horizontal, Y% vertical)
+    // --- COORDENADAS PRECISAS (X% horizontal, Y% vertical) ---
+    // Mapeo real siguiendo el camino de la imagen
     const coords = {
-        0: {x: 8, y: 5},   // SALIDA
-        1: {x: 8, y: 15},  // Casilla 1
-        2: {x: 8, y: 25},  // Casilla 2
-        3: {x: 8, y: 36},  // Casilla 3
-        4: {x: 18, y: 44}, // Casilla 4
-        5: {x: 28, y: 37}, // Casilla 5
-        6: {x: 28, y: 24}, // Casilla 6
-        7: {x: 35, y: 15}, // Casilla 7
-        // ... Agregaremos el resto según pruebes estas
+        0: {x: 14, y: 10},  // SALIDA (arriba izq)
+        1: {x: 10, y: 12},  // Casilla 1
+        2: {x: 8, y: 20},   // Casilla 2
+        3: {x: 8, y: 30},   // Casilla 3
+        4: {x: 12, y: 38},  // Casilla 4
+        5: {x: 21, y: 31},  // Casilla 5 (subida)
+        6: {x: 21, y: 23},  // Casilla 6
+        7: {x: 27, y: 17},  // Casilla 7
+        8: {x: 37, y: 15},  // Casilla 8
+        9: {x: 46, y: 15},  // Casilla 9
+        10: {x: 65, y: 15}, // Casilla 10 (después del pergamino)
+        11: {x: 75, y: 19}, // Casilla 11
+        12: {x: 81, y: 28}, // Casilla 12
+        13: {x: 78, y: 38}, // Casilla 13
+        14: {x: 68, y: 38}, // Casilla 14
+        15: {x: 63, y: 29}, // Casilla 15 (curva interna)
+        16: {x: 54, y: 25}, // Casilla 16
+        17: {x: 43, y: 28}, // Casilla 17
+        18: {x: 37, y: 35}, // Casilla 18
+        19: {x: 37, y: 44}, // Casilla 19
+        20: {x: 39, y: 55}, // Casilla 20
+        21: {x: 49, y: 59}, // Casilla 21
+        22: {x: 60, y: 59}, // Casilla 22
+        23: {x: 71, y: 56}, // Casilla 23
+        24: {x: 79, y: 64}, // Casilla 24
+        25: {x: 72, y: 72}, // Casilla 25
+        26: {x: 61, y: 72}, // Casilla 26
+        27: {x: 50, y: 72}, // Casilla 27
+        28: {x: 40, y: 72}, // Casilla 28
+        29: {x: 31, y: 65}, // Casilla 29 (bajada estatua)
+        30: {x: 27, y: 53}, // Casilla 30
+        31: {x: 13, y: 55}, // Casilla 31
+        32: {x: 8, y: 65},  // Casilla 32
+        33: {x: 8, y: 74},  // Casilla 33
+        34: {x: 11, y: 84}, // Casilla 34
+        35: {x: 19, y: 91}, // Casilla 35 (abajo izq)
+        36: {x: 26, y: 82}, // Casilla 36
+        37: {x: 34, y: 74}, // Casilla 37
+        38: {x: 53, y: 82}, // Casilla 38 (después del pergamino abajo)
+        39: {x: 55, y: 74}, // Casilla 39
+        40: {x: 65, y: 78}, // Casilla 40
+        41: {x: 66, y: 88}, // Casilla 41
+        42: {x: 54, y: 94}, // Casilla 42
+        43: {x: 44, y: 92}, // Casilla 43
+        44: {x: 34, y: 94}, // Casilla 44
+        45: {x: 40, y: 100},// Casilla 45 (penúltima curva)
+        46: {x: 53, y: 100},// Casilla 46
+        47: {x: 65, y: 100} // LLEGADA (abajo der)
     };
 
     // Relleno temporal para que las fichas no desaparezcan en casillas altas
