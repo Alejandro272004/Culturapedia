@@ -6,7 +6,7 @@
     <title>TRIVIAL BRUTAL - DELUXE</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* TEMA DINÁMICO - CONEXIÓN CON TUS ARCHIVOS DE GITHUB */
+        /* TEMA DINÁMICO */
         [data-theme="dark"] {
             --bg: #050508; --container-bg: #0f0f16; --card-inner: #161622;
             --text: #ffffff; --text-dim: #a0a0b8; --accent: #00f2ff;
@@ -29,7 +29,6 @@
             overflow-x: hidden;
         }
 
-        /* LOGO ESQUINA IZQUIERDA - TAMAÑO AUMENTADO */
         .corner-logo {
             position: fixed; top: 20px; left: 20px; width: 110px; height: 110px;
             background-image: var(--logo-url); background-size: contain;
@@ -56,22 +55,17 @@
             z-index: 100; font-size: 1.2rem;
         }
 
-        .main-layout { display: flex; gap: 40px; width: 100%; max-width: 1100px; align-items: center; justify-content: center; display: none; }
+        .main-layout { display: none; gap: 40px; width: 100%; max-width: 1100px; align-items: flex-start; justify-content: center; }
         
-        .sidebar-ranking { width: 320px; flex-shrink: 0; }
+        .sidebar-ranking { width: 320px; flex-shrink: 0; position: sticky; top: 20px; }
         .leaderboard { background: var(--container-bg); border-radius: 24px; padding: 24px; border: 1px solid var(--border); }
         .leaderboard h3 { color: var(--accent); font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        
         .entry { 
-    display: grid; 
-    grid-template-columns: 1fr auto auto; 
-    gap: 15px; 
-    padding: 12px; 
-    background: var(--card-inner); 
-    border-radius: 12px; 
-    margin-bottom: 8px; 
-    font-size: 0.85rem; 
-    align-items: center; 
-}
+            display: grid; grid-template-columns: 1fr auto auto; gap: 15px; 
+            padding: 12px; background: var(--card-inner); border-radius: 12px; 
+            margin-bottom: 8px; font-size: 0.85rem; align-items: center; 
+        }
         .score-tag { color: var(--accent); font-weight: 800; }
 
         .container { flex-grow: 1; max-width: 500px; background: var(--container-bg); border-radius: 24px; padding: 40px; border: 1px solid var(--border); text-align: center; }
@@ -80,14 +74,20 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .btn-main { width: 100%; padding: 18px; background: var(--accent); color: #000; font-weight: 800; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; margin-top: 20px; transition: var(--transition); }
-        .opt-btn { width: 100%; padding: 16px; margin-bottom: 10px; background: var(--card-inner); color: var(--text); border-radius: 12px; border: 1px solid var(--border); cursor: pointer; text-align: left; }
+        .btn-main:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        
+        .opt-btn { width: 100%; padding: 16px; margin-bottom: 10px; background: var(--card-inner); color: var(--text); border-radius: 12px; border: 1px solid var(--border); cursor: pointer; text-align: left; transition: var(--transition); }
+        .opt-btn:hover { background: var(--border); transform: translateX(5px); }
+        
         .correct { background: var(--success) !important; color: #000 !important; }
         .wrong { background: var(--error) !important; color: #fff !important; }
 
-        input { width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; }
+        .streak-fire { background: rgba(255, 100, 0, 0.1); color: #ff6400; padding: 8px 15px; border-radius: 20px; display: inline-block; font-weight: 800; margin-bottom: 20px; font-size: 0.9rem; }
+
+        input { width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; box-sizing: border-box; }
         #admin-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0f; border: 2px solid var(--accent); padding: 30px; border-radius: 20px; z-index: 10000; display: none; width: 300px; }
 
-        @media (max-width: 850px) { .main-layout { flex-direction: column; } .sidebar-ranking { width: 100%; order: 2; } .corner-logo { width: 70px; height: 70px; top: 10px; left: 10px; } }
+        @media (max-width: 850px) { .main-layout { flex-direction: column; align-items: center; } .sidebar-ranking { width: 100%; order: 2; } .corner-logo { width: 70px; height: 70px; top: 10px; left: 10px; } }
     </style>
 </head>
 <body>
@@ -118,26 +118,50 @@
     <main class="container">
         <div id="screen-instructions" class="screen">
             <h1 style="color: var(--accent);">¡BIENVENIDO!</h1>
-            <p>Estás en el <b>Trivial de Culturapedia</b>.</p>
+            <p>Estás en el <b>Hub de Juegos de Culturapedia</b>.</p>
             <div style="text-align: left; background: var(--card-inner); padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 0.9rem;">
-                • 10 preguntas de cultura general.<br>
-                • Cuanto más rápido respondas, mejor posición.<br>
-                • Solo tienes un intento diario.
+                • Desafíos diarios de cultura general.<br>
+                • Ranking en tiempo real.<br>
+                • Nuevos minijuegos cada semana.
             </div>
-            <button class="btn-main" onclick="checkAuth()">VAMOS A ELLO</button>
+            <button class="btn-main" onclick="checkAuth()">ENTRAR AL HUB</button>
         </div>
 
         <div id="screen-auth" class="screen">
             <h1>TU IDENTIDAD</h1>
-            <p style="color: var(--text-dim);">Introduce tu nombre para el ranking</p>
+            <p style="color: var(--text-dim);">Introduce tu nombre para el ranking global</p>
             <input type="text" id="username-input" placeholder="Tu apodo" maxlength="15">
             <button class="btn-main" id="btn-save-name">REGISTRARME</button>
+        </div>
+
+        <div id="screen-menu" class="screen">
+            <h1 style="color: var(--accent); margin-bottom: 10px;">BIBLIOTECA</h1>
+            <p style="color: var(--text-dim); margin-bottom: 30px;">Selecciona tu desafío</p>
+            
+            <div style="display: grid; gap: 15px;">
+                <button class="opt-btn" onclick="showScreen('screen-home')" style="border-left: 5px solid var(--accent); padding: 20px;">
+                    <span style="display: block; font-weight: 800; font-size: 1.1rem;">🏆 TRIVIAL DIARIO</span>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">10 preguntas de cultura general.</span>
+                </button>
+
+                <button class="opt-btn" onclick="window.location.href='minijuegos/ahorcado.html'" style="border-left: 5px solid #ff00ff; padding: 20px;">
+                    <span style="display: block; font-weight: 800; font-size: 1.1rem;">🪢 EL AHORCADO</span>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">Adivina antes de que se complete el dibujo.</span>
+                </button>
+
+                <button class="opt-btn" style="opacity: 0.5; cursor: not-allowed; border-left: 5px solid var(--text-dim); padding: 20px;">
+                    <span style="display: block; font-weight: 800; font-size: 1.1rem;">🧩 PRÓXIMAMENTE</span>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">Nuevos retos en camino.</span>
+                </button>
+            </div>
         </div>
 
         <div id="screen-home" class="screen">
             <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
             <h1 id="welcome-msg"></h1>
-            <button id="play-today-btn" class="btn-main">JUGAR RETO DE HOY</button>
+            <p>¿Listo para el reto de hoy?</p>
+            <button id="play-today-btn" class="btn-main">JUGAR AHORA</button>
+            <button class="btn-main" style="background: transparent; color: var(--text-dim); border: 1px solid var(--border);" onclick="showScreen('screen-menu')">VOLVER AL MENÚ</button>
         </div>
 
         <div id="screen-game" class="screen">
@@ -154,7 +178,7 @@
             <h2>¡FINALIZADO!</h2>
             <div id="final-stats" style="font-size: 4rem; font-weight: 900; color: var(--accent);">0/10</div>
             <p id="final-time"></p>
-            <button class="btn-main" onclick="location.reload()">VOLVER</button>
+            <button class="btn-main" onclick="showScreen('screen-menu')">IR AL MENÚ</button>
         </div>
     </main>
 </div>
@@ -172,7 +196,7 @@
             document.getElementById('game-layout').style.display = 'flex';
             document.getElementById('corner-logo').style.display = 'block';
             showScreen('screen-instructions');
-        }, 5000); 
+        }, 3000); // Reducido a 3s para mejor UX
     };
 
     function showScreen(id) {
@@ -181,6 +205,7 @@
         if(target) target.classList.add('active');
     }
 
+    // Código Admin
     const sequence = ['ArrowUp', 'ArrowDown', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', ' '];
     let currentPos = 0;
     window.addEventListener('keydown', (e) => {
@@ -218,7 +243,7 @@
         const name = localStorage.getItem('triviaUser');
         if (!name) showScreen('screen-auth');
         else {
-            showScreen('screen-home');
+            showScreen('screen-menu'); // VA AL MENÚ DE MINIJUEGOS
             document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             loadRanking();
             updateStreak();
@@ -238,92 +263,20 @@
         }
     }
 
-   const masterBank = [
-    // --- CINE Y ANIMACIÓN ---
-    { q: "¿A qué película de Disney pertenece este castillo?", img: "https://alanxelmundo.com/wp-content/uploads/2020/02/tokiod3.jpg", o: ["La Bella y la Bestia", "La Bella Durmiente", "Frozen", "Cenicienta"], a: "La Bella Durmiente" },
-    { q: "¿Qué actor interpreta a este icónico personaje?", img: "https://static.abc.es/media/play/2019/09/20/padrino-kq3G--1248x698@abc.jpg", o: ["Al Pacino", "Robert De Niro", "Marlon Brando", "James Caan"], a: "Marlon Brando" },
-    { q: "¿Cómo se llama este robot de Star Wars?", img: "https://lumiere-a.akamaihd.net/v1/images/r2-d2-main_f315b094.jpeg?region=273%2C0%2C951%2C536", o: ["C-3PO", "BB-8", "R2-D2", "K-2SO"], a: "R2-D2" },
-    { q: "¿Qué película de 1993 presenta a estos animales?", img: "https://i.blogs.es/65ad86/jurassicpark/1200_900.jpeg", o: ["King Kong", "Jurassic Park", "Godzilla", "Ice Age"], a: "Jurassic Park" },
-    { q: "¿A qué estudio pertenece este personaje (Totoro)?", img: "https://hips.hearstapps.com/hmg-prod/images/ghibli-vecino-totoro-miyazaki-netflix-1579597040.jpg?crop=0.75xw:1xh;center,top&resize=1200:*", o: ["Disney", "Pixar", "Studio Ghibli", "DreamWorks"], a: "Studio Ghibli" },
-
-    // --- GEOGRAFÍA Y MONUMENTOS ---
-    { q: "¿En qué país se encuentra esta 'Ciudad Rosa'?", img: "https://media.istockphoto.com/id/683011462/es/foto/vista-frontal-del-tesoro-en-la-antigua-ciudad-de-petra-jordania.jpg?s=612x612&w=0&k=20&c=yUDLEl1yon3NiJZ-K1vUEq6vCARm41hxBrDgcauf2Qk=", o: ["Egipto", "Jordania", "Turquía", "Irán"], a: "Jordania" },
-    { q: "¿Qué famoso rascacielos de Nueva York es este?", img: "https://cdn.britannica.com/73/114973-050-2DC46083/Midtown-Manhattan-Empire-State-Building-New-York.jpg", o: ["Chrysler Building", "Empire State Building", "One World Trade Center", "Flatiron Building"], a: "Empire State Building" },
-    { q: "¿Cómo se llama este anfiteatro romano?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Colosseum_in_Rome-April_2007-1-_copie_2B.jpg/500px-Colosseum_in_Rome-April_2007-1-_copie_2B.jpg", o: ["Teatro de Mérida", "Arena de Verona", "Coliseo", "Panteón"], a: "Coliseo" },
-    { q: "¿Qué río atraviesa esta famosa ciudad?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg/960px-Palace_of_Westminster_from_the_dome_on_Methodist_Central_Hall.jpg", o: ["Sena", "Danubio", "Támesis", "Tíber"], a: "Támesis" },
-    { q: "¿A qué antigua civilización pertenece esta pirámide?", img: "https://upload.wikimedia.org/wikipedia/commons/a/aa/Kukulk%C3%A1n_rodeada_de_azul..JPG", o: ["Inca", "Azteca", "Maya", "Egipcia"], a: "Maya" },
-
-    // --- LOGOTIPOS Y MARCAS ---
-    { q: "¿A qué red social pertenecía este pájaro?", img: "https://imagenes2.eltiempo.com/files/image_1200_535/uploads/2023/07/24/64be65d19b492.jpeg", o: ["Facebook", "Twitter / X", "Instagram", "LinkedIn"], a: "Twitter / X" },
-    { q: "¿Qué sistema operativo usa este logotipo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/1280px-Tux.svg.png", o: ["Windows", "MacOS", "Linux", "Android"], a: "Linux" },
-    { q: "¿A qué marca de coches pertenece este símbolo?", img: "https://soymotor.com/sites/default/files/2023-10/bmw-x2-2024-soymotor.jpg", o: ["Audi", "Mercedes", "BMW", "Volkswagen"], a: "BMW" },
-    { q: "¿Qué consola de videojuegos usa este mando?", img: "https://assets.nintendo.eu/image/upload/f_auto,c_limit,w_1920,q_auto:low/MNS/NOE/000000000010006981/1.1_ProductTile_Accessories_Nintendo64Controller_OutOfBox_enNOE", o: ["PlayStation", "Nintendo 64", "Sega Genesis", "Xbox"], a: "Nintendo 64" },
-
-    // --- NATURALEZA Y CIENCIA ---
-    { q: "¿Cómo se llama este fenómeno natural?", img: "https://www.astronomy.com/wp-content/uploads/2023/03/auroraopener.jpg", o: ["Arcoíris", "Aurora Boreal", "Eclipse", "Supernova"], a: "Aurora Boreal" },
-    { q: "¿Qué tipo de árbol es este (el más alto del mundo)?", img: "https://i.imgur.com/epBfWle.jpg", o: ["Pino", "Roble", "Secuoya", "Baobab"], a: "Secuoya" },
-    { q: "¿Qué animal es este primate?", img: "https://upload.wikimedia.org/wikipedia/commons/2/28/Katta_8467.jpg", o: ["Chimpancé", "Lemur", "Babuino", "Gibón"], a: "Lemur" },
-    { q: "¿Qué instrumento musical es este?", img: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Moog_Etherwave_Theremin%2C_2010-09-13.jpg", o: ["Sintetizador", "Arpa Laser", "Theremín", "Órgano"], a: "Theremín" },
-    { q: "¿Qué parte de la estructura del ADN es esta?", img: "https://upload.wikimedia.org/wikipedia/commons/d/db/DNA_orbit_animated_static_thumb.png", o: ["Proteína", "Doble Hélice", "Átomo", "Cromosoma"], a: "Doble Hélice" },
-    { q: "¿A qué inventor pertenece este boceto?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Leonardo_da_Vinci_helicopter.jpg/250px-Leonardo_da_Vinci_helicopter.jpg", o: ["Tesla", "Edison", "Leonardo da Vinci", "Newton"], a: "Leonardo da Vinci" },
-
-    // --- DEPORTES --- ************************************************
-    { q: "¿En qué ciudad se encuentra este estadio (Roland Garros)?", img: "https://upload.wikimedia.org/wikipedia/commons/0/05/Court_Philippe_Chatrier%2C_Roland_Garros_2013.jpg", o: ["Madrid", "Londres", "París", "Nueva York"], a: "París" },
-    { q: "¿Qué deporte se juega en este campo?", img: "https://upload.wikimedia.org/wikipedia/commons/c/c9/Gillette_Stadium_-_Foxborough%2C_Massachusetts.jpg", o: ["Fútbol", "Béisbol", "Fútbol Americano", "Rugby"], a: "Fútbol Americano" },
-    { q: "¿A qué leyenda del baloncesto pertenece esta silueta?", img: "https://upload.wikimedia.org/wikipedia/commons/0/07/Michael_Jordan_Jumpman_logo.svg", o: ["LeBron James", "Kobe Bryant", "Michael Jordan", "Shaquille O'Neal"], a: "Michael Jordan" },
-    { q: "¿Cuál es el nombre de este trofeo?", img: "https://upload.wikimedia.org/wikipedia/commons/b/b2/World_Cup_6.jpg", o: ["Copa América", "Copa del Mundo", "Copa Oro", "Champions League"], a: "Copa del Mundo" },
-    { q: "¿Qué país organiza tradicionalmente este torneo?", img: "https://upload.wikimedia.org/wikipedia/commons/e/e8/Tour_de_France_logo.svg", o: ["Italia", "España", "Francia", "Bélgica"], a: "Francia" },
-
-    // --- VIDEOJUEGOS ---
-    { q: "¿Cómo se llama este personaje de videojuegos?", img: "https://upload.wikimedia.org/wikipedia/commons/0/05/Mario_Series_Logo.svg", o: ["Luigi", "Wario", "Mario", "Yoshi"], a: "Mario" },
-    { q: "¿A qué saga pertenece esta trifuerza?", img: "https://upload.wikimedia.org/wikipedia/commons/0/03/Triforce.svg", o: ["Zelda", "Final Fantasy", "Skyrim", "Elden Ring"], a: "Zelda" },
-    { q: "¿Cuál es el nombre de este pokémon?", img: "https://upload.wikimedia.org/wikipedia/commons/a/af/Pikachu_en_la_Nintendo_World_Store.jpg", o: ["Bulbasaur", "Charmander", "Pikachu", "Eevee"], a: "Pikachu" },
-    { q: "¿En qué juego se construyen estructuras con estos cubos?", img: "https://upload.wikimedia.org/wikipedia/commons/d/d1/Minecraft_Block.png", o: ["Roblox", "Minecraft", "Terraria", "Fortnite"], a: "Minecraft" },
-    { q: "¿A qué empresa pertenece este mando?", img: "https://upload.wikimedia.org/wikipedia/commons/a/a7/DualShock_4_at_the_PlayStation_Experience.jpg", o: ["Xbox", "Nintendo", "PlayStation", "SEGA"], a: "PlayStation" },
-
-    // --- CIENCIA Y MUNDO NATURAL ---
-    { q: "¿Cómo se llama este gran felino?", img: "https://upload.wikimedia.org/wikipedia/commons/7/73/Lion_waiting_in_Namibia.jpg", o: ["Tigre", "Leopardo", "León", "Guepardo"], a: "León" },
-    { q: "¿Qué estructura humana se ve desde el espacio?", img: "https://upload.wikimedia.org/wikipedia/commons/1/10/Great_Wall_of_China_at_Jinshanling.jpg", o: ["Canal de Panamá", "Gran Muralla China", "Torre Eiffel", "Pirámides"], a: "Gran Muralla China" },
-    { q: "¿Qué ave es esta, famosa por no poder volar?", img: "https://upload.wikimedia.org/wikipedia/commons/0/07/Emperor_Penguin_Manchot_empereur.jpg", o: ["Avestruz", "Pingüino", "Dodo", "Kiwi"], a: "Pingüino" },
-    { q: "¿Qué nombre recibe este cráneo prehistórico?", img: "https://upload.wikimedia.org/wikipedia/commons/9/94/Tyrannosaurus_rex_skull_at_the_Museum_f%C3%BCr_Naturkunde_Berlin.jpg", o: ["Triceratops", "Velociraptor", "Tyrannosaurus Rex", "Diplodocus"], a: "Tyrannosaurus Rex" },
-    { q: "¿Cómo se llama esta fruta tropical?", img: "https://upload.wikimedia.org/wikipedia/commons/c/cf/Pineapple_and_cross_section.jpg", o: ["Mango", "Papaya", "Piña", "Coco"], a: "Piña" },
-
-    // --- MARAVILLAS Y ARQUITECTURA ---
-    { q: "¿En qué país se encuentra este palacio (Taj Mahal)?", img: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg", o: ["Pakistán", "India", "Tailandia", "Turquía"], a: "India" },
-    { q: "¿Cuál es el nombre de esta famosa ópera?", img: "https://upload.wikimedia.org/wikipedia/commons/a/a0/Sydney_Opera_House_2.jpg", o: ["Ópera de Viena", "Ópera de Sídney", "Teatro Colón", "La Scala"], a: "Ópera de Sídney" },
-    { q: "¿Qué nombre recibe este reloj de Londres?", img: "https://upload.wikimedia.org/wikipedia/commons/9/93/Clock_Tower_-_Palace_of_Westminster%2C_London_-_May_2007.jpg", o: ["Big Ben", "London Eye", "The Shard", "Westminster"], a: "Big Ben" },
-    { q: "¿En qué ciudad está esta estatua del Cristo Redentor?", img: "https://upload.wikimedia.org/wikipedia/commons/4/4f/Christ_the_Redeemer_-_Rio_de_Janeiro%2C_Brazil.jpg", o: ["Lisboa", "Buenos Aires", "Río de Janeiro", "México DF"], a: "Río de Janeiro" },
-    { q: "¿Qué civilización construyó este templo (El Partenón)?", img: "https://upload.wikimedia.org/wikipedia/commons/d/da/The_Parthenon_in_Athens.jpg", o: ["Romana", "Egipcia", "Griega", "Fenicia"], a: "Griega" },
-
-    // --- ASTRONOMÍA Y ESPACIO ---
-    { q: "¿Qué planeta es este, conocido por sus anillos?", img: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg", o: ["Júpiter", "Urano", "Saturno", "Neptuno"], a: "Saturno" },
-    { q: "¿Cómo se llama nuestra galaxia?", img: "https://upload.wikimedia.org/wikipedia/commons/4/43/The_Milky_Way_seen_from_Easter_Island.jpg", o: ["Andrómeda", "Vía Láctea", "Sombrero", "Nebulosa"], a: "Vía Láctea" },
-    { q: "¿Qué nombre recibe el satélite natural de la Tierra?", img: "https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg", o: ["Titán", "Europa", "Luna", "Ganímedes"], a: "Luna" },
-    { q: "¿Qué telescopio espacial tomó esta famosa imagen?", img: "https://upload.wikimedia.org/wikipedia/commons/b/b5/Pillars_of_creation_2014_HST_WFC3-UVIS_full-res_denoised.jpg", o: ["Hubble", "James Webb", "Kepler", "Galileo"], a: "Hubble" },
-    { q: "¿Qué planeta es el más cercano al Sol?", img: "https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_color_-_Prockter07-edit1.jpg", o: ["Venus", "Marte", "Mercurio", "Plutón"], a: "Mercurio" },
-
-    // --- AUTOMOCIÓN ---
-    { q: "¿A qué marca de coches pertenece este caballo (Mustang)?", img: "https://upload.wikimedia.org/wikipedia/commons/e/eb/Ford_Mustang_Logo.svg", o: ["Ferrari", "Ford", "Porsche", "Lamborghini"], a: "Ford" },
-    { q: "¿Qué marca utiliza este escudo con un toro?", img: "https://upload.wikimedia.org/wikipedia/commons/d/df/Lamborghini_Logo.svg", o: ["Lamborghini", "Ferrari", "Fiat", "Alfa Romeo"], a: "Lamborghini" },
-    { q: "¿Qué marca eléctrica utiliza este logotipo?", img: "https://upload.wikimedia.org/wikipedia/commons/b/bb/Tesla_T_symbol.svg", o: ["Toyota", "Tesla", "Triumph", "Tata"], a: "Tesla" },
-    { q: "¿A qué fabricante japonés pertenece este logo?", img: "https://upload.wikimedia.org/wikipedia/commons/9/9d/Toyota_car_logo.svg", o: ["Nissan", "Mazda", "Toyota", "Honda"], a: "Toyota" },
-    { q: "¿Qué marca de lujo usa este espíritu del éxtasis?", img: "https://upload.wikimedia.org/wikipedia/commons/6/6b/RR-logo.svg", o: ["Bentley", "Rolls-Royce", "Jaguar", "Aston Martin"], a: "Rolls-Royce" },
-
-    // --- CUERPO HUMANO ---
-    { q: "¿Qué órgano bombea la sangre?", img: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Diagram_of_the_human_heart_%28cropped%29.svg", o: ["Pulmones", "Hígado", "Corazón", "Riñones"], a: "Corazón" },
-    { q: "¿Qué hueso es el más largo del cuerpo?", img: "https://upload.wikimedia.org/wikipedia/commons/4/4d/F%C3%A9mur_izquierdo.png", o: ["Húmero", "Fémur", "Tibia", "Radio"], a: "Fémur" },
-    { q: "¿Qué tipo de célula es esta, encargada de transmitir impulsos?", img: "https://upload.wikimedia.org/wikipedia/commons/1/10/Blausen_0657_MultipolarNeuron.png", o: ["Glóbulo Rojo", "Neurona", "Osteocito", "Adipocito"], a: "Neurona" },
-    { q: "¿A qué órgano pertenecen estos alveolos?", img: "https://upload.wikimedia.org/wikipedia/commons/2/20/Lungs_diagram_detailed.svg", o: ["Estómago", "Pulmones", "Páncreas", "Vejiga"], a: "Pulmones" },
-
-    // --- EUROPA Y CURIOSIDADES ---
-    { q: "¿En qué país se encuentra la Torre de Pisa?", img: "https://upload.wikimedia.org/wikipedia/commons/6/66/Leaning_Tower_of_Pisa.jpg", o: ["Francia", "España", "Italia", "Grecia"], a: "Italia" },
-    { q: "¿Qué nombre recibe este monumento de Berlín?", img: "https://upload.wikimedia.org/wikipedia/commons/8/83/Brandenburger_Tor_abends.jpg", o: ["Arco de Triunfo", "Puerta de Brandeburgo", "Check-point Charlie", "Reichstag"], a: "Puerta de Brandeburgo" },
-    { q: "¿Cómo se llama este castillo de Segovia?", img: "https://upload.wikimedia.org/wikipedia/commons/0/05/Alc%C3%A1zar_de_Segovia_01.jpg", o: ["La Alhambra", "Alcázar de Segovia", "Castillo de Olite", "Palacio Real"], a: "Alcázar de Segovia" },
-    { q: "¿Qué instrumento musical es típico de Escocia?", img: "https://upload.wikimedia.org/wikipedia/commons/2/2c/Great_Highland_Bagpipe.jpg", o: ["Violín", "Gaita", "Flauta", "Arpa"], a: "Gaita" },
-    { q: "¿Qué ciudad europea es famosa por sus canales?", img: "https://upload.wikimedia.org/wikipedia/commons/d/df/Venice_Canal_Grande_2.jpg", o: ["Madrid", "París", "Venecia", "Berlín"], a: "Venecia" }
-];
+    const masterBank = [
+        { q: "¿A qué película de Disney pertenece este castillo?", img: "https://alanxelmundo.com/wp-content/uploads/2020/02/tokiod3.jpg", o: ["La Bella y la Bestia", "La Bella Durmiente", "Frozen", "Cenicienta"], a: "La Bella Durmiente" },
+        { q: "¿Qué actor interpreta a este icónico personaje?", img: "https://static.abc.es/media/play/2019/09/20/padrino-kq3G--1248x698@abc.jpg", o: ["Al Pacino", "Robert De Niro", "Marlon Brando", "James Caan"], a: "Marlon Brando" },
+        { q: "¿Cómo se llama este robot de Star Wars?", img: "https://lumiere-a.akamaihd.net/v1/images/r2-d2-main_f315b094.jpeg?region=273%2C0%2C951%2C536", o: ["C-3PO", "BB-8", "R2-D2", "K-2SO"], a: "R2-D2" },
+        { q: "¿En qué país se encuentra esta 'Ciudad Rosa'?", img: "https://media.istockphoto.com/id/683011462/es/foto/vista-frontal-del-tesoro-en-la-antigua-ciudad-de-petra-jordania.jpg?s=612x612&w=0&k=20&c=yUDLEl1yon3NiJZ-K1vUEq6vCARm41hxBrDgcauf2Qk=", o: ["Egipto", "Jordania", "Turquía", "Irán"], a: "Jordania" },
+        { q: "¿Qué rascacielos de NY es este?", img: "https://cdn.britannica.com/73/114973-050-2DC46083/Midtown-Manhattan-Empire-State-Building-New-York.jpg", o: ["Chrysler Building", "Empire State Building", "One World Trade Center", "Flatiron Building"], a: "Empire State Building" },
+        { q: "¿Qué sistema operativo usa este logotipo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/1280px-Tux.svg.png", o: ["Windows", "MacOS", "Linux", "Android"], a: "Linux" },
+        { q: "¿Cómo se llama este fenómeno natural?", img: "https://www.astronomy.com/wp-content/uploads/2023/03/auroraopener.jpg", o: ["Arcoíris", "Aurora Boreal", "Eclipse", "Supernova"], a: "Aurora Boreal" },
+        { q: "¿A qué saga pertenece esta trifuerza?", img: "https://upload.wikimedia.org/wikipedia/commons/0/03/Triforce.svg", o: ["Zelda", "Final Fantasy", "Skyrim", "Elden Ring"], a: "Zelda" },
+        { q: "¿En qué país se encuentra el Taj Mahal?", img: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg", o: ["Pakistán", "India", "Tailandia", "Turquía"], a: "India" },
+        { q: "¿Qué planeta es conocido por sus anillos?", img: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg", o: ["Júpiter", "Urano", "Saturno", "Neptuno"], a: "Saturno" }
+    ];
     
-function loadRanking() {
+    window.loadRanking = function() {
         const rRef = query(ref(db, 'ranking'), orderByChild('points'));
         onValue(rRef, (snap) => {
             const container = document.getElementById('lead-list');
@@ -333,9 +286,7 @@ function loadRanking() {
                 const data = child.val();
                 if (data.date === hoy) list.push(data); 
             });
-            // Ordena por puntos (desc) y luego por tiempo (asc)
             list.sort((a, b) => (b.points - a.points) || a.time.localeCompare(b.time));
-            
             let html = "";
             list.slice(0, 10).forEach((d, i) => {
                 html += `
@@ -351,7 +302,10 @@ function loadRanking() {
 
     document.getElementById('btn-save-name').onclick = () => {
         const val = document.getElementById('username-input').value.trim();
-        if(val.length >= 2) { localStorage.setItem('triviaUser', val); window.checkAuth(); }
+        if(val.length >= 2) { 
+            localStorage.setItem('triviaUser', val); 
+            window.checkAuth(); 
+        }
     };
 
     document.getElementById('play-today-btn').onclick = () => {
@@ -415,29 +369,21 @@ function loadRanking() {
             localStorage.setItem('lastPlayed_' + hoy, 'true');
         });
     }
-    // Función para borrar el ranking de hoy y permitir reintentos
-window.resetRanking = function() {
-    if(confirm("¿Estás seguro de que quieres borrar todo el ranking de hoy? Esto permitirá que todos vuelvan a jugar.")) {
-        // 1. Buscamos todas las entradas de hoy en Firebase
-        get(ref(db, 'ranking')).then((snapshot) => {
-            if (snapshot.exists()) {
-                snapshot.forEach((childSnapshot) => {
-                    if (childSnapshot.val().date === hoy) {
-                        // Borramos la entrada
-                        remove(ref(db, `ranking/${childSnapshot.key}`));
-                    }
-                });
-                
-                // 2. Limpiamos el bloqueo local para el administrador (y avisamos al resto)
-                localStorage.removeItem('lastPlayed_' + hoy);
-                
-                alert("Ranking de hoy borrado. Los usuarios que recarguen la página podrán jugar de nuevo.");
-                document.getElementById('admin-panel').style.display = 'none';
-                <a href="minijuegos/ahorcado.html">SIGUIENTE</a>
-            }
-        });
+
+    window.resetRanking = function() {
+        if(confirm("¿Borrar ranking de hoy?")) {
+            get(ref(db, 'ranking')).then((snapshot) => {
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        if (child.val().date === hoy) remove(ref(db, `ranking/${child.key}`));
+                    });
+                    localStorage.removeItem('lastPlayed_' + hoy);
+                    alert("Hecho.");
+                    location.reload();
+                }
+            });
+        }
     }
-}
 </script>
 </body>
 </html>
