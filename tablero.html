@@ -125,10 +125,11 @@
 
     // 3. ESCUCHAR CAMBIOS EN TIEMPO REAL
     // 3. ESCUCHAR CAMBIOS EN TIEMPO REAL
+    // 3. ESCUCHAR CAMBIOS EN TIEMPO REAL (Versión Antidobloqueo)
     onValue(gameRef, (snapshot) => {
         const data = snapshot.val();
         
-        // Si no hay datos o jugadores, no hacemos nada
+        // Si no hay nada en la DB, mostramos 0
         if (!data || !data.players) {
             document.getElementById('player-count').innerText = "ESPERANDO... (0 / 5)";
             return;
@@ -138,51 +139,46 @@
         const playerIds = Object.keys(playersMap);
         const count = playerIds.length;
 
-        // Actualizar contador visual
-        const countDisplay = document.getElementById('player-count');
-        if (countDisplay) countDisplay.innerText = `JUGADORES EN SALA: ${count} / 5`;
+        // 1. Actualizar contador
+        document.getElementById('player-count').innerText = `JUGADORES EN SALA: ${count} / 5`;
 
-        // LÓGICA DE INICIO (Mínimo 5 para jugar)
+        // 2. Control de Pantalla de Bloqueo
         if (count >= 5) {
             document.getElementById('lobby-overlay').style.display = 'none';
             
-            // --- CORRECCIÓN AQUÍ: ASIGNAR TURNO INICIAL ---
-            // Si el juego ya debería haber empezado pero no hay turno asignado...
-            if (!data.currentTurn) {
-                // El primer ID de la lista (el que más tiempo lleva) recibe el turno
-                update(gameRef, { currentTurn: playerIds[0] });
-                return; // Salimos para que el siguiente ciclo de onValue aplique el cambio
-            }
-            
-            // Si el jugador que tenía el turno se desconectó, pasamos al siguiente
-            if (!playersMap[data.currentTurn]) {
-                update(gameRef, { currentTurn: playerIds[0] });
-                return;
+            // AUTO-REPARACIÓN: Si el juego debe empezar pero no hay turno
+            // Solo el "Anfitrión" (el primer ID) intenta reparar el turno para evitar bucles
+            if (!data.currentTurn && playerIds[0] === myId) {
+                console.log("Asignando turno inicial...");
+                update(gameRef, { currentTurn: myId });
             }
         } else {
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // PANEL DE TURNO
+        // 3. Lógica del Botón y Panel
         const turnId = data.currentTurn;
-        // Buscamos el nombre del jugador al que le toca
-        const turnName = playersMap[turnId] ? playersMap[turnId].name : "Iniciando...";
+        const turnName = (playersMap[turnId]) ? playersMap[turnId].name : "Esperando turno...";
         document.getElementById('player-turn-name').innerText = turnName;
         
-        // ACTIVAR BOTÓN: Solo si mi ID es igual al ID del turno
         const rollBtn = document.getElementById('roll-btn');
+        
+        // Verificación estricta para desbloquear
         if (turnId === myId) {
             rollBtn.disabled = false;
-            rollBtn.style.boxShadow = "0 0 20px var(--accent)"; // Efecto visual para avisar
+            rollBtn.style.background = "var(--success)";
+            rollBtn.style.boxShadow = "0 0 20px #00ff88";
+            rollBtn.innerText = "¡TU TURNO! 🎲";
         } else {
             rollBtn.disabled = true;
+            rollBtn.style.background = "#333";
             rollBtn.style.boxShadow = "none";
+            rollBtn.innerText = "ESPERA...";
         }
 
-        // ACTUALIZAR FICHAS
+        // 4. Dibujar Fichas (Siempre se ejecuta, no hay return antes)
         updateFichas(playersMap);
     });
-
     function updateFichas(players) {
         const board = document.getElementById('board');
         const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F6'];
