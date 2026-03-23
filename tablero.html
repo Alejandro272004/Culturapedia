@@ -81,68 +81,65 @@
     </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    // ... (imports y config igual)
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
-        authDomain: "trivialbrutal.firebaseapp.com",
-        databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com",
-        projectId: "trivialbrutal",
-        storageBucket: "trivialbrutal.firebasestorage.app",
-        messagingSenderId: "428554501222",
-        appId: "1:428554501222:web:0985d7e8784cd46657c1a7"
-    };
-
-    const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const myName = localStorage.getItem('triviaUser') || "Jugador_" + Math.floor(Math.random()*1000);
-
-    const coords = {
-        0: {x: 14, y: 10}, 1: {x: 10, y: 12}, 2: {x: 8, y: 20}, 3: {x: 8, y: 30}, 4: {x: 12, y: 38},
-        5: {x: 21, y: 31}, 6: {x: 21, y: 23}, 7: {x: 27, y: 17}, 8: {x: 37, y: 15}, 9: {x: 46, y: 15},
-        10: {x: 65, y: 15}, 11: {x: 75, y: 19}, 12: {x: 81, y: 28}, 13: {x: 78, y: 38}, 14: {x: 68, y: 38},
-        // ... (el resto de tus coordenadas anteriores)
-    };
-    // Relleno para que no fallen las fichas
-    for(let i=0; i<=47; i++) if(!coords[i]) coords[i] = {x: 50, y: 80 + (i*0.2)};
+    // IMPORTANTE: Si no hay nombre en el navegador, generamos uno temporal
+    let myName = localStorage.getItem('triviaUser');
+    if (!myName) {
+        myName = "Invitado_" + Math.floor(Math.random() * 1000);
+        localStorage.setItem('triviaUser', myName);
+    }
 
     const gameRef = ref(db, 'mario_party_live');
     const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F6'];
 
-    // 1. REGISTRARSE AL ENTRAR
+    // 1. REGISTRARSE AL ENTRAR (Aseguramos que existas en la DB)
     const myPlayerRef = ref(db, `mario_party_live/players/${myName}`);
-    get(myPlayerRef).then(snap => {
-        if(!snap.exists()) {
-            set(myPlayerRef, { position: 0, colorIndex: Math.floor(Math.random()*5) });
-        }
+    set(myPlayerRef, { 
+        position: 0, 
+        lastActive: serverTimestamp() 
     });
-    onDisconnect(myPlayerRef).remove(); // Si cierra, sale de la lista
+
+    // Al cerrar el navegador, te borras de la lista
+    onDisconnect(myPlayerRef).remove();
 
     // 2. ESCUCHAR ESTADO GLOBAL
     onValue(gameRef, (snapshot) => {
         const data = snapshot.val();
-        if(!data || !data.players) return;
+        if(!data || !data.players) {
+            // Si la sala está vacía, la inicializamos
+            return; 
+        }
 
         const playerNames = Object.keys(data.players);
         const count = playerNames.length;
 
-        // Lógica de Bloqueo 5 Jugadores
-        document.getElementById('player-count').innerText = `ESPERANDO... (${count} / 5)`;
+        // Mostrar contador en el overlay
+        const countDisplay = document.getElementById('player-count');
+        if(countDisplay) countDisplay.innerText = `JUGADORES EN SALA: ${count} / 5`;
+
+        // SI HAY 5 PERSONAS, QUITAMOS EL BLOQUEO
         if(count >= 5) {
             document.getElementById('lobby-overlay').style.display = 'none';
-            // Si no hay turno asignado, el primero de la lista empieza
-            if(!data.currentTurn) update(gameRef, { currentTurn: playerNames[0] });
+            
+            // Si no hay nadie al mando, el primero de la lista toma el turno
+            if(!data.currentTurn) {
+                update(gameRef, { currentTurn: playerNames[0] });
+            }
         } else {
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // Actualizar Turno
+        // LÓGICA DE TURNOS
         const turnOf = data.currentTurn;
-        document.getElementById('current-player-display').innerText = turnOf || "---";
-        document.getElementById('roll-btn').disabled = (turnOf !== myName);
+        document.getElementById('current-player-display').innerText = turnOf || "Esperando...";
+        
+        // El botón solo se activa si es exactamente TU NOMBRE
+        const rollBtn = document.getElementById('roll-btn');
+        rollBtn.disabled = (turnOf !== myName);
 
-        // Dibujar Fichas
+        // DIBUJAR FICHAS (Limpiamos y redibujamos para evitar duplicados)
         playerNames.forEach((p, idx) => {
             let token = document.getElementById('token-' + p);
             if(!token) {
@@ -154,17 +151,18 @@
                 document.getElementById('board').appendChild(token);
             }
             const pos = data.players[p].position || 0;
-            token.style.left = coords[pos].x + "%";
-            token.style.top = coords[pos].y + "%";
+            if(coords[pos]) {
+                token.style.left = coords[pos].x + "%";
+                token.style.top = coords[pos].y + "%";
+            }
         });
     });
 
-    // 3. TIRAR DADO Y PASAR TURNO
+    // 3. FUNCIÓN DE TIRAR DADO
     window.rollDice = async function() {
         const roll = Math.floor(Math.random() * 6) + 1;
         document.getElementById('dice-result').innerText = roll;
-        document.getElementById('roll-btn').disabled = true;
-
+        
         const snap = await get(gameRef);
         const data = snap.val();
         const players = Object.keys(data.players);
@@ -176,7 +174,7 @@
         let myIdx = players.indexOf(myName);
         let nextPlayer = players[(myIdx + 1) % players.length];
 
-        // Guardar en Firebase
+        // Actualizar Firebase
         const updates = {};
         updates[`players/${myName}/position`] = newPos;
         updates[`currentTurn`] = nextPlayer;
