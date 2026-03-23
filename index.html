@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRIVIAL BRUTAL - DELUXE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
     <style>
         /* TEMA DINÁMICO */
@@ -23,10 +24,11 @@
         }
         :root { --success: #00ff88; --error: #ff3e3e; --transition: all 0.3s ease; }
 
-        /* CUERPO CON FUENTE SANS-SERIF PARA LEGIBILIDAD */
+        /* FUENTE REDONDA PARA EL CUERPO */
         body { 
             background: var(--bg); color: var(--text); 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
+            font-family: 'Quicksand', sans-serif; 
+            font-weight: 600;
             margin: 0; padding: 20px; display: flex; 
             justify-content: center; align-items: center;
             min-height: 100vh; box-sizing: border-box; transition: var(--transition);
@@ -35,11 +37,10 @@
 
         /* TÍTULOS CON LA FUENTE PIXELADA */
         h1, h2, h3, .intro-text { 
-          font-family: "Bungee", sans-serif;
-          font-weight: 400;
-          font-style: normal;
-        }
-
+            font-family: 'Bungee', sans-serif;
+            font-weight: 700; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .corner-logo {
@@ -49,7 +50,6 @@
             filter: drop-shadow(0 2px 10px rgba(0,0,0,0.3));
         }
 
-        /* ANIMACIÓN INICIAL */
         #screen-intro {
             position: fixed; inset: 0; background: var(--bg);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -80,9 +80,9 @@
         .entry { 
             display: grid; grid-template-columns: 1fr auto auto; gap: 15px; 
             padding: 12px; background: var(--card-inner); border-radius: 12px; 
-            margin-bottom: 8px; font-size: 0.9rem; align-items: center; 
+            margin-bottom: 8px; font-size: 0.95rem; align-items: center; 
         }
-        .score-tag { color: var(--accent); font-weight: 800; font-family: 'Bitcount Grid Double Ink', sans-serif; }
+        .score-tag { color: var(--accent); font-weight: 700; }
 
         .container { flex-grow: 1; max-width: 500px; background: var(--container-bg); border-radius: 24px; padding: 40px; border: 1px solid var(--border); text-align: center; }
         .screen { display: none; }
@@ -91,9 +91,9 @@
 
         .btn-main { 
             width: 100%; padding: 18px; background: var(--accent); color: #000; 
-            font-weight: 800; border: none; border-radius: 12px; cursor: pointer; 
+            font-weight: 700; border: none; border-radius: 12px; cursor: pointer; 
             text-transform: uppercase; margin-top: 20px; transition: var(--transition);
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Quicksand', sans-serif; font-size: 1rem;
         }
         .btn-main:hover { filter: brightness(1.2); transform: translateY(-2px); }
         
@@ -101,19 +101,19 @@
             width: 100%; padding: 16px; margin-bottom: 10px; background: var(--card-inner); 
             color: var(--text); border-radius: 12px; border: 1px solid var(--border); 
             cursor: pointer; text-align: left; transition: var(--transition); 
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Quicksand', sans-serif; font-size: 1rem; font-weight: 600;
         }
         .opt-btn:hover { background: var(--border); transform: translateX(5px); border-color: var(--accent); }
         
         .correct { background: var(--success) !important; color: #000 !important; }
         .wrong { background: var(--error) !important; color: #fff !important; }
 
-        .streak-fire { background: rgba(255, 100, 0, 0.1); color: #ff6400; padding: 8px 15px; border-radius: 20px; display: inline-block; font-weight: 800; margin-bottom: 20px; font-size: 0.9rem; }
+        .streak-fire { background: rgba(255, 100, 0, 0.1); color: #ff6400; padding: 8px 15px; border-radius: 20px; display: inline-block; font-weight: 700; margin-bottom: 20px; font-size: 0.9rem; }
 
         input { 
             width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); 
             color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; 
-            box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif;
+            box-sizing: border-box; font-family: 'Quicksand', sans-serif; font-weight: 600; font-size: 1rem;
         }
         #admin-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0f; border: 2px solid var(--accent); padding: 30px; border-radius: 20px; z-index: 10000; display: none; width: 300px; }
 
@@ -149,7 +149,7 @@
         <div id="screen-instructions" class="screen">
             <h1 style="color: var(--accent);">¡BIENVENIDO!</h1>
             <p>Estás en el <b>Hub de Juegos de Culturapedia</b>.</p>
-            <div style="text-align: left; background: var(--card-inner); padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 0.9rem;">
+            <div style="text-align: left; background: var(--card-inner); padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 0.95rem;">
                 • Desafíos diarios de cultura general.<br>
                 • Ranking en tiempo real.<br>
                 • Nuevos minijuegos cada semana.
@@ -170,18 +170,18 @@
             
             <div style="display: grid; gap: 15px;">
                 <button class="opt-btn" onclick="showScreen('screen-home')" style="border-left: 5px solid var(--accent); padding: 20px;">
-                    <span style="display: block; font-weight: 800; font-size: 1.1rem;">🏆 TRIVIAL DIARIO</span>
-                    <span style="font-size: 0.8rem; opacity: 0.7;">10 preguntas de cultura general.</span>
+                    <span style="display: block; font-weight: 700; font-size: 1.1rem;">🏆 TRIVIAL DIARIO</span>
+                    <span style="font-size: 0.85rem; opacity: 0.7;">10 preguntas de cultura general.</span>
                 </button>
 
                 <button class="opt-btn" onclick="window.location.href='minijuegos/ahorcado.html'" style="border-left: 5px solid #ff0080; padding: 20px;">
-                    <span style="display: block; font-weight: 800; font-size: 1.1rem;">🪢 EL AHORCADO</span>
-                    <span style="font-size: 0.8rem; opacity: 0.7;">Adivina antes de que se complete el dibujo.</span>
+                    <span style="display: block; font-weight: 700; font-size: 1.1rem;">🪢 EL AHORCADO</span>
+                    <span style="font-size: 0.85rem; opacity: 0.7;">Adivina antes de que se complete el dibujo.</span>
                 </button>
 
                 <button class="opt-btn" style="opacity: 0.5; cursor: not-allowed; border-left: 5px solid var(--text-dim); padding: 20px;">
-                    <span style="display: block; font-weight: 800; font-size: 1.1rem;">🧩 PRÓXIMAMENTE</span>
-                    <span style="font-size: 0.8rem; opacity: 0.7;">Nuevos retos en camino.</span>
+                    <span style="display: block; font-weight: 700; font-size: 1.1rem;">🧩 PRÓXIMAMENTE</span>
+                    <span style="font-size: 0.85rem; opacity: 0.7;">Nuevos retos en camino.</span>
                 </button>
             </div>
         </div>
@@ -197,7 +197,7 @@
         <div id="screen-game" class="screen">
             <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
                 <span id="q-count">1/10</span>
-                <span id="timer" style="color: var(--accent); font-weight: 800;">00:00</span>
+                <span id="timer" style="color: var(--accent); font-weight: 700;">00:00</span>
             </div>
             <img id="q-img" style="width:100%; border-radius:12px; display:none; margin-bottom:15px;" src="" alt="pregunta">
             <h3 id="q-text"></h3>
@@ -206,7 +206,7 @@
 
         <div id="screen-result" class="screen">
             <h2>¡FINALIZADO!</h2>
-            <div id="final-stats" style="font-size: 4rem; font-weight: 900; color: var(--accent);">0/10</div>
+            <div id="final-stats" style="font-size: 4rem; font-weight: 700; color: var(--accent);">0/10</div>
             <p id="final-time"></p>
             <button class="btn-main" onclick="showScreen('screen-menu')">IR AL MENÚ</button>
         </div>
@@ -219,13 +219,11 @@
         const randomColor = colors[Math.floor(Math.random() * colors.length)];
         document.documentElement.style.setProperty('--accent', randomColor);
     }
-
     function toggleTheme() {
         const html = document.documentElement;
         const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', next);
     }
-
     window.onload = () => {
         applyRandomAccent();
         setTimeout(() => {
@@ -235,13 +233,11 @@
             showScreen('screen-instructions');
         }, 3000);
     };
-
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         const target = document.getElementById(id);
         if(target) target.classList.add('active');
     }
-
     const sequence = ['ArrowUp', 'ArrowDown', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', ' '];
     let currentPos = 0;
     window.addEventListener('keydown', (e) => {
