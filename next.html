@@ -1,1 +1,207 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AHORCADO - CULTURAPEDIA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    <style>
+        [data-theme="dark"] {
+            --bg: #050508; --container-bg: #0f0f16; --card-inner: #161622;
+            --text: #ffffff; --text-dim: #a0a0b8; --accent: #ff0080;
+            --border: #222230; --logo-url: url('../Logotipo Blanco Vertical.png'); 
+        }
+        [data-theme="light"] {
+            --bg: #f0f2f5; --container-bg: #ffffff; --card-inner: #f8f9fa;
+            --text: #1a1a2e; --text-dim: #64748b; --accent: #ff0080;
+            --border: #e2e8f0; --logo-url: url('../Logotipo Negro Vertical.png');
+        }
+        :root { --success: #00ff88; --error: #ff3e3e; --transition: all 0.2s ease; }
 
+        body { 
+            background: var(--bg); color: var(--text); 
+            font-family: 'Quicksand', sans-serif; font-weight: 600;
+            margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; box-sizing: border-box; overflow-x: hidden;
+        }
+
+        h1, h2, h3, .intro-text { 
+            font-family: 'Bungee', sans-serif;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* INTRO ANIMATION */
+        #screen-intro {
+            position: fixed; inset: 0; background: var(--bg);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .intro-logo { width: 180px; height: 180px; background: var(--logo-url) center/contain no-repeat; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(0.9); opacity: 0.7; } 50% { transform: scale(1); opacity: 1; } }
+
+        .container { 
+            width: 100%; max-width: 500px; background: var(--container-bg); 
+            border-radius: 24px; padding: 30px; border: 1px solid var(--border); text-align: center;
+            display: none; animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DIBUJO AHORCADO */
+        .hangman-box { margin: 20px auto; width: 150px; height: 180px; }
+        .hangman-draw { fill: none; stroke: var(--text); stroke-width: 4; stroke-linecap: round; }
+        .hangman-part { display: none; }
+        .hangman-part.visible { display: block; }
+
+        .word-display { 
+            font-size: 2rem; letter-spacing: 8px; margin: 20px 0; 
+            font-family: 'Bitcount Grid Double Ink', sans-serif; color: var(--accent);
+        }
+        
+        .hint { color: var(--text-dim); font-size: 0.9rem; font-style: italic; margin-bottom: 20px; }
+
+        .keyboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(35px, 1fr)); gap: 8px; margin-top: 20px; }
+        .key { 
+            padding: 10px 5px; background: var(--card-inner); border: 1px solid var(--border);
+            color: var(--text); border-radius: 8px; cursor: pointer; font-family: 'Quicksand', sans-serif;
+            font-weight: 700; transition: var(--transition);
+        }
+        .key:disabled { opacity: 0.3; cursor: not-allowed; }
+        .key.hit { background: var(--success); color: #000; border-color: var(--success); }
+        .key.miss { background: var(--error); color: #fff; border-color: var(--error); }
+
+        .btn-main { 
+            width: 100%; padding: 15px; background: var(--accent); color: #fff; 
+            font-weight: 700; border: none; border-radius: 12px; cursor: pointer; 
+            text-transform: uppercase; margin-top: 20px; font-family: 'Quicksand', sans-serif;
+        }
+
+        #result-msg { font-size: 1.5rem; margin: 20px 0; display: none; }
+    </style>
+</head>
+<body>
+
+<div id="screen-intro">
+    <div class="intro-logo"></div>
+    <h2 class="intro-text" style="letter-spacing: 8px; margin-top: 20px;">PRESENTA</h2>
+</div>
+
+<div class="container" id="game-container">
+    <h1 style="color: var(--accent); margin-bottom: 5px;">EL AHORCADO</h1>
+    <p style="margin-top: 0; opacity: 0.6;">CULTURAPEDIA EDITION</p>
+
+    <div class="hangman-box">
+        <svg viewBox="0 0 100 120">
+            <path class="hangman-draw" d="M10,110 L90,110 M25,110 L25,10 L70,10 L70,25" />
+            <circle class="hangman-part hangman-draw" cx="70" cy="35" r="10" /> <line class="hangman-part hangman-draw" x1="70" y1="45" x2="70" y2="80" /> <line class="hangman-part hangman-draw" x1="70" y1="55" x2="50" y2="70" /> <line class="hangman-part hangman-draw" x1="70" y1="55" x2="90" y2="70" /> <line class="hangman-part hangman-draw" x1="70" y1="80" x2="55" y2="100" /> <line class="hangman-part hangman-draw" x1="70" y1="80" x2="85" y2="100" /> </svg>
+    </div>
+
+    <div class="hint" id="hint-text">Pista: Cargando...</div>
+    <div class="word-display" id="word-display">_ _ _ _ _</div>
+    
+    <div class="keyboard" id="keyboard"></div>
+
+    <div id="result-msg"></div>
+    
+    <button class="btn-main" id="btn-restart" style="display:none;" onclick="initGame()">JUGAR OTRA VEZ</button>
+    <button class="btn-main" style="background: transparent; color: var(--text-dim); border: 1px solid var(--border);" onclick="window.location.href='../index.html'">VOLVER AL HUB</button>
+</div>
+
+<script>
+    const wordsBank = [
+        { w: "JORDANIA", h: "País donde está la ciudad rosa de Petra" },
+        { w: "LINUX", h: "Sistema operativo cuyo logo es un pingüino" },
+        { w: "SATURNO", h: "El planeta famoso por sus anillos" },
+        { w: "ZELDA", h: "Saga de videojuegos con la Trifuerza" },
+        { w: "TAJMAHAL", h: "Monumento icónico de la India" },
+        { w: "ALPACINO", h: "Protagonista de El Padrino (Michael Corleone)" },
+        { w: "AURORA", h: "Fenómeno luminoso en los polos terrestres" },
+        { w: "DISNEY", h: "Creadores del castillo de la Bella Durmiente" }
+    ];
+
+    let selectedWord = "";
+    let guessedLetters = [];
+    let mistakes = 0;
+    const maxMistakes = 6;
+
+    window.onload = () => {
+        setTimeout(() => {
+            document.getElementById('screen-intro').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+            initGame();
+        }, 2500);
+    };
+
+    function initGame() {
+        const item = wordsBank[Math.floor(Math.random() * wordsBank.length)];
+        selectedWord = item.w;
+        document.getElementById('hint-text').innerText = `Pista: ${item.h}`;
+        guessedLetters = [];
+        mistakes = 0;
+        
+        document.getElementById('result-msg').style.display = 'none';
+        document.getElementById('btn-restart').style.display = 'none';
+        document.getElementById('keyboard').style.display = 'grid';
+        
+        const parts = document.querySelectorAll('.hangman-part');
+        parts.forEach(p => p.classList.remove('visible'));
+        
+        createKeyboard();
+        updateDisplay();
+    }
+
+    function createKeyboard() {
+        const keyboard = document.getElementById('keyboard');
+        keyboard.innerHTML = "";
+        "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split("").forEach(letter => {
+            const btn = document.createElement('button');
+            btn.classList.add('key');
+            btn.innerText = letter;
+            btn.onclick = () => handleGuess(letter, btn);
+            keyboard.appendChild(btn);
+        });
+    }
+
+    function handleGuess(letter, btn) {
+        btn.disabled = true;
+        if (selectedWord.includes(letter)) {
+            guessedLetters.push(letter);
+            btn.classList.add('hit');
+            updateDisplay();
+            checkWin();
+        } else {
+            mistakes++;
+            btn.classList.add('miss');
+            document.querySelectorAll('.hangman-part')[mistakes - 1]?.classList.add('visible');
+            checkLose();
+        }
+    }
+
+    function updateDisplay() {
+        const display = selectedWord.split("").map(l => guessedLetters.includes(l) ? l : "_").join(" ");
+        document.getElementById('word-display').innerText = display;
+    }
+
+    function checkWin() {
+        if (!document.getElementById('word-display').innerText.includes("_")) {
+            endGame("¡BRUTAL! HAS GANADO", "var(--success)");
+        }
+    }
+
+    function checkLose() {
+        if (mistakes >= maxMistakes) {
+            endGame(`PERDISTE. ERA: ${selectedWord}`, "var(--error)");
+        }
+    }
+
+    function endGame(msg, color) {
+        const msgEl = document.getElementById('result-msg');
+        msgEl.innerText = msg;
+        msgEl.style.color = color;
+        msgEl.style.display = 'block';
+        document.getElementById('keyboard').style.display = 'none';
+        document.getElementById('btn-restart').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
