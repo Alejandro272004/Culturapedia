@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRIVIAL BRUTAL - DELUXE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Double+Ink:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Bitcount+Grid+Double+Ink:wght@100..900&display=swap" rel="stylesheet">
     <style>
         /* TEMA DINÁMICO */
         [data-theme="dark"] {
@@ -23,15 +23,22 @@
         }
         :root { --success: #00ff88; --error: #ff3e3e; --transition: all 0.3s ease; }
 
+        /* CUERPO CON FUENTE SANS-SERIF PARA LEGIBILIDAD */
         body { 
             background: var(--bg); color: var(--text); 
-            /* FUENTE ACTUALIZADA */
-            font-family: 'Bitcount Grid Double Ink', sans-serif; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
             margin: 0; padding: 20px; display: flex; 
             justify-content: center; align-items: center;
             min-height: 100vh; box-sizing: border-box; transition: var(--transition);
             overflow-x: hidden;
-            letter-spacing: 0.5px;
+        }
+
+        /* TÍTULOS CON LA FUENTE PIXELADA */
+        h1, h2, h3, .intro-text { 
+            font-family: 'Bitcount Grid Double Ink', sans-serif;
+            font-weight: 700; 
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .corner-logo {
@@ -66,8 +73,7 @@
         .leaderboard { background: var(--container-bg); border-radius: 24px; padding: 24px; border: 1px solid var(--border); }
         .leaderboard h3 { 
             color: var(--accent); font-size: 0.8rem; letter-spacing: 3px; 
-            text-transform: uppercase; margin-bottom: 20px; 
-            border-bottom: 2px solid var(--border); padding-bottom: 10px; 
+            margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; 
         }
         
         .entry { 
@@ -75,28 +81,26 @@
             padding: 12px; background: var(--card-inner); border-radius: 12px; 
             margin-bottom: 8px; font-size: 0.9rem; align-items: center; 
         }
-        .score-tag { color: var(--accent); font-weight: 800; }
+        .score-tag { color: var(--accent); font-weight: 800; font-family: 'Bitcount Grid Double Ink', sans-serif; }
 
         .container { flex-grow: 1; max-width: 500px; background: var(--container-bg); border-radius: 24px; padding: 40px; border: 1px solid var(--border); text-align: center; }
         .screen { display: none; }
         .screen.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1, h2, h3 { font-weight: 700; text-transform: uppercase; }
-
         .btn-main { 
-            width: 100%; padding: 20px; background: var(--accent); color: #000; 
+            width: 100%; padding: 18px; background: var(--accent); color: #000; 
             font-weight: 800; border: none; border-radius: 12px; cursor: pointer; 
             text-transform: uppercase; margin-top: 20px; transition: var(--transition);
-            font-family: 'Bitcount Grid Double Ink', sans-serif; font-size: 1rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
         .btn-main:hover { filter: brightness(1.2); transform: translateY(-2px); }
         
         .opt-btn { 
-            width: 100%; padding: 18px; margin-bottom: 10px; background: var(--card-inner); 
+            width: 100%; padding: 16px; margin-bottom: 10px; background: var(--card-inner); 
             color: var(--text); border-radius: 12px; border: 1px solid var(--border); 
             cursor: pointer; text-align: left; transition: var(--transition); 
-            font-family: 'Bitcount Grid Double Ink', sans-serif; font-size: 0.9rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
         .opt-btn:hover { background: var(--border); transform: translateX(5px); border-color: var(--accent); }
         
@@ -108,7 +112,7 @@
         input { 
             width: 100%; padding: 15px; background: var(--card-inner); border: 2px solid var(--border); 
             color: var(--text); border-radius: 10px; margin-top: 10px; text-align: center; 
-            box-sizing: border-box; font-family: 'Bitcount Grid Double Ink', sans-serif;
+            box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif;
         }
         #admin-panel { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #0a0a0f; border: 2px solid var(--accent); padding: 30px; border-radius: 20px; z-index: 10000; display: none; width: 300px; }
 
@@ -121,7 +125,7 @@
 
 <div id="screen-intro">
     <div class="intro-logo"></div>
-    <h2 style="letter-spacing: 10px; margin-top: 20px;">PRESENTA</h2>
+    <h2 class="intro-text" style="letter-spacing: 10px; margin-top: 20px;">PRESENTA</h2>
 </div>
 
 <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
@@ -144,10 +148,10 @@
         <div id="screen-instructions" class="screen">
             <h1 style="color: var(--accent);">¡BIENVENIDO!</h1>
             <p>Estás en el <b>Hub de Juegos de Culturapedia</b>.</p>
-            <div style="text-align: left; background: var(--card-inner); padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 0.95rem;">
-                • DESAFÍOS DIARIOS DE CULTURA GENERAL.<br>
-                • RANKING EN TIEMPO REAL.<br>
-                • NUEVOS MINIJUEGOS CADA SEMANA.
+            <div style="text-align: left; background: var(--card-inner); padding: 20px; border-radius: 15px; margin: 20px 0; font-size: 0.9rem;">
+                • Desafíos diarios de cultura general.<br>
+                • Ranking en tiempo real.<br>
+                • Nuevos minijuegos cada semana.
             </div>
             <button class="btn-main" onclick="checkAuth()">ENTRAR AL HUB</button>
         </div>
@@ -155,13 +159,13 @@
         <div id="screen-auth" class="screen">
             <h1>TU IDENTIDAD</h1>
             <p style="color: var(--text-dim);">Introduce tu nombre para el ranking global</p>
-            <input type="text" id="username-input" placeholder="TU APODO" maxlength="15">
+            <input type="text" id="username-input" placeholder="Tu apodo" maxlength="15">
             <button class="btn-main" id="btn-save-name">REGISTRARME</button>
         </div>
 
         <div id="screen-menu" class="screen">
             <h1 style="color: var(--accent); margin-bottom: 10px;">BIBLIOTECA</h1>
-            <p style="color: var(--text-dim); margin-bottom: 30px;">SELECCIONA TU DESAFÍO</p>
+            <p style="color: var(--text-dim); margin-bottom: 30px;">Selecciona tu desafío</p>
             
             <div style="display: grid; gap: 15px;">
                 <button class="opt-btn" onclick="showScreen('screen-home')" style="border-left: 5px solid var(--accent); padding: 20px;">
@@ -171,7 +175,7 @@
 
                 <button class="opt-btn" onclick="window.location.href='minijuegos/ahorcado.html'" style="border-left: 5px solid #ff0080; padding: 20px;">
                     <span style="display: block; font-weight: 800; font-size: 1.1rem;">🪢 EL AHORCADO</span>
-                    <span style="font-size: 0.8rem; opacity: 0.7;">Adivina antes del dibujo final.</span>
+                    <span style="font-size: 0.8rem; opacity: 0.7;">Adivina antes de que se complete el dibujo.</span>
                 </button>
 
                 <button class="opt-btn" style="opacity: 0.5; cursor: not-allowed; border-left: 5px solid var(--text-dim); padding: 20px;">
@@ -184,7 +188,7 @@
         <div id="screen-home" class="screen">
             <div class="streak-fire">🔥 RACHA: <span id="streak-num">0</span> DÍAS</div>
             <h1 id="welcome-msg"></h1>
-            <p>¿LISTO PARA EL RETO DE HOY?</p>
+            <p>¿Listo para el reto de hoy?</p>
             <button id="play-today-btn" class="btn-main">JUGAR AHORA</button>
             <button class="btn-main" style="background: transparent; color: var(--text-dim); border: 1px solid var(--border);" onclick="showScreen('screen-menu')">VOLVER AL MENÚ</button>
         </div>
@@ -275,7 +279,7 @@
         if (!name) showScreen('screen-auth');
         else {
             showScreen('screen-menu'); 
-            document.getElementById('welcome-msg').innerText = `HOLA, ${name}`;
+            document.getElementById('welcome-msg').innerText = `Hola, ${name}`;
             loadRanking();
             updateStreak();
         }
@@ -295,23 +299,23 @@
     }
 
     const masterBank = [
-        { q: "¿A QUÉ PELÍCULA DE DISNEY PERTENECE ESTE CASTILLO?", img: "https://alanxelmundo.com/wp-content/uploads/2020/02/tokiod3.jpg", o: ["La Bella y la Bestia", "La Bella Durmiente", "Frozen", "Cenicienta"], a: "La Bella Durmiente" },
-        { q: "¿QUÉ ACTOR INTERPRETA A ESTE ICÓNICO PERSONAJE?", img: "https://static.abc.es/media/play/2019/09/20/padrino-kq3G--1248x698@abc.jpg", o: ["Al Pacino", "Robert De Niro", "Marlon Brando", "James Caan"], a: "Marlon Brando" },
-        { q: "¿CÓMO SE LLAMA ESTE ROBOT DE STAR WARS?", img: "https://lumiere-a.akamaihd.net/v1/images/r2-d2-main_f315b094.jpeg?region=273%2C0%2C951%2C536", o: ["C-3PO", "BB-8", "R2-D2", "K-2SO"], a: "R2-D2" },
-        { q: "¿EN QUÉ PAÍS SE ENCUENTRA ESTA 'CIUDAD ROSA'?", img: "https://media.istockphoto.com/id/683011462/es/foto/vista-frontal-del-tesoro-en-la-antigua-ciudad-de-petra-jordania.jpg?s=612x612&w=0&k=20&c=yUDLEl1yon3NiJZ-K1vUEq6vCARm41hxBrDgcauf2Qk=", o: ["Egipto", "Jordania", "Turquía", "Irán"], a: "Jordania" },
-        { q: "¿QUÉ RASCACIELOS DE NY ES ESTE?", img: "https://cdn.britannica.com/73/114973-050-2DC46083/Midtown-Manhattan-Empire-State-Building-New-York.jpg", o: ["Chrysler Building", "Empire State Building", "One World Trade Center", "Flatiron Building"], a: "Empire State Building" },
-        { q: "¿QUÉ SISTEMA OPERATIVO USA ESTE LOGOTIPO?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/1280px-Tux.svg.png", o: ["Windows", "MacOS", "Linux", "Android"], a: "Linux" },
-        { q: "¿CÓMO SE LLAMA ESTE FENÓMENO NATURAL?", img: "https://www.astronomy.com/wp-content/uploads/2023/03/auroraopener.jpg", o: ["Arcoíris", "Aurora Boreal", "Eclipse", "Supernova"], a: "Aurora Boreal" },
-        { q: "¿A QUÉ SAGA PERTENECE ESTA TRIFUERZA?", img: "https://upload.wikimedia.org/wikipedia/commons/0/03/Triforce.svg", o: ["Zelda", "Final Fantasy", "Skyrim", "Elden Ring"], a: "Zelda" },
-        { q: "¿EN QUÉ PAÍS SE ENCUENTRA EL TAJ MAHAL?", img: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg", o: ["Pakistán", "India", "Tailandia", "Turquía"], a: "India" },
-        { q: "¿QUÉ PLANETA ES CONOCIDO POR SUS ANILLOS?", img: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg", o: ["Júpiter", "Urano", "Saturno", "Neptuno"], a: "Saturno" }
+        { q: "¿A qué película de Disney pertenece este castillo?", img: "https://alanxelmundo.com/wp-content/uploads/2020/02/tokiod3.jpg", o: ["La Bella y la Bestia", "La Bella Durmiente", "Frozen", "Cenicienta"], a: "La Bella Durmiente" },
+        { q: "¿Qué actor interpreta a este icónico personaje?", img: "https://static.abc.es/media/play/2019/09/20/padrino-kq3G--1248x698@abc.jpg", o: ["Al Pacino", "Robert De Niro", "Marlon Brando", "James Caan"], a: "Marlon Brando" },
+        { q: "¿Cómo se llama este robot de Star Wars?", img: "https://lumiere-a.akamaihd.net/v1/images/r2-d2-main_f315b094.jpeg?region=273%2C0%2C951%2C536", o: ["C-3PO", "BB-8", "R2-D2", "K-2SO"], a: "R2-D2" },
+        { q: "¿En qué país se encuentra esta 'Ciudad Rosa'?", img: "https://media.istockphoto.com/id/683011462/es/foto/vista-frontal-del-tesoro-en-la-antigua-ciudad-de-petra-jordania.jpg?s=612x612&w=0&k=20&c=yUDLEl1yon3NiJZ-K1vUEq6vCARm41hxBrDgcauf2Qk=", o: ["Egipto", "Jordania", "Turquía", "Irán"], a: "Jordania" },
+        { q: "¿Qué rascacielos de NY es este?", img: "https://cdn.britannica.com/73/114973-050-2DC46083/Midtown-Manhattan-Empire-State-Building-New-York.jpg", o: ["Chrysler Building", "Empire State Building", "One World Trade Center", "Flatiron Building"], a: "Empire State Building" },
+        { q: "¿Qué sistema operativo usa este logotipo?", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Tux.svg/1280px-Tux.svg.png", o: ["Windows", "MacOS", "Linux", "Android"], a: "Linux" },
+        { q: "¿Cómo se llama este fenómeno natural?", img: "https://www.astronomy.com/wp-content/uploads/2023/03/auroraopener.jpg", o: ["Arcoíris", "Aurora Boreal", "Eclipse", "Supernova"], a: "Aurora Boreal" },
+        { q: "¿A qué saga pertenece esta trifuerza?", img: "https://upload.wikimedia.org/wikipedia/commons/0/03/Triforce.svg", o: ["Zelda", "Final Fantasy", "Skyrim", "Elden Ring"], a: "Zelda" },
+        { q: "¿En qué país se encuentra el Taj Mahal?", img: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Taj_Mahal%2C_Agra%2C_India_edit3.jpg", o: ["Pakistán", "India", "Tailandia", "Turquía"], a: "India" },
+        { q: "¿Qué planeta es conocido por sus anillos?", img: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Saturn_during_Equinox.jpg", o: ["Júpiter", "Urano", "Saturno", "Neptuno"], a: "Saturno" }
     ];
     
     window.loadRanking = function() {
         const rRef = query(ref(db, 'ranking'), orderByChild('points'));
         onValue(rRef, (snap) => {
             const container = document.getElementById('lead-list');
-            if (!snap.exists()) { container.innerHTML = "SIN DATOS HOY"; return; }
+            if (!snap.exists()) { container.innerHTML = "Sin datos hoy"; return; }
             let list = [];
             snap.forEach(child => { 
                 const data = child.val();
@@ -327,7 +331,7 @@
                     <span class="score-tag">${d.points}/10</span>
                 </div>`;
             });
-            container.innerHTML = html || "SIN DATOS HOY";
+            container.innerHTML = html || "Sin datos hoy";
         });
     }
 
@@ -388,7 +392,7 @@
         const t = document.getElementById('timer').innerText;
         showScreen('screen-result');
         document.getElementById('final-stats').innerText = `${score}/10`;
-        document.getElementById('final-time').innerText = `TIEMPO: ${t}`;
+        document.getElementById('final-time').innerText = `Tiempo: ${t}`;
         const name = localStorage.getItem('triviaUser');
         const newEntryRef = push(ref(db, 'ranking'));
         set(newEntryRef, { user: name, points: score, time: t, date: hoy, ts: serverTimestamp() }).then(() => {
@@ -402,14 +406,14 @@
     }
 
     window.resetRanking = function() {
-        if(confirm("¿BORRAR RANKING DE HOY?")) {
+        if(confirm("¿Borrar ranking de hoy?")) {
             get(ref(db, 'ranking')).then((snapshot) => {
                 if (snapshot.exists()) {
                     snapshot.forEach((child) => {
                         if (child.val().date === hoy) remove(ref(db, `ranking/${child.key}`));
                     });
                     localStorage.removeItem('lastPlayed_' + hoy);
-                    alert("HECHO.");
+                    alert("Hecho.");
                     location.reload();
                 }
             });
