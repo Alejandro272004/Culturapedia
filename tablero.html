@@ -3,33 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CULTURAPEDIA PARTY - RESET VERSION</title>
+    <title>CULTURAPEDIA PARTY - ROULETTE EDITION</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00f2ff; --bg: #050508; --danger: #ff4444; }
+        :root { --accent: #00f2ff; --bg: #050508; --danger: #ff4444; --yellow: #ffcc00; }
         body { 
             margin: 0; background: var(--bg); color: white; 
             font-family: 'Quicksand', sans-serif; 
             display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; overflow: hidden;
         }
+
+        /* Lobby */
         #lobby-overlay {
             position: fixed; inset: 0; z-index: 1000;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
             backdrop-filter: blur(15px); background: rgba(5, 5, 8, 0.95);
         }
-        .loader {
-            width: 60px; height: 60px; border: 6px solid #222;
-            border-top-color: var(--accent); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 25px;
+
+        /* RULETA DE MINIJUEGOS */
+        #roulette-overlay {
+            position: fixed; inset: 0; z-index: 2000;
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.9);
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .roulette-box {
+            width: 300px; height: 100px;
+            border: 5px solid var(--yellow);
+            background: #222; border-radius: 15px;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative;
+            box-shadow: 0 0 30px var(--yellow);
+        }
+
+        #game-name-display {
+            font-family: 'Bungee'; font-size: 1.8rem;
+            color: white; text-transform: uppercase;
+            animation: pulse 0.2s infinite alternate;
+        }
+
+        @keyframes pulse { from { opacity: 0.7; } to { opacity: 1; } }
+
+        /* Tablero */
         .game-wrapper {
             position: relative; width: 95vw; max-width: 500px;
             aspect-ratio: 760 / 1080; background: url('Tablero (1).jpg') no-repeat center center;
             background-size: contain; margin-top: 10px;
         }
+
         .player-token {
             position: absolute; width: 28px; height: 28px;
             border-radius: 50%; border: 2px solid white;
@@ -38,27 +62,38 @@
             display: flex; justify-content: center; align-items: center;
             font-size: 12px; font-weight: 900; box-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
+
+        /* UI */
         .ui-panel {
             position: fixed; bottom: 20px; right: 20px;
             background: rgba(20, 20, 30, 0.95); padding: 15px;
             border-radius: 15px; border: 2px solid var(--accent);
             width: 160px; text-align: center;
         }
+
         .dice-btn {
             background: var(--accent); color: #000; border: none;
             width: 100%; padding: 10px; font-family: 'Bungee';
-            font-size: 0.9rem; border-radius: 8px; cursor: pointer; margin-bottom: 5px;
+            font-size: 0.9rem; border-radius: 8px; cursor: pointer;
         }
+
         .reset-btn {
             background: none; color: var(--danger); border: 1px solid var(--danger);
-            width: 100%; padding: 5px; font-size: 0.7rem; border-radius: 5px;
-            cursor: pointer; font-weight: bold; margin-top: 10px;
+            width: 100%; padding: 5px; font-size: 0.6rem; border-radius: 5px;
+            cursor: pointer; margin-top: 10px;
         }
-        .dice-btn:disabled { background: #444 !important; color: #888; cursor: not-allowed; }
+
         #dice-result { font-family: 'Bungee'; font-size: 2rem; color: var(--accent); margin: 5px 0; }
     </style>
 </head>
 <body>
+
+    <div id="roulette-overlay">
+        <h2 style="font-family: 'Bungee'; color: var(--yellow);">¡MINIJUEGO!</h2>
+        <div class="roulette-box">
+            <div id="game-name-display">SORTEANDO...</div>
+        </div>
+    </div>
 
     <div id="lobby-overlay">
         <div class="loader"></div>
@@ -73,13 +108,12 @@
         <div id="turn-name" style="font-weight: 800; color: var(--accent); margin-bottom: 5px;">---</div>
         <div id="dice-result">?</div>
         <button class="dice-btn" id="roll-btn" onclick="rollDice()" disabled>ESPERA</button>
-        
         <button class="reset-btn" onclick="masterReset()">REINICIAR TODO</button>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, remove, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
@@ -100,15 +134,21 @@
     const gameRef = ref(db, 'mario_party_live');
     const myPlayerRef = ref(db, `mario_party_live/players/${myId}`);
 
-    // Iniciar jugador
     set(myPlayerRef, { name: "Jugador " + myId.slice(-3), position: 0 });
     onDisconnect(myPlayerRef).remove();
 
-    // Código Secreto Admin
+    // Reset Maestro
+    window.masterReset = async function() {
+        if(confirm("Reiniciar partida para TODOS?")){
+            await set(gameRef, { minigameActive: false, turnosEnRonda: 0, forceStart: false, players: {} });
+            location.reload();
+        }
+    }
+
+    // Código Secreto
     const secret = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '];
     let sIdx = 0;
     window.addEventListener('keydown', (e) => {
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
         if (e.key === secret[sIdx]) {
             sIdx++;
             if (sIdx === secret.length) {
@@ -118,33 +158,15 @@
         } else { sIdx = 0; }
     });
 
-    // Función Master Reset (Global)
-    window.masterReset = async function() {
-        if(confirm("¿Seguro? Esto reiniciará la partida para TODOS los jugadores.")){
-            await set(gameRef, {
-                minigameActive: false,
-                turnosEnRonda: 0,
-                forceStart: false,
-                currentTurn: null,
-                players: {} // Borra a todos
-            });
-            location.reload(); // Recarga para volver a entrar como nuevo jugador
-        }
-    }
-
     onValue(gameRef, (snap) => {
         const data = snap.val();
-        if (!data || !data.players) {
-            document.getElementById('lobby-overlay').style.display = 'flex';
-            document.getElementById('player-count').innerText = "Esperando jugadores...";
-            return;
-        }
+        if (!data || !data.players) return;
 
         const players = data.players;
         const pIds = Object.keys(players);
         document.getElementById('player-count').innerText = `JUGADORES: ${pIds.length}`;
 
-        // Control Lobby
+        // Lobby
         if (pIds.length >= 5 || data.forceStart) {
             document.getElementById('lobby-overlay').style.display = 'none';
             if (!data.currentTurn) update(gameRef, { currentTurn: pIds[0], turnosEnRonda: 0 });
@@ -152,21 +174,48 @@
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // Salto a minijuego
-        if (data.minigameActive === true && document.getElementById('lobby-overlay').style.display === 'none') {
-            window.location.href = "next.html";
+        // --- LÓGICA DE LA RULETA ---
+        if (data.minigameActive === true) {
+            startRouletteAnimation();
             return;
         }
 
         const tId = data.currentTurn;
         document.getElementById('turn-name').innerText = players[tId] ? players[tId].name : "---";
-        
         const btn = document.getElementById('roll-btn');
         btn.disabled = (tId !== myId);
         btn.innerText = (tId === myId) ? "TIRAR DADO" : "ESPERA";
 
         renderTokens(players);
     });
+
+    function startRouletteAnimation() {
+        const overlay = document.getElementById('roulette-overlay');
+        const display = document.getElementById('game-name-display');
+        overlay.style.display = 'flex';
+
+        const minijuegos = ["Ahorcado", "Restauradores", "Trivial", "MemoryCard"];
+        let count = 0;
+        
+        // Efecto visual de giro
+        const interval = setInterval(() => {
+            display.innerText = minijuegos[count % minijuegos.length];
+            count++;
+        }, 100);
+
+        // Detener y saltar después de 3 segundos
+        setTimeout(() => {
+            clearInterval(interval);
+            // El resultado final puede ser aleatorio o fijo
+            const finalGame = minijuegos[Math.floor(Math.random() * minijuegos.length)];
+            display.innerText = "¡" + finalGame + "!";
+            display.style.color = "#00ff88";
+
+            setTimeout(() => {
+                window.location.href = "next.html"; // Aquí saltas al archivo
+            }, 1500);
+        }, 3000);
+    }
 
     window.rollDice = async function() {
         const snap = await get(gameRef);
@@ -193,11 +242,6 @@
 
     function renderTokens(players) {
         const board = document.getElementById('board');
-        // Limpiar fichas viejas que ya no existen en Firebase
-        document.querySelectorAll('.player-token').forEach(t => {
-            if (!players[t.id.replace('token-', '')]) t.remove();
-        });
-
         Object.keys(players).forEach((id, idx) => {
             let t = document.getElementById('token-' + id);
             if (!t) {
