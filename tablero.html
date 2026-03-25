@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CULTURAPEDIA PARTY - SINCRONIZADO</title>
+    <title>CULTURAPEDIA PARTY - MASTER</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #00f2ff; --bg: #050508; --success: #00ff88; }
@@ -14,65 +14,67 @@
             min-height: 100vh; overflow: hidden;
         }
 
+        /* Pantalla de carga mejorada */
         #lobby-overlay {
             position: fixed; inset: 0; z-index: 1000;
             display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
-            backdrop-filter: blur(12px); background: rgba(5, 5, 8, 0.95);
+            backdrop-filter: blur(15px); background: rgba(5, 5, 8, 0.9);
         }
 
         .loader {
-            width: 50px; height: 50px; border: 5px solid #333;
+            width: 60px; height: 60px; border: 6px solid #222;
             border-top-color: var(--accent); border-radius: 50%;
-            animation: spin 1s linear infinite; margin-bottom: 20px;
+            animation: spin 1s linear infinite; margin-bottom: 25px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* Contenedor del Tablero */
         .game-wrapper {
-            position: relative; width: 90vw; max-width: 550px;
+            position: relative; width: 95vw; max-width: 500px;
             aspect-ratio: 760 / 1080; background: url('Tablero (1).jpg') no-repeat center center;
-            background-size: contain; margin: 2vh auto;
+            background-size: contain; margin-top: 10px;
         }
 
         .player-token {
-            position: absolute; width: 30px; height: 30px;
+            position: absolute; width: 28px; height: 28px;
             border-radius: 50%; border: 2px solid white;
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 100; transform: translate(-50%, -50%);
             display: flex; justify-content: center; align-items: center;
-            font-size: 12px; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 12px; font-weight: 900; box-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
+        /* Panel UI */
         .ui-panel {
             position: fixed; bottom: 20px; right: 20px;
-            background: rgba(15, 15, 22, 0.95); padding: 20px;
-            border-radius: 20px; border: 2px solid var(--accent);
-            width: 180px; text-align: center;
+            background: rgba(20, 20, 30, 0.95); padding: 15px;
+            border-radius: 15px; border: 2px solid var(--accent);
+            width: 160px; text-align: center;
         }
 
         .dice-btn {
-            background: var(--accent); color: black; border: none;
+            background: var(--accent); color: #000; border: none;
             width: 100%; padding: 12px; font-family: 'Bungee';
-            font-size: 1.1rem; border-radius: 12px; cursor: pointer;
+            font-size: 1rem; border-radius: 10px; cursor: pointer;
         }
-        .dice-btn:disabled { background: #333 !important; color: #666; cursor: not-allowed; }
-        #dice-result { font-family: 'Bungee'; font-size: 3rem; color: var(--accent); margin: 5px 0; }
+        .dice-btn:disabled { background: #444 !important; color: #888; cursor: not-allowed; }
+        #dice-result { font-family: 'Bungee'; font-size: 2.5rem; color: var(--accent); margin: 5px 0; }
     </style>
 </head>
 <body>
 
     <div id="lobby-overlay">
         <div class="loader"></div>
-        <h1 style="font-family: 'Bungee'; color: var(--accent);">SALA MULTIJUGADOR</h1>
-        <p id="player-count">Esperando conexión...</p>
-        <p style="font-size: 0.7rem; opacity: 0.4;">Admin Code: ↑ ↑ ↓ ↓ ← → [Espacio]</p>
-    </div>
+        <h1 style="font-family: 'Bungee'; color: var(--accent); letter-spacing: 2px;">SALA DE ESPERA</h1>
+        <p id="player-count" style="font-size: 1.2rem;">Conectando al servidor...</p>
+        </div>
 
     <div class="game-wrapper" id="board"></div>
 
     <div class="ui-panel">
-        <div style="font-size: 0.7rem; opacity: 0.6;">TURNO DE:</div>
-        <div id="turn-name" style="font-weight: 800; color: var(--accent);">---</div>
+        <div style="font-size: 0.6rem; opacity: 0.6; text-transform: uppercase;">Turno de</div>
+        <div id="turn-name" style="font-weight: 800; color: var(--accent); margin-bottom: 5px;">---</div>
         <div id="dice-result">?</div>
         <button class="dice-btn" id="roll-btn" onclick="rollDice()" disabled>ESPERA</button>
     </div>
@@ -94,82 +96,72 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // ID ÚNICO: Usamos localStorage para que un mismo PC no pueda meter 2 jugadores
-    let myId = localStorage.getItem('partyId');
-    if (!myId) {
-        myId = "P-" + Math.random().toString(36).substr(2, 5);
-        localStorage.setItem('partyId', myId);
-    }
+    // ID de Jugador: Forzamos uno por sesión para evitar que se pisen
+    let myId = sessionStorage.getItem('pId') || "P-" + Math.random().toString(36).substr(2, 5);
+    sessionStorage.setItem('pId', myId);
     
     const gameRef = ref(db, 'mario_party_live');
     const myPlayerRef = ref(db, `mario_party_live/players/${myId}`);
 
-    // Registro inicial (si no existe)
-    get(myPlayerRef).then(snap => {
-        if(!snap.exists()) {
-            set(myPlayerRef, { name: "Jugador " + myId.split('-')[1], position: 0 });
-        }
-    });
+    // Unirse a la sala
+    set(myPlayerRef, { name: "Jugador " + myId.slice(-3), position: 0 });
     onDisconnect(myPlayerRef).remove();
 
-    // CÓDIGO KONAMI
+    // LÓGICA DEL CÓDIGO SECRETO (KONAMI CODE)
     const secret = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '];
     let sIdx = 0;
     window.addEventListener('keydown', (e) => {
         if (e.key === secret[sIdx]) {
             sIdx++;
             if (sIdx === secret.length) {
+                // Escribimos en la base de datos para que TODOS inicien
                 update(gameRef, { forceStart: true, minigameActive: false, turnosEnRonda: 0 });
                 sIdx = 0;
             }
         } else { sIdx = 0; }
     });
 
-    // --- ESCUCHA GLOBAL (AQUÍ OCURRE LA MAGIA) ---
-    onValue(gameRef, (snapshot) => {
-        const data = snapshot.val();
+    // ESCUCHA DE CAMBIOS (SINCRONIZACIÓN TOTAL)
+    onValue(gameRef, (snap) => {
+        const data = snap.val();
         if (!data || !data.players) return;
 
-        const pMap = data.players;
-        const pIds = Object.keys(pMap);
-        const count = pIds.length;
+        const players = data.players;
+        const pIds = Object.keys(players);
 
-        // 1. Sincronizar Contador
-        document.getElementById('player-count').innerText = `JUGADORES: ${count} / 5`;
+        // 1. Contador de jugadores
+        document.getElementById('player-count').innerText = `JUGADORES: ${pIds.length} / 5`;
 
-        // 2. Sincronizar Inicio (Si uno activa forceStart, se les abre a TODOS)
-        if (count >= 5 || data.forceStart) {
+        // 2. Control del Lobby
+        if (pIds.length >= 5 || data.forceStart) {
             document.getElementById('lobby-overlay').style.display = 'none';
-            // Si el juego empezó pero no hay turno, el primer PC conectado lo asigna
-            if (!data.currentTurn) {
-                update(gameRef, { currentTurn: pIds[0], turnosEnRonda: 0 });
-            }
+            if (!data.currentTurn) update(gameRef, { currentTurn: pIds[0], turnosEnRonda: 0 });
         } else {
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // 3. Sincronizar Salto a Minijuego
-        if (data.minigameActive === true) {
+        // 3. Salto al Minijuego (next.html)
+        if (data.minigameActive) {
             window.location.href = "next.html";
             return;
         }
 
-        // 4. Sincronizar Turnos y Botón
+        // 4. Turnos
         const tId = data.currentTurn;
-        document.getElementById('turn-name').innerText = pMap[tId] ? pMap[tId].name : "---";
+        document.getElementById('turn-name').innerText = players[tId] ? players[tId].name : "Asignando...";
         
         const btn = document.getElementById('roll-btn');
         if (tId === myId) {
             btn.disabled = false;
-            btn.innerText = "TU TURNO";
-            btn.style.boxShadow = "0 0 15px var(--accent)";
+            btn.innerText = "TIRAR DADO";
+            btn.style.background = "var(--success)";
         } else {
             btn.disabled = true;
-            btn.innerText = "ESPERA...";
-            btn.style.boxShadow = "none";
+            btn.innerText = "ESPERA";
+            btn.style.background = "var(--accent)";
         }
 
-        updateFichas(pMap);
+        updateFichas(players);
     });
 
     window.rollDice = async function() {
@@ -189,10 +181,8 @@
         updates[`currentTurn`] = nextTId;
         updates[`turnosEnRonda`] = nuevosTurnos;
 
-        // Si todos han tirado, activamos el flag global
-        if (nuevosTurnos >= pIds.length) {
-            updates.minigameActive = true;
-        }
+        // Si la ronda termina, activamos minigameActive
+        if (nuevosTurnos >= pIds.length) updates.minigameActive = true;
 
         update(gameRef, updates);
     };
@@ -206,20 +196,19 @@
                 t = document.createElement('div');
                 t.id = 'token-'+id; t.className = 'player-token';
                 t.style.background = colors[idx % 5];
-                t.innerText = players[id].name[0];
+                t.innerText = players[id].name.slice(-1);
                 board.appendChild(t);
             }
             const p = players[id].position || 0;
-            if (coords[p]) {
-                t.style.left = coords[p].x + "%";
-                t.style.top = coords[p].y + "%";
-            }
+            t.style.left = coords[p].x + "%";
+            t.style.top = coords[p].y + "%";
         });
         document.querySelectorAll('.player-token').forEach(t => {
             if (!players[t.id.replace('token-', '')]) t.remove();
         });
     }
 
+    // Coordenadas del tablero
     const coords = { 0: {x: 14, y: 10}, 1: {x: 10, y: 12}, 2: {x: 8, y: 20}, 3: {x: 8, y: 30}, 4: {x: 12, y: 38}, 5: {x: 21, y: 31}, 6: {x: 21, y: 23}, 7: {x: 27, y: 17}, 8: {x: 37, y: 15}, 9: {x: 46, y: 15}, 10: {x: 65, y: 15}, 11: {x: 75, y: 19}, 12: {x: 81, y: 28}, 13: {x: 78, y: 38}, 14: {x: 68, y: 38}, 15: {x: 63, y: 29}, 16: {x: 54, y: 25}, 17: {x: 43, y: 28}, 18: {x: 37, y: 35}, 19: {x: 37, y: 44}, 20: {x: 39, y: 55}, 21: {x: 49, y: 59}, 22: {x: 60, y: 59}, 23: {x: 71, y: 56}, 24: {x: 79, y: 64}, 25: {x: 72, y: 72}, 26: {x: 61, y: 72}, 27: {x: 50, y: 72}, 28: {x: 40, y: 72}, 29: {x: 31, y: 65}, 30: {x: 27, y: 53}, 31: {x: 13, y: 55}, 32: {x: 8, y: 65}, 33: {x: 8, y: 74}, 34: {x: 11, y: 84}, 35: {x: 19, y: 91}, 36: {x: 26, y: 82}, 37: {x: 34, y: 74}, 38: {x: 53, y: 82}, 39: {x: 55, y: 74}, 40: {x: 65, y: 78}, 41: {x: 66, y: 88}, 42: {x: 54, y: 94}, 43: {x: 44, y: 92}, 44: {x: 34, y: 94}, 45: {x: 40, y: 95}, 46: {x: 53, y: 98}, 47: {x: 65, y: 98} };
 </script>
 </body>
