@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CULTURAPEDIA PARTY - MULTIPLAYER REAL</title>
+    <title>CULTURAPEDIA PARTY - FINAL BUILD</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #00f2ff; --bg: #050508; --success: #00ff88; --error: #ff3e3e; }
@@ -14,18 +14,15 @@
             min-height: 100vh; overflow: hidden;
         }
 
-        /* OVERLAY DE MINIJUEGO */
-        #minigame-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9);
-            z-index: 2000; display: none; flex-direction: column;
+        /* OVERLAYS */
+        #lobby-overlay, #minigame-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
+            backdrop-filter: blur(10px);
         }
-
-        #lobby-overlay {
-            position: fixed; inset: 0; background: rgba(5, 5, 8, 0.95);
-            z-index: 1000; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-        }
+        #lobby-overlay { background: rgba(5, 5, 8, 0.95); }
+        #minigame-overlay { background: rgba(0, 0, 0, 0.9); display: none; z-index: 2000; }
 
         .loader {
             width: 50px; height: 50px; border: 5px solid #333;
@@ -34,6 +31,7 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* TABLERO */
         .game-wrapper {
             position: relative; width: 90vw; max-width: 550px;
             aspect-ratio: 760 / 1080; background: url('Tablero (1).jpg') no-repeat center center;
@@ -49,88 +47,94 @@
             font-size: 14px; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
+        /* PANEL DE CONTROL */
         .ui-panel {
             position: fixed; bottom: 20px; right: 20px;
             background: rgba(15, 15, 22, 0.9); padding: 20px;
             border-radius: 20px; border: 2px solid var(--accent);
-            width: 200px; text-align: center; backdrop-filter: blur(10px);
+            width: 200px; text-align: center;
         }
 
         .dice-btn {
             background: var(--accent); color: black; border: none;
             width: 100%; padding: 12px; font-family: 'Bungee';
             font-size: 1.1rem; border-radius: 12px; cursor: pointer;
+            transition: 0.3s;
         }
-        .dice-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
-        #dice-result { font-family: 'Bungee'; font-size: 2rem; color: var(--accent); margin: 10px 0; }
+        .dice-btn:disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; box-shadow: none !important; }
+        #dice-result { font-family: 'Bungee'; font-size: 2.5rem; color: var(--accent); margin: 5px 0; }
     </style>
 </head>
 <body>
-
-    <div id="minigame-overlay">
-        <h1 style="font-family: 'Bungee'; color: #ffcc00; font-size: 3rem;">¡MINIJUEGO!</h1>
-        <p id="minigame-text" style="font-size: 1.5rem;">Preparando reto cultural...</p>
-        <button class="dice-btn" onclick="cerrarMinijuego()" style="width: auto; margin-top: 20px;">CONTINUAR</button>
-    </div>
 
     <div id="lobby-overlay">
         <div class="loader"></div>
         <h1 style="font-family: 'Bungee'; color: var(--accent);">ESPERANDO JUGADORES</h1>
         <p id="player-count">Conectando... (0 / 5)</p>
+        <p style="font-size: 0.7rem; opacity: 0.5;">Usa el código secreto si eres el admin</p>
+    </div>
+
+    <div id="minigame-overlay">
+        <h1 style="font-family: 'Bungee'; color: #ffcc00; font-size: 3rem;">¡MINIJUEGO!</h1>
+        <p id="minigame-text" style="font-size: 1.2rem; margin: 20px;">Cargando reto grupal...</p>
+        <button class="dice-btn" onclick="cerrarMinijuego()" style="width: auto;">CONTINUAR PARTIDA</button>
     </div>
 
     <div class="game-wrapper" id="board"></div>
 
     <div class="ui-panel">
         <div style="font-size: 0.7rem; opacity: 0.7;">TURNO DE:</div>
-        <div id="current-player-display" style="font-weight: 800; color: var(--accent); margin-bottom: 10px;">---</div>
+        <div id="player-turn-display" style="font-weight: 800; color: var(--accent); margin-bottom: 5px;">---</div>
         <div id="dice-result">?</div>
-        <button class="dice-btn" id="roll-btn" onclick="rollDice()" disabled>TIRAR DADO</button>
+        <button class="dice-btn" id="roll-btn" onclick="rollDice()" disabled>ESPERA...</button>
     </div>
 
 <script type="module">
-    // ... (Mantén tus imports y config de Firebase igual que arriba)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
-    // --- LÓGICA DEL CÓDIGO SECRETO ---
-    const secretCode = [
-        'ArrowUp', 'ArrowUp', 
-        'ArrowDown', 'ArrowDown', 
-        'ArrowLeft', 'ArrowRight', 
-        ' ' // Espacio
-    ];
-    let inputIndex = 0;
+    const firebaseConfig = {
+        apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
+        authDomain: "trivialbrutal.firebaseapp.com",
+        databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com",
+        projectId: "trivialbrutal",
+        storageBucket: "trivialbrutal.firebasestorage.app",
+        messagingSenderId: "428554501222",
+        appId: "1:428554501222:web:0985d7e8784cd46657c1a7"
+    };
 
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // 1. ID ÚNICO POR DISPOSITIVO (Impide entrar varias veces desde el mismo PC)
+    let myId = localStorage.getItem('partyPlayerUniqueId');
+    if (!myId) {
+        myId = "User_" + Math.random().toString(36).substr(2, 7);
+        localStorage.setItem('partyPlayerUniqueId', myId);
+    }
+    let myName = localStorage.getItem('triviaUser') || "Jugador";
+
+    const gameRef = ref(db, 'mario_party_live');
+    const myPlayerRef = ref(db, `mario_party_live/players/${myId}`);
+
+    // Registro
+    set(myPlayerRef, { name: myName, position: 0 });
+    onDisconnect(myPlayerRef).remove();
+
+    // 2. CÓDIGO SECRETO (Arriba, Arriba, Abajo, Abajo, Izq, Der, Espacio)
+    const secret = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '];
+    let sIdx = 0;
     window.addEventListener('keydown', (e) => {
-        // Comprobar si la tecla coincide con la secuencia
-        if (e.key === secretCode[inputIndex]) {
-            inputIndex++;
-            // Si se completa el código
-            if (inputIndex === secretCode.length) {
-                activarJuegoForzado();
-                inputIndex = 0;
+        if (e.key === secret[sIdx]) {
+            sIdx++;
+            if (sIdx === secret.length) {
+                update(gameRef, { forceStart: true });
+                sIdx = 0;
             }
-        } else {
-            inputIndex = 0; // Reiniciar si falla una tecla
-        }
+        } else { sIdx = 0; }
     });
 
-    async function activarJuegoForzado() {
-        console.log("⚠️ CÓDIGO SECRETO ACTIVADO: Forzando inicio...");
-        const snap = await get(gameRef);
-        const data = snap.val();
-        if (data && data.players) {
-            const playerIds = Object.keys(data.players);
-            // Actualizamos Firebase para que TODOS vean el juego iniciado
-            update(gameRef, { 
-                forceStart: true, 
-                currentTurn: data.currentTurn || playerIds[0],
-                turnosEnRonda: 0 
-            });
-            alert("¡MODO DESARROLLADOR ACTIVADO! Iniciando partida...");
-        }
-    }
-
-    // --- MODIFICACIÓN EN EL ONVALUE ---
+    // 3. LOGICA PRINCIPAL
     onValue(gameRef, (snapshot) => {
         const data = snapshot.val();
         if (!data || !data.players) return;
@@ -138,29 +142,88 @@
         const playerIds = Object.keys(data.players);
         const count = playerIds.length;
 
+        // Contador
         document.getElementById('player-count').innerText = `JUGADORES EN SALA: ${count} / 5`;
 
-        // REGLA DE INICIO: Se inicia si hay 5 O si forceStart es true
-        if (count >= 5 || data.forceStart === true) {
+        // Inicio de juego
+        if (count >= 5 || data.forceStart) {
             document.getElementById('lobby-overlay').style.display = 'none';
-            
-            if (!data.currentTurn) {
-                update(gameRef, { currentTurn: playerIds[0], turnosEnRonda: 0 });
-            }
+            if (!data.currentTurn) update(gameRef, { currentTurn: playerIds[0], turnosEnRonda: 0 });
         } else {
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // ... (El resto de tu lógica de turnos, fichas y minijuegos igual)
-        
-        // Lógica de Minijuego (Solo si el juego NO está forzado o si quieres mantenerlo)
-        if (data.turnosEnRonda >= count && count > 0) { 
-             // Ajustado para que la ronda termine según el número REAL de jugadores conectados
-             mostrarMinijuego();
+        // Minijuegos
+        if (data.turnosEnRonda >= count && count > 0) {
+            document.getElementById('minigame-overlay').style.display = 'flex';
+            document.getElementById('minigame-text').innerText = "Ronda terminada. ¡Momento de un desafío!";
+        } else {
+            document.getElementById('minigame-overlay').style.display = 'none';
         }
+
+        // Turnos
+        const tId = data.currentTurn;
+        const tName = data.players[tId] ? data.players[tId].name : "---";
+        document.getElementById('player-turn-display').innerText = tName;
+        
+        const btn = document.getElementById('roll-btn');
+        if (tId === myId && !(data.turnosEnRonda >= count)) {
+            btn.disabled = false;
+            btn.style.background = "var(--success)";
+            btn.style.boxShadow = "0 0 15px var(--success)";
+            btn.innerText = "TIRAR DADO 🎲";
+        } else {
+            btn.disabled = true;
+            btn.innerText = (data.turnosEnRonda >= count) ? "MINIJUEGO..." : "ESPERA...";
+        }
+
+        updateFichas(data.players);
     });
 
-    // ... (El resto del código de tirar dado y coordenadas)
+    // 4. ACCIONES
+    window.rollDice = async function() {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        document.getElementById('dice-result').innerText = roll;
+        
+        const snap = await get(gameRef);
+        const data = snap.val();
+        const pIds = Object.keys(data.players);
+        
+        let nextPos = Math.min((data.players[myId].position || 0) + roll, 47);
+        let nextTId = pIds[(pIds.indexOf(myId) + 1) % pIds.length];
+
+        update(gameRef, {
+            [`players/${myId}/position`]: nextPos,
+            currentTurn: nextTId,
+            turnosEnRonda: (data.turnosEnRonda || 0) + 1
+        });
+    };
+
+    window.cerrarMinijuego = () => update(gameRef, { turnosEnRonda: 0 });
+
+    function updateFichas(players) {
+        const board = document.getElementById('board');
+        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F6'];
+        
+        Object.keys(players).forEach((id, idx) => {
+            let t = document.getElementById('token-'+id);
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'token-'+id; t.className = 'player-token';
+                t.style.background = colors[idx % 5];
+                t.innerText = players[id].name[0].toUpperCase();
+                board.appendChild(t);
+            }
+            const p = players[id].position || 0;
+            t.style.left = coords[p].x + "%";
+            t.style.top = coords[p].y + "%";
+        });
+        document.querySelectorAll('.player-token').forEach(t => {
+            if (!players[t.id.split('-')[1]]) t.remove();
+        });
+    }
+
+    const coords = { 0: {x: 14, y: 10}, 1: {x: 10, y: 12}, 2: {x: 8, y: 20}, 3: {x: 8, y: 30}, 4: {x: 12, y: 38}, 5: {x: 21, y: 31}, 6: {x: 21, y: 23}, 7: {x: 27, y: 17}, 8: {x: 37, y: 15}, 9: {x: 46, y: 15}, 10: {x: 65, y: 15}, 11: {x: 75, y: 19}, 12: {x: 81, y: 28}, 13: {x: 78, y: 38}, 14: {x: 68, y: 38}, 15: {x: 63, y: 29}, 16: {x: 54, y: 25}, 17: {x: 43, y: 28}, 18: {x: 37, y: 35}, 19: {x: 37, y: 44}, 20: {x: 39, y: 55}, 21: {x: 49, y: 59}, 22: {x: 60, y: 59}, 23: {x: 71, y: 56}, 24: {x: 79, y: 64}, 25: {x: 72, y: 72}, 26: {x: 61, y: 72}, 27: {x: 50, y: 72}, 28: {x: 40, y: 72}, 29: {x: 31, y: 65}, 30: {x: 27, y: 53}, 31: {x: 13, y: 55}, 32: {x: 8, y: 65}, 33: {x: 8, y: 74}, 34: {x: 11, y: 84}, 35: {x: 19, y: 91}, 36: {x: 26, y: 82}, 37: {x: 34, y: 74}, 38: {x: 53, y: 82}, 39: {x: 55, y: 74}, 40: {x: 65, y: 78}, 41: {x: 66, y: 88}, 42: {x: 54, y: 94}, 43: {x: 44, y: 92}, 44: {x: 34, y: 94}, 45: {x: 40, y: 100}, 46: {x: 53, y: 100}, 47: {x: 65, y: 100} };
 </script>
 </body>
 </html>
