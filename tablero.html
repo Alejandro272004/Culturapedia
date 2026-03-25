@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CULTURAPEDIA PARTY - MULTI-SALA</title>
+    <title>CULTURAPEDIA PARTY - FIX DADO</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #00f2ff; --bg: #050508; --danger: #ff4444; --yellow: #ffcc00; }
@@ -13,8 +13,6 @@
             display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; overflow: hidden;
         }
-
-        /* Selector de Sala Inicial */
         #room-selector {
             position: fixed; inset: 0; z-index: 3000;
             background: var(--bg); display: flex; flex-direction: column;
@@ -22,25 +20,14 @@
         }
         .room-input {
             padding: 15px; font-size: 1.5rem; border-radius: 10px; border: 2px solid var(--accent);
-            background: #111; color: white; text-align: center; font-family: 'Bungee'; margin: 20px;
+            background: #111; color: white; text-align: center; font-family: 'Bungee'; margin: 20px; text-transform: uppercase;
         }
-
-        /* Ruleta y Lobby (Igual que antes) */
         #roulette-overlay, #lobby-overlay {
             position: fixed; inset: 0; z-index: 2000;
             display: none; flex-direction: column;
             justify-content: center; align-items: center; text-align: center;
             backdrop-filter: blur(15px); background: rgba(5, 5, 8, 0.95);
         }
-        .roulette-box {
-            width: 300px; height: 100px; border: 5px solid var(--yellow);
-            background: #222; border-radius: 15px; display: flex;
-            justify-content: center; align-items: center; overflow: hidden;
-            box-shadow: 0 0 30px var(--yellow);
-        }
-        #game-name-display { font-family: 'Bungee'; font-size: 1.8rem; animation: pulse 0.2s infinite alternate; }
-        @keyframes pulse { from { opacity: 0.7; } to { opacity: 1; } }
-
         .game-wrapper {
             position: relative; width: 95vw; max-width: 500px;
             aspect-ratio: 760 / 1080; background: url('Tablero (1).jpg') no-repeat center center;
@@ -56,6 +43,7 @@
             padding: 15px; border-radius: 15px; border: 2px solid var(--accent); width: 160px; text-align: center;
         }
         .dice-btn { background: var(--accent); color: #000; border: none; width: 100%; padding: 10px; font-family: 'Bungee'; border-radius: 8px; cursor: pointer; }
+        .dice-btn:disabled { background: #444 !important; color: #888; cursor: not-allowed; }
         .reset-btn { background: none; color: var(--danger); border: 1px solid var(--danger); width: 100%; padding: 5px; font-size: 0.6rem; border-radius: 5px; cursor: pointer; margin-top: 10px; }
         #dice-result { font-family: 'Bungee'; font-size: 2rem; color: var(--accent); margin: 5px 0; }
     </style>
@@ -70,13 +58,13 @@
 
     <div id="roulette-overlay">
         <h2 style="font-family: 'Bungee'; color: var(--yellow);">¡MINIJUEGO!</h2>
-        <div class="roulette-box"><div id="game-name-display">SORTEANDO...</div></div>
+        <div id="game-name-display" style="font-family: 'Bungee'; font-size: 1.8rem;">SORTEANDO...</div>
     </div>
 
     <div id="lobby-overlay">
         <h1 style="font-family: 'Bungee'; color: var(--accent);">SALA DE ESPERA</h1>
         <p id="room-display" style="color: var(--yellow); font-weight: bold;"></p>
-        <p id="player-count">Esperando jugadores...</p>
+        <p id="player-count">Conectando...</p>
     </div>
 
     <div class="game-wrapper" id="board"></div>
@@ -106,7 +94,6 @@
     let myId = sessionStorage.getItem('pId') || "P-" + Math.random().toString(36).substr(2, 5);
     sessionStorage.setItem('pId', myId);
 
-    // Si ya hay sala en la URL, ocultamos el selector
     if(roomId) {
         document.getElementById('room-selector').style.display = 'none';
         initGame();
@@ -114,9 +101,7 @@
 
     window.joinRoom = function() {
         const input = document.getElementById('room-id-input').value.trim().toUpperCase();
-        if(input) {
-            window.location.search = `?sala=${input}`;
-        }
+        if(input) window.location.search = `?sala=${input}`;
     }
 
     function initGame() {
@@ -124,6 +109,7 @@
         const myPlayerRef = ref(db, `rooms/${roomId}/players/${myId}`);
         document.getElementById('room-display').innerText = `SALA: ${roomId}`;
 
+        // Registro de mi jugador
         set(myPlayerRef, { name: "Jugador " + myId.slice(-3), position: 0 });
         onDisconnect(myPlayerRef).remove();
 
@@ -135,7 +121,7 @@
             const pIds = Object.keys(players);
             document.getElementById('player-count').innerText = `JUGADORES: ${pIds.length}`;
 
-            // Lobby (Entra con 2 o con forceStart)
+            // Lobby: Inicia si hay al menos 1 (para pruebas) o forceStart
             if (pIds.length >= 2 || data.forceStart) {
                 document.getElementById('lobby-overlay').style.display = 'none';
                 if (!data.currentTurn) update(gameRef, { currentTurn: pIds[0], turnosEnRonda: 0 });
@@ -143,58 +129,81 @@
                 document.getElementById('lobby-overlay').style.display = 'flex';
             }
 
+            // Si el minijuego está activo, mostramos ruleta
             if (data.minigameActive) {
                 startRouletteAnimation();
-                return;
+            } else {
+                document.getElementById('roulette-overlay').style.display = 'none';
             }
 
+            // Control de turno
             const tId = data.currentTurn;
             document.getElementById('turn-name').innerText = players[tId] ? players[tId].name : "---";
             const btn = document.getElementById('roll-btn');
-            btn.disabled = (tId !== myId);
-            btn.innerText = (tId === myId) ? "TIRAR DADO" : "ESPERA";
+            
+            if (tId === myId) {
+                btn.disabled = false;
+                btn.innerText = "TIRAR DADO";
+            } else {
+                btn.disabled = true;
+                btn.innerText = "ESPERA";
+            }
 
             renderTokens(players);
         });
 
+        // FUNCIÓN DEL DADO CORREGIDA
         window.rollDice = async function() {
             const snap = await get(gameRef);
             const data = snap.val();
-            const pIds = Object.keys(data.players);
+            if(!data) return;
+
+            const players = data.players;
+            const pIds = Object.keys(players);
+            
             const roll = Math.floor(Math.random() * 6) + 1;
             document.getElementById('dice-result').innerText = roll;
             
-            const nextPos = Math.min((players[myId].position || 0) + roll, 47);
-            const nextTId = pIds[(pIds.indexOf(myId) + 1) % pIds.length];
+            // Calculamos nueva posición
+            const currentPos = players[myId].position || 0;
+            const nextPos = Math.min(currentPos + roll, 47);
+            
+            // Calculamos siguiente turno
+            const currentIndex = pIds.indexOf(myId);
+            const nextTId = pIds[(currentIndex + 1) % pIds.length];
             const nuevosTurnos = (data.turnosEnRonda || 0) + 1;
 
             const updates = {};
             updates[`players/${myId}/position`] = nextPos;
             updates[`currentTurn`] = nextTId;
             updates[`turnosEnRonda`] = nuevosTurnos;
-            if (nuevosTurnos >= pIds.length) updates.minigameActive = true;
+            
+            // Si todos tiraron, activar minijuego
+            if (nuevosTurnos >= pIds.length) {
+                updates.minigameActive = true;
+            }
+            
             update(gameRef, updates);
         };
-
-        window.masterReset = async () => {
-            if(confirm("¿Vaciar esta sala?")) await set(gameRef, null);
-            location.reload();
-        }
     }
 
     function startRouletteAnimation() {
         const overlay = document.getElementById('roulette-overlay');
         const display = document.getElementById('game-name-display');
+        if(overlay.style.display === 'flex') return;
+        
         overlay.style.display = 'flex';
         const juegos = ["Ahorcado", "Restauradores", "Trivial", "MemoryCard"];
         let c = 0;
         const iv = setInterval(() => { display.innerText = juegos[c++ % 4]; }, 100);
+        
         setTimeout(() => {
             clearInterval(iv);
             const final = juegos[Math.floor(Math.random()*4)];
             display.innerText = "¡" + final + "!";
-            // Pasamos el ID de la sala al minijuego para que sepa dónde guardar los resultados
-            setTimeout(() => { window.location.href = `next.html?sala=${roomId}&game=${final}`; }, 1500);
+            setTimeout(() => { 
+                window.location.href = `next.html?sala=${roomId}&game=${final}`; 
+            }, 1500);
         }, 3000);
     }
 
@@ -210,6 +219,13 @@
             const p = players[id].position || 0;
             if (coords[p]) { t.style.left = coords[p].x + "%"; t.style.top = coords[p].y + "%"; }
         });
+    }
+
+    window.masterReset = async () => {
+        if(confirm("Reiniciar sala?")) {
+            await set(ref(db, `rooms/${roomId}`), null);
+            location.reload();
+        }
     }
 
     const coords = { 0: {x: 14, y: 10}, 1: {x: 10, y: 12}, 2: {x: 8, y: 20}, 3: {x: 8, y: 30}, 4: {x: 12, y: 38}, 5: {x: 21, y: 31}, 6: {x: 21, y: 23}, 7: {x: 27, y: 17}, 8: {x: 37, y: 15}, 9: {x: 46, y: 15}, 10: {x: 65, y: 15}, 11: {x: 75, y: 19}, 12: {x: 81, y: 28}, 13: {x: 78, y: 38}, 14: {x: 68, y: 38}, 15: {x: 63, y: 29}, 16: {x: 54, y: 25}, 17: {x: 43, y: 28}, 18: {x: 37, y: 35}, 19: {x: 37, y: 44}, 20: {x: 39, y: 55}, 21: {x: 49, y: 59}, 22: {x: 60, y: 59}, 23: {x: 71, y: 56}, 24: {x: 79, y: 64}, 25: {x: 72, y: 72}, 26: {x: 61, y: 72}, 27: {x: 50, y: 72}, 28: {x: 40, y: 72}, 29: {x: 31, y: 65}, 30: {x: 27, y: 53}, 31: {x: 13, y: 55}, 32: {x: 8, y: 65}, 33: {x: 8, y: 74}, 34: {x: 11, y: 84}, 35: {x: 19, y: 91}, 36: {x: 26, y: 82}, 37: {x: 34, y: 74}, 38: {x: 53, y: 82}, 39: {x: 55, y: 74}, 40: {x: 65, y: 78}, 41: {x: 66, y: 88}, 42: {x: 54, y: 94}, 43: {x: 44, y: 92}, 44: {x: 34, y: 94}, 45: {x: 40, y: 95}, 46: {x: 53, y: 98}, 47: {x: 65, y: 98} };
