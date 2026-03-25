@@ -89,48 +89,48 @@
     </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, get, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    // ... (Mantén tus imports y config de Firebase igual que arriba)
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
-        authDomain: "trivialbrutal.firebaseapp.com",
-        databaseURL: "https://trivialbrutal-default-rtdb.firebaseio.com",
-        projectId: "trivialbrutal",
-        storageBucket: "trivialbrutal.firebasestorage.app",
-        messagingSenderId: "428554501222",
-        appId: "1:428554501222:web:0985d7e8784cd46657c1a7"
-    };
+    // --- LÓGICA DEL CÓDIGO SECRETO ---
+    const secretCode = [
+        'ArrowUp', 'ArrowUp', 
+        'ArrowDown', 'ArrowDown', 
+        'ArrowLeft', 'ArrowRight', 
+        ' ' // Espacio
+    ];
+    let inputIndex = 0;
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // 1. IDENTIFICACIÓN ÚNICA POR PC (localStorage en lugar de sessionStorage)
-    let myId = localStorage.getItem('partyPlayerUniqueId');
-    if (!myId) {
-        myId = "User_" + Math.random().toString(36).substr(2, 7);
-        localStorage.setItem('partyPlayerUniqueId', myId);
-    }
-    
-    let myName = localStorage.getItem('triviaUser') || "Jugador";
-
-    const gameRef = ref(db, 'mario_party_live');
-    const myPlayerRef = ref(db, `mario_party_live/players/${myId}`);
-
-    // Registro inicial
-    get(myPlayerRef).then(snap => {
-        if(!snap.exists()) {
-            set(myPlayerRef, {
-                name: myName,
-                position: 0,
-                colorIndex: Math.floor(Math.random() * 5)
-            });
+    window.addEventListener('keydown', (e) => {
+        // Comprobar si la tecla coincide con la secuencia
+        if (e.key === secretCode[inputIndex]) {
+            inputIndex++;
+            // Si se completa el código
+            if (inputIndex === secretCode.length) {
+                activarJuegoForzado();
+                inputIndex = 0;
+            }
+        } else {
+            inputIndex = 0; // Reiniciar si falla una tecla
         }
     });
 
-    onDisconnect(myPlayerRef).remove();
+    async function activarJuegoForzado() {
+        console.log("⚠️ CÓDIGO SECRETO ACTIVADO: Forzando inicio...");
+        const snap = await get(gameRef);
+        const data = snap.val();
+        if (data && data.players) {
+            const playerIds = Object.keys(data.players);
+            // Actualizamos Firebase para que TODOS vean el juego iniciado
+            update(gameRef, { 
+                forceStart: true, 
+                currentTurn: data.currentTurn || playerIds[0],
+                turnosEnRonda: 0 
+            });
+            alert("¡MODO DESARROLLADOR ACTIVADO! Iniciando partida...");
+        }
+    }
 
-    // 2. ESCUCHAR JUEGO
+    // --- MODIFICACIÓN EN EL ONVALUE ---
     onValue(gameRef, (snapshot) => {
         const data = snapshot.val();
         if (!data || !data.players) return;
@@ -140,79 +140,27 @@
 
         document.getElementById('player-count').innerText = `JUGADORES EN SALA: ${count} / 5`;
 
-        if (count >= 5) {
+        // REGLA DE INICIO: Se inicia si hay 5 O si forceStart es true
+        if (count >= 5 || data.forceStart === true) {
             document.getElementById('lobby-overlay').style.display = 'none';
-            if (!data.currentTurn) update(gameRef, { currentTurn: playerIds[0], turnosEnRonda: 0 });
+            
+            if (!data.currentTurn) {
+                update(gameRef, { currentTurn: playerIds[0], turnosEnRonda: 0 });
+            }
         } else {
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // Lógica de Minijuego (Cuando todos han tirado)
-        if (data.turnosEnRonda >= 5) {
-            document.getElementById('minigame-overlay').style.display = 'flex';
-            const juegos = ["Ahorcado Grupal", "Culturapedia Express", "Reto de Velocidad"];
-            document.getElementById('minigame-text').innerText = "Próximo reto: " + juegos[Math.floor(Math.random()*juegos.length)];
-        } else {
-            document.getElementById('minigame-overlay').style.display = 'none';
+        // ... (El resto de tu lógica de turnos, fichas y minijuegos igual)
+        
+        // Lógica de Minijuego (Solo si el juego NO está forzado o si quieres mantenerlo)
+        if (data.turnosEnRonda >= count && count > 0) { 
+             // Ajustado para que la ronda termine según el número REAL de jugadores conectados
+             mostrarMinijuego();
         }
-
-        const turnId = data.currentTurn;
-        const turnName = data.players[turnId] ? data.players[turnId].name : "Esperando...";
-        document.getElementById('current-player-display').innerText = turnName;
-        
-        const rollBtn = document.getElementById('roll-btn');
-        rollBtn.disabled = (turnId !== myId || data.turnosEnRonda >= 5);
-        
-        updateFichas(data.players);
     });
 
-    window.rollDice = async function() {
-        const roll = Math.floor(Math.random() * 6) + 1;
-        document.getElementById('dice-result').innerText = roll;
-        
-        const snap = await get(gameRef);
-        const data = snap.val();
-        const playerIds = Object.keys(data.players);
-        
-        let currentPos = data.players[myId].position || 0;
-        let newPos = Math.min(currentPos + roll, 47);
-
-        let myIdx = playerIds.indexOf(myId);
-        let nextPlayerId = playerIds[(myIdx + 1) % playerIds.length];
-        let nuevaRondaCount = (data.turnosEnRonda || 0) + 1;
-
-        const updates = {};
-        updates[`players/${myId}/position`] = newPos;
-        updates[`currentTurn`] = nextPlayerId;
-        updates[`turnosEnRonda`] = nuevaRondaCount;
-        update(gameRef, updates);
-    };
-
-    window.cerrarMinijuego = function() {
-        // Solo el anfitrión resetea la ronda para que todos sigan jugando
-        update(gameRef, { turnosEnRonda: 0 });
-    };
-
-    function updateFichas(players) {
-        const board = document.getElementById('board');
-        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F6'];
-        Object.keys(players).forEach((id, index) => {
-            let token = document.getElementById('token-' + id);
-            if (!token) {
-                token = document.createElement('div');
-                token.id = 'token-' + id;
-                token.className = 'player-token';
-                token.style.background = colors[index % colors.length];
-                token.innerText = players[id].name.charAt(0).toUpperCase();
-                board.appendChild(token);
-            }
-            const pos = players[id].position || 0;
-            token.style.left = coords[pos].x + "%";
-            token.style.top = coords[pos].y + "%";
-        });
-    }
-
-    const coords = { 0: {x: 14, y: 10}, 1: {x: 10, y: 12}, 2: {x: 8, y: 20}, 3: {x: 8, y: 30}, 4: {x: 12, y: 38}, 5: {x: 21, y: 31}, 6: {x: 21, y: 23}, 7: {x: 27, y: 17}, 8: {x: 37, y: 15}, 9: {x: 46, y: 15}, 10: {x: 65, y: 15}, 11: {x: 75, y: 19}, 12: {x: 81, y: 28}, 13: {x: 78, y: 38}, 14: {x: 68, y: 38}, 15: {x: 63, y: 29}, 16: {x: 54, y: 25}, 17: {x: 43, y: 28}, 18: {x: 37, y: 35}, 19: {x: 37, y: 44}, 20: {x: 39, y: 55}, 21: {x: 49, y: 59}, 22: {x: 60, y: 59}, 23: {x: 71, y: 56}, 24: {x: 79, y: 64}, 25: {x: 72, y: 72}, 26: {x: 61, y: 72}, 27: {x: 50, y: 72}, 28: {x: 40, y: 72}, 29: {x: 31, y: 65}, 30: {x: 27, y: 53}, 31: {x: 13, y: 55}, 32: {x: 8, y: 65}, 33: {x: 8, y: 74}, 34: {x: 11, y: 84}, 35: {x: 19, y: 91}, 36: {x: 26, y: 82}, 37: {x: 34, y: 74}, 38: {x: 53, y: 82}, 39: {x: 55, y: 74}, 40: {x: 65, y: 78}, 41: {x: 66, y: 88}, 42: {x: 54, y: 94}, 43: {x: 44, y: 92}, 44: {x: 34, y: 94}, 45: {x: 40, y: 100}, 46: {x: 53, y: 100}, 47: {x: 65, y: 100} };
+    // ... (El resto del código de tirar dado y coordenadas)
 </script>
 </body>
 </html>
