@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CULTURAPEDIA PARTY</title>
+    <title>CULTURAPEDIA PARTY - RESET VERSION</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00f2ff; --bg: #050508; --success: #00ff88; }
+        :root { --accent: #00f2ff; --bg: #050508; --danger: #ff4444; }
         body { 
             margin: 0; background: var(--bg); color: white; 
             font-family: 'Quicksand', sans-serif; 
@@ -46,11 +46,16 @@
         }
         .dice-btn {
             background: var(--accent); color: #000; border: none;
-            width: 100%; padding: 12px; font-family: 'Bungee';
-            font-size: 1rem; border-radius: 10px; cursor: pointer;
+            width: 100%; padding: 10px; font-family: 'Bungee';
+            font-size: 0.9rem; border-radius: 8px; cursor: pointer; margin-bottom: 5px;
+        }
+        .reset-btn {
+            background: none; color: var(--danger); border: 1px solid var(--danger);
+            width: 100%; padding: 5px; font-size: 0.7rem; border-radius: 5px;
+            cursor: pointer; font-weight: bold; margin-top: 10px;
         }
         .dice-btn:disabled { background: #444 !important; color: #888; cursor: not-allowed; }
-        #dice-result { font-family: 'Bungee'; font-size: 2.5rem; color: var(--accent); margin: 5px 0; }
+        #dice-result { font-family: 'Bungee'; font-size: 2rem; color: var(--accent); margin: 5px 0; }
     </style>
 </head>
 <body>
@@ -68,11 +73,13 @@
         <div id="turn-name" style="font-weight: 800; color: var(--accent); margin-bottom: 5px;">---</div>
         <div id="dice-result">?</div>
         <button class="dice-btn" id="roll-btn" onclick="rollDice()" disabled>ESPERA</button>
+        
+        <button class="reset-btn" onclick="masterReset()">REINICIAR TODO</button>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, update, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, update, remove, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDPcUJWbE9zUzNdgm3nqax7FFvadLixTIE",
@@ -93,17 +100,11 @@
     const gameRef = ref(db, 'mario_party_live');
     const myPlayerRef = ref(db, `mario_party_live/players/${myId}`);
 
-    // Limpieza inicial forzosa
-    get(gameRef).then((s) => {
-        if (!s.exists() || !s.val().players) {
-            update(gameRef, { minigameActive: false, turnosEnRonda: 0, forceStart: false });
-        }
-    });
-
+    // Iniciar jugador
     set(myPlayerRef, { name: "Jugador " + myId.slice(-3), position: 0 });
     onDisconnect(myPlayerRef).remove();
 
-    // Código Secreto
+    // Código Secreto Admin
     const secret = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '];
     let sIdx = 0;
     window.addEventListener('keydown', (e) => {
@@ -117,13 +118,30 @@
         } else { sIdx = 0; }
     });
 
+    // Función Master Reset (Global)
+    window.masterReset = async function() {
+        if(confirm("¿Seguro? Esto reiniciará la partida para TODOS los jugadores.")){
+            await set(gameRef, {
+                minigameActive: false,
+                turnosEnRonda: 0,
+                forceStart: false,
+                currentTurn: null,
+                players: {} // Borra a todos
+            });
+            location.reload(); // Recarga para volver a entrar como nuevo jugador
+        }
+    }
+
     onValue(gameRef, (snap) => {
         const data = snap.val();
-        if (!data || !data.players) return;
+        if (!data || !data.players) {
+            document.getElementById('lobby-overlay').style.display = 'flex';
+            document.getElementById('player-count').innerText = "Esperando jugadores...";
+            return;
+        }
 
         const players = data.players;
         const pIds = Object.keys(players);
-
         document.getElementById('player-count').innerText = `JUGADORES: ${pIds.length}`;
 
         // Control Lobby
@@ -134,7 +152,7 @@
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // SALTO AL MINIJUEGO
+        // Salto a minijuego
         if (data.minigameActive === true && document.getElementById('lobby-overlay').style.display === 'none') {
             window.location.href = "next.html";
             return;
@@ -167,16 +185,19 @@
         updates[`currentTurn`] = nextTId;
         updates[`turnosEnRonda`] = nuevosTurnos;
 
-        // ACTIVACIÓN: Si todos han tirado, saltamos
         if (nuevosTurnos >= pIds.length) {
             updates.minigameActive = true;
         }
-
         update(gameRef, updates);
     };
 
     function renderTokens(players) {
         const board = document.getElementById('board');
+        // Limpiar fichas viejas que ya no existen en Firebase
+        document.querySelectorAll('.player-token').forEach(t => {
+            if (!players[t.id.replace('token-', '')]) t.remove();
+        });
+
         Object.keys(players).forEach((id, idx) => {
             let t = document.getElementById('token-' + id);
             if (!t) {
