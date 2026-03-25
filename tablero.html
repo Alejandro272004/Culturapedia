@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CULTURAPEDIA PARTY - 5 JUGADORES</title>
+    <title>CULTURAPEDIA PARTY - MULTIPLAYER REAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #00f2ff; --bg: #050508; --success: #00ff88; --error: #ff3e3e; }
@@ -14,7 +14,13 @@
             min-height: 100vh; overflow: hidden;
         }
 
-        /* CAPA DE ESPERA (LOBBY OVERLAY) */
+        /* OVERLAY DE MINIJUEGO */
+        #minigame-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9);
+            z-index: 2000; display: none; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+        }
+
         #lobby-overlay {
             position: fixed; inset: 0; background: rgba(5, 5, 8, 0.95);
             z-index: 1000; display: flex; flex-direction: column;
@@ -28,7 +34,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* TABLERO */
         .game-wrapper {
             position: relative; width: 90vw; max-width: 550px;
             aspect-ratio: 760 / 1080; background: url('Tablero (1).jpg') no-repeat center center;
@@ -36,15 +41,14 @@
         }
 
         .player-token {
-            position: absolute; width: 28px; height: 28px;
+            position: absolute; width: 32px; height: 32px;
             border-radius: 50%; border: 2px solid white;
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100; transform: translate(-50%, -50%);
             display: flex; justify-content: center; align-items: center;
-            font-size: 12px; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 14px; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* UI PANEL */
         .ui-panel {
             position: fixed; bottom: 20px; right: 20px;
             background: rgba(15, 15, 22, 0.9); padding: 20px;
@@ -63,15 +67,19 @@
 </head>
 <body>
 
+    <div id="minigame-overlay">
+        <h1 style="font-family: 'Bungee'; color: #ffcc00; font-size: 3rem;">¡MINIJUEGO!</h1>
+        <p id="minigame-text" style="font-size: 1.5rem;">Preparando reto cultural...</p>
+        <button class="dice-btn" onclick="cerrarMinijuego()" style="width: auto; margin-top: 20px;">CONTINUAR</button>
+    </div>
+
     <div id="lobby-overlay">
         <div class="loader"></div>
         <h1 style="font-family: 'Bungee'; color: var(--accent);">ESPERANDO JUGADORES</h1>
-        <p id="player-count">Cargando sala... (0 / 5)</p>
-        <p style="font-size: 0.8rem; opacity: 0.6;">El juego comenzará automáticamente al llegar a 5.</p>
+        <p id="player-count">Conectando... (0 / 5)</p>
     </div>
 
-    <div class="game-wrapper" id="board">
-        </div>
+    <div class="game-wrapper" id="board"></div>
 
     <div class="ui-panel">
         <div style="font-size: 0.7rem; opacity: 0.7;">TURNO DE:</div>
@@ -97,118 +105,67 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 1. GENERAR ID ÚNICO POR NAVEGADOR
-    // Usamos un ID aleatorio para que aunque abras 10 pestañas, cada una sea un jugador distinto
-    let myId = sessionStorage.getItem('partyPlayerId');
+    // 1. IDENTIFICACIÓN ÚNICA POR PC (localStorage en lugar de sessionStorage)
+    let myId = localStorage.getItem('partyPlayerUniqueId');
     if (!myId) {
-        myId = "Player_" + Math.random().toString(36).substr(2, 5);
-        sessionStorage.setItem('partyPlayerId', myId);
+        myId = "User_" + Math.random().toString(36).substr(2, 7);
+        localStorage.setItem('partyPlayerUniqueId', myId);
     }
     
-    // El nombre visual que aparecerá
-    let myName = localStorage.getItem('triviaUser') || myId;
+    let myName = localStorage.getItem('triviaUser') || "Jugador";
 
     const gameRef = ref(db, 'mario_party_live');
     const myPlayerRef = ref(db, `mario_party_live/players/${myId}`);
 
-    // 2. REGISTRAR PRESENCIA
-    // Al entrar, nos añadimos con nuestra posición 0
-    set(myPlayerRef, {
-        name: myName,
-        position: 0,
-        colorIndex: Math.floor(Math.random() * 5),
-        lastActive: serverTimestamp()
+    // Registro inicial
+    get(myPlayerRef).then(snap => {
+        if(!snap.exists()) {
+            set(myPlayerRef, {
+                name: myName,
+                position: 0,
+                colorIndex: Math.floor(Math.random() * 5)
+            });
+        }
     });
 
-    // Al cerrar la pestaña, Firebase nos borra AUTOMÁTICAMENTE
     onDisconnect(myPlayerRef).remove();
 
-    // 3. ESCUCHAR CAMBIOS EN TIEMPO REAL
-    // 3. ESCUCHAR CAMBIOS EN TIEMPO REAL
-    // 3. ESCUCHAR CAMBIOS EN TIEMPO REAL (Versión Antidobloqueo)
+    // 2. ESCUCHAR JUEGO
     onValue(gameRef, (snapshot) => {
         const data = snapshot.val();
-        
-        // Si no hay nada en la DB, mostramos 0
-        if (!data || !data.players) {
-            document.getElementById('player-count').innerText = "ESPERANDO... (0 / 5)";
-            return;
-        }
+        if (!data || !data.players) return;
 
-        const playersMap = data.players;
-        const playerIds = Object.keys(playersMap);
+        const playerIds = Object.keys(data.players);
         const count = playerIds.length;
 
-        // 1. Actualizar contador
         document.getElementById('player-count').innerText = `JUGADORES EN SALA: ${count} / 5`;
 
-        // 2. Control de Pantalla de Bloqueo
         if (count >= 5) {
             document.getElementById('lobby-overlay').style.display = 'none';
-            
-            // AUTO-REPARACIÓN: Si el juego debe empezar pero no hay turno
-            // Solo el "Anfitrión" (el primer ID) intenta reparar el turno para evitar bucles
-            if (!data.currentTurn && playerIds[0] === myId) {
-                console.log("Asignando turno inicial...");
-                update(gameRef, { currentTurn: myId });
-            }
+            if (!data.currentTurn) update(gameRef, { currentTurn: playerIds[0], turnosEnRonda: 0 });
         } else {
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // 3. Lógica del Botón y Panel
-        const turnId = data.currentTurn;
-        const turnName = (playersMap[turnId]) ? playersMap[turnId].name : "Esperando turno...";
-        document.getElementById('player-turn-name').innerText = turnName;
-        
-        const rollBtn = document.getElementById('roll-btn');
-        
-        // Verificación estricta para desbloquear
-        if (turnId === myId) {
-            rollBtn.disabled = false;
-            rollBtn.style.background = "var(--success)";
-            rollBtn.style.boxShadow = "0 0 20px #00ff88";
-            rollBtn.innerText = "¡TU TURNO! 🎲";
+        // Lógica de Minijuego (Cuando todos han tirado)
+        if (data.turnosEnRonda >= 5) {
+            document.getElementById('minigame-overlay').style.display = 'flex';
+            const juegos = ["Ahorcado Grupal", "Culturapedia Express", "Reto de Velocidad"];
+            document.getElementById('minigame-text').innerText = "Próximo reto: " + juegos[Math.floor(Math.random()*juegos.length)];
         } else {
-            rollBtn.disabled = true;
-            rollBtn.style.background = "#333";
-            rollBtn.style.boxShadow = "none";
-            rollBtn.innerText = "ESPERA...";
+            document.getElementById('minigame-overlay').style.display = 'none';
         }
 
-        // 4. Dibujar Fichas (Siempre se ejecuta, no hay return antes)
-        updateFichas(playersMap);
-    });
-    function updateFichas(players) {
-        const board = document.getElementById('board');
-        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F6'];
+        const turnId = data.currentTurn;
+        const turnName = data.players[turnId] ? data.players[turnId].name : "Esperando...";
+        document.getElementById('current-player-display').innerText = turnName;
         
-        Object.keys(players).forEach((id, index) => {
-            let token = document.getElementById('token-' + id);
-            if (!token) {
-                token = document.createElement('div');
-                token.id = 'token-' + id;
-                token.className = 'player-token';
-                token.style.background = colors[index % colors.length];
-                token.innerText = players[id].name.charAt(0).toUpperCase();
-                board.appendChild(token);
-            }
-            
-            const pos = players[id].position || 0;
-            if (coords[pos]) {
-                token.style.left = coords[pos].x + "%";
-                token.style.top = coords[pos].y + "%";
-            }
-        });
+        const rollBtn = document.getElementById('roll-btn');
+        rollBtn.disabled = (turnId !== myId || data.turnosEnRonda >= 5);
+        
+        updateFichas(data.players);
+    });
 
-        // Limpiar fichas de jugadores que se fueron
-        document.querySelectorAll('.player-token').forEach(t => {
-            const id = t.id.replace('token-', '');
-            if (!players[id]) t.remove();
-        });
-    }
-
-    // 4. TIRAR DADO
     window.rollDice = async function() {
         const roll = Math.floor(Math.random() * 6) + 1;
         document.getElementById('dice-result').innerText = roll;
@@ -220,17 +177,41 @@
         let currentPos = data.players[myId].position || 0;
         let newPos = Math.min(currentPos + roll, 47);
 
-        // Pasar turno al siguiente ID
         let myIdx = playerIds.indexOf(myId);
         let nextPlayerId = playerIds[(myIdx + 1) % playerIds.length];
+        let nuevaRondaCount = (data.turnosEnRonda || 0) + 1;
 
         const updates = {};
         updates[`players/${myId}/position`] = newPos;
         updates[`currentTurn`] = nextPlayerId;
+        updates[`turnosEnRonda`] = nuevaRondaCount;
         update(gameRef, updates);
     };
 
-    // --- COORDENADAS (las mismas de antes) ---
+    window.cerrarMinijuego = function() {
+        // Solo el anfitrión resetea la ronda para que todos sigan jugando
+        update(gameRef, { turnosEnRonda: 0 });
+    };
+
+    function updateFichas(players) {
+        const board = document.getElementById('board');
+        const colors = ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F6'];
+        Object.keys(players).forEach((id, index) => {
+            let token = document.getElementById('token-' + id);
+            if (!token) {
+                token = document.createElement('div');
+                token.id = 'token-' + id;
+                token.className = 'player-token';
+                token.style.background = colors[index % colors.length];
+                token.innerText = players[id].name.charAt(0).toUpperCase();
+                board.appendChild(token);
+            }
+            const pos = players[id].position || 0;
+            token.style.left = coords[pos].x + "%";
+            token.style.top = coords[pos].y + "%";
+        });
+    }
+
     const coords = { 0: {x: 14, y: 10}, 1: {x: 10, y: 12}, 2: {x: 8, y: 20}, 3: {x: 8, y: 30}, 4: {x: 12, y: 38}, 5: {x: 21, y: 31}, 6: {x: 21, y: 23}, 7: {x: 27, y: 17}, 8: {x: 37, y: 15}, 9: {x: 46, y: 15}, 10: {x: 65, y: 15}, 11: {x: 75, y: 19}, 12: {x: 81, y: 28}, 13: {x: 78, y: 38}, 14: {x: 68, y: 38}, 15: {x: 63, y: 29}, 16: {x: 54, y: 25}, 17: {x: 43, y: 28}, 18: {x: 37, y: 35}, 19: {x: 37, y: 44}, 20: {x: 39, y: 55}, 21: {x: 49, y: 59}, 22: {x: 60, y: 59}, 23: {x: 71, y: 56}, 24: {x: 79, y: 64}, 25: {x: 72, y: 72}, 26: {x: 61, y: 72}, 27: {x: 50, y: 72}, 28: {x: 40, y: 72}, 29: {x: 31, y: 65}, 30: {x: 27, y: 53}, 31: {x: 13, y: 55}, 32: {x: 8, y: 65}, 33: {x: 8, y: 74}, 34: {x: 11, y: 84}, 35: {x: 19, y: 91}, 36: {x: 26, y: 82}, 37: {x: 34, y: 74}, 38: {x: 53, y: 82}, 39: {x: 55, y: 74}, 40: {x: 65, y: 78}, 41: {x: 66, y: 88}, 42: {x: 54, y: 94}, 43: {x: 44, y: 92}, 44: {x: 34, y: 94}, 45: {x: 40, y: 100}, 46: {x: 53, y: 100}, 47: {x: 65, y: 100} };
 </script>
 </body>
