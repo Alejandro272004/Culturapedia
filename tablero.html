@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CULTURAPEDIA PARTY - MOTOR DINÁMICO</title>
+    <title>CULTURAPEDIA PARTY - SINCRONIZADO</title>
     <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent: #00f2ff; --bg: #050508; --success: #00ff88; --error: #ff3e3e; }
+        :root { --accent: #00f2ff; --bg: #050508; --success: #00ff88; }
         body { 
             margin: 0; background: var(--bg); color: white; 
             font-family: 'Quicksand', sans-serif; 
@@ -14,7 +14,6 @@
             min-height: 100vh; overflow: hidden;
         }
 
-        /* OVERLAYS */
         #lobby-overlay {
             position: fixed; inset: 0; z-index: 1000;
             display: flex; flex-direction: column;
@@ -29,7 +28,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* TABLERO */
         .game-wrapper {
             position: relative; width: 90vw; max-width: 550px;
             aspect-ratio: 760 / 1080; background: url('Tablero (1).jpg') no-repeat center center;
@@ -37,50 +35,46 @@
         }
 
         .player-token {
-            position: absolute; width: 32px; height: 32px;
+            position: absolute; width: 30px; height: 30px;
             border-radius: 50%; border: 2px solid white;
             transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 100; transform: translate(-50%, -50%);
             display: flex; justify-content: center; align-items: center;
-            font-size: 14px; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 12px; font-weight: 800; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* PANEL DE CONTROL */
         .ui-panel {
             position: fixed; bottom: 20px; right: 20px;
             background: rgba(15, 15, 22, 0.95); padding: 20px;
             border-radius: 20px; border: 2px solid var(--accent);
-            width: 200px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 180px; text-align: center;
         }
 
         .dice-btn {
             background: var(--accent); color: black; border: none;
             width: 100%; padding: 12px; font-family: 'Bungee';
             font-size: 1.1rem; border-radius: 12px; cursor: pointer;
-            transition: 0.3s ease;
         }
-        .dice-btn:disabled { background: #333 !important; color: #666 !important; cursor: not-allowed; box-shadow: none !important; }
-        
-        #dice-result { font-family: 'Bungee'; font-size: 3rem; color: var(--accent); margin: 5px 0; text-shadow: 0 0 10px var(--accent); }
-        .status-label { font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; }
+        .dice-btn:disabled { background: #333 !important; color: #666; cursor: not-allowed; }
+        #dice-result { font-family: 'Bungee'; font-size: 3rem; color: var(--accent); margin: 5px 0; }
     </style>
 </head>
 <body>
 
     <div id="lobby-overlay">
         <div class="loader"></div>
-        <h1 style="font-family: 'Bungee'; color: var(--accent);">ESPERANDO JUGADORES</h1>
-        <p id="player-count">Conectando... (0 / 5)</p>
-        <p style="font-size: 0.7rem; opacity: 0.4; margin-top: 20px;">Admin: ↑ ↑ ↓ ↓ ← → [Espacio]</p>
+        <h1 style="font-family: 'Bungee'; color: var(--accent);">SALA MULTIJUGADOR</h1>
+        <p id="player-count">Esperando conexión...</p>
+        <p style="font-size: 0.7rem; opacity: 0.4;">Admin Code: ↑ ↑ ↓ ↓ ← → [Espacio]</p>
     </div>
 
     <div class="game-wrapper" id="board"></div>
 
     <div class="ui-panel">
-        <div class="status-label">Turno actual</div>
-        <div id="player-turn-display" style="font-weight: 800; color: var(--accent); font-size: 1.2rem; margin-bottom: 5px;">---</div>
+        <div style="font-size: 0.7rem; opacity: 0.6;">TURNO DE:</div>
+        <div id="turn-name" style="font-weight: 800; color: var(--accent);">---</div>
         <div id="dice-result">?</div>
-        <button class="dice-btn" id="roll-btn" onclick="rollDice()" disabled>ESPERANDO...</button>
+        <button class="dice-btn" id="roll-btn" onclick="rollDice()" disabled>ESPERA</button>
     </div>
 
 <script type="module">
@@ -100,96 +94,94 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    let myId = localStorage.getItem('partyPlayerUniqueId');
+    // ID ÚNICO: Usamos localStorage para que un mismo PC no pueda meter 2 jugadores
+    let myId = localStorage.getItem('partyId');
     if (!myId) {
-        myId = "Player_" + Math.random().toString(36).substr(2, 7);
-        localStorage.setItem('partyPlayerUniqueId', myId);
+        myId = "P-" + Math.random().toString(36).substr(2, 5);
+        localStorage.setItem('partyId', myId);
     }
-    let myName = localStorage.getItem('triviaUser') || "Explorador";
-
+    
     const gameRef = ref(db, 'mario_party_live');
     const myPlayerRef = ref(db, `mario_party_live/players/${myId}`);
 
-    set(myPlayerRef, { name: myName, position: 0 });
+    // Registro inicial (si no existe)
+    get(myPlayerRef).then(snap => {
+        if(!snap.exists()) {
+            set(myPlayerRef, { name: "Jugador " + myId.split('-')[1], position: 0 });
+        }
+    });
     onDisconnect(myPlayerRef).remove();
 
-    // CÓDIGO SECRETO
+    // CÓDIGO KONAMI
     const secret = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '];
     let sIdx = 0;
     window.addEventListener('keydown', (e) => {
         if (e.key === secret[sIdx]) {
             sIdx++;
             if (sIdx === secret.length) {
-                update(gameRef, { forceStart: true });
+                update(gameRef, { forceStart: true, minigameActive: false, turnosEnRonda: 0 });
                 sIdx = 0;
             }
         } else { sIdx = 0; }
     });
 
-    // MONITORIZACIÓN
+    // --- ESCUCHA GLOBAL (AQUÍ OCURRE LA MAGIA) ---
     onValue(gameRef, (snapshot) => {
         const data = snapshot.val();
         if (!data || !data.players) return;
 
-        const playersMap = data.players;
-        const playerIds = Object.keys(playersMap);
-        const count = playerIds.length;
+        const pMap = data.players;
+        const pIds = Object.keys(pMap);
+        const count = pIds.length;
 
-        document.getElementById('player-count').innerText = `JUGADORES EN SALA: ${count} / 5`;
+        // 1. Sincronizar Contador
+        document.getElementById('player-count').innerText = `JUGADORES: ${count} / 5`;
 
+        // 2. Sincronizar Inicio (Si uno activa forceStart, se les abre a TODOS)
         if (count >= 5 || data.forceStart) {
             document.getElementById('lobby-overlay').style.display = 'none';
-            if (!data.currentTurn || !playersMap[data.currentTurn]) {
-                update(gameRef, { currentTurn: playerIds[0], turnosEnRonda: 0, minigameActive: false });
-                return;
+            // Si el juego empezó pero no hay turno, el primer PC conectado lo asigna
+            if (!data.currentTurn) {
+                update(gameRef, { currentTurn: pIds[0], turnosEnRonda: 0 });
             }
         } else {
             document.getElementById('lobby-overlay').style.display = 'flex';
         }
 
-        // --- LÓGICA DE SALTO A MINIJUEGO ---
+        // 3. Sincronizar Salto a Minijuego
         if (data.minigameActive === true) {
-            // Pequeña pausa visual antes de saltar
-            document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:20vh; font-family:Bungee;'>¡MINIJUEGO ENTRANTE!</h1>";
-            setTimeout(() => {
-                window.location.href = "next.html";
-            }, 1500);
-            return; 
+            window.location.href = "next.html";
+            return;
         }
 
-        const turnId = data.currentTurn;
-        const turnName = playersMap[turnId] ? playersMap[turnId].name : "---";
-        document.getElementById('player-turn-display').innerText = turnName;
+        // 4. Sincronizar Turnos y Botón
+        const tId = data.currentTurn;
+        document.getElementById('turn-name').innerText = pMap[tId] ? pMap[tId].name : "---";
         
         const btn = document.getElementById('roll-btn');
-        if (turnId === myId) {
+        if (tId === myId) {
             btn.disabled = false;
-            btn.style.background = "var(--success)";
-            btn.innerText = "TIRAR DADO 🎲";
+            btn.innerText = "TU TURNO";
+            btn.style.boxShadow = "0 0 15px var(--accent)";
         } else {
             btn.disabled = true;
             btn.innerText = "ESPERA...";
+            btn.style.boxShadow = "none";
         }
 
-        updateFichas(playersMap);
+        updateFichas(pMap);
     });
 
     window.rollDice = async function() {
-        const btn = document.getElementById('roll-btn');
-        btn.disabled = true;
+        const snap = await get(gameRef);
+        const data = snap.val();
+        const pIds = Object.keys(data.players);
 
         const roll = Math.floor(Math.random() * 6) + 1;
         document.getElementById('dice-result').innerText = roll;
         
-        const snap = await get(gameRef);
-        const data = snap.val();
-        const pIds = Object.keys(data.players);
-        
-        const currentPos = data.players[myId].position || 0;
-        const nextPos = Math.min(currentPos + roll, 47);
-
-        const myIdx = pIds.indexOf(myId);
-        const nextTId = pIds[(myIdx + 1) % pIds.length];
+        const nextPos = Math.min((data.players[myId].position || 0) + roll, 47);
+        const nextTId = pIds[(pIds.indexOf(myId) + 1) % pIds.length];
         const nuevosTurnos = (data.turnosEnRonda || 0) + 1;
 
         const updates = {};
@@ -197,9 +189,9 @@
         updates[`currentTurn`] = nextTId;
         updates[`turnosEnRonda`] = nuevosTurnos;
 
-        // Si todos han tirado (incluyendo esta tirada), activamos el flag de minijuego
+        // Si todos han tirado, activamos el flag global
         if (nuevosTurnos >= pIds.length) {
-            updates[`minigameActive`] = true;
+            updates.minigameActive = true;
         }
 
         update(gameRef, updates);
@@ -214,7 +206,7 @@
                 t = document.createElement('div');
                 t.id = 'token-'+id; t.className = 'player-token';
                 t.style.background = colors[idx % 5];
-                t.innerText = players[id].name[0].toUpperCase();
+                t.innerText = players[id].name[0];
                 board.appendChild(t);
             }
             const p = players[id].position || 0;
@@ -224,8 +216,7 @@
             }
         });
         document.querySelectorAll('.player-token').forEach(t => {
-            const tid = t.id.replace('token-', '');
-            if (!players[tid]) t.remove();
+            if (!players[t.id.replace('token-', '')]) t.remove();
         });
     }
 
